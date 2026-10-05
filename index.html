@@ -25,7 +25,7 @@
 
         h3 {
             margin-top: 0;
-            color: #5c1724; /* Фирменный бордовый цвет «Фаворит» */
+            color: #5c1724; /* Фирменный бордовый «Фаворит» */
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 10px;
         }
@@ -93,15 +93,15 @@
 </head>
 <body>
 
-<!-- Основное приложение калькулятора -->
+<!-- Основной интерфейс калькулятора -->
 <div id="appContainer" style="display: none;">
     <div class="card">
         <h3>Каталог ДСП (favoritmd.com)</h3>
-        <div id="statusBadge" class="status-badge status-loading">⏳ Проверка соединения с Google Таблицей...</div>
+        <div id="statusBadge" class="status-badge status-loading">⏳ Подключение к базе Google Таблиц...</div>
 
         <div class="form-group">
             <label for="searchBox">🔍 Быстрый поиск декора:</label>
-            <input type="text" id="searchBox" placeholder="Введите название (например: Дуб, Акация, Egger)..." oninput="filterOptions()">
+            <input type="text" id="searchBox" placeholder="Введите название (Дуб, Акация, Egger, Swisspan)..." oninput="filterOptions()">
         </div>
 
         <div class="form-group">
@@ -118,7 +118,7 @@
     </div>
 </div>
 
-<!-- Заглушка при отказе в доступе по IP -->
+<!-- Окно блокировки IP -->
 <div id="deniedContainer" class="access-denied" style="display: none;">
     <h2>⛔ Доступ ограничен</h2>
     <p>Калькулятор предназначен только для использования внутри офисов компании.</p>
@@ -126,14 +126,14 @@
 </div>
 
 <script>
-    // 1. Конфигурация доступа
+    // 1. Настройка офисных IP
     const ALLOWED_IPS = [
         "217.19.209.217" // Основной IP офиса Фаворит
     ];
 
     const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?gid=0&single=true&output=csv";
 
-    // 2. Проверка IP перед запуском
+    // 2. Проверка IP
     async function checkIpAndInit() {
         try {
             const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -148,13 +148,13 @@
                 document.getElementById('deniedContainer').style.display = 'block';
             }
         } catch (e) {
-            console.warn("Ошибка проверки IP, пропускаем:", e);
+            console.warn("Проверка IP не удалась, пропускаем:", e);
             document.getElementById('appContainer').style.display = 'block';
             loadData();
         }
     }
 
-    // 3. Каскадная загрузка данных из Google Таблицы
+    // 3. Загрузка и универсальный парсинг
     async function loadData() {
         const statusBadge = document.getElementById('statusBadge');
         const selectEl = document.getElementById('dspSelect');
@@ -175,12 +175,12 @@
                     if (textData && textData.length > 30) break;
                 }
             } catch (e) {
-                console.warn("Шлюз недоступен, пробуем следующий:", url);
+                console.warn("Прокси недоступен, проба следующего:", url);
             }
         }
 
         try {
-            if (!textData) throw new Error("Не удалось загрузить CSV-файл");
+            if (!textData) throw new Error("Не удалось получить CSV-данные");
 
             const lines = textData.split(/\r?\n/);
             selectEl.innerHTML = '<option value="">-- Выберите декор ДСП --</option>';
@@ -189,41 +189,38 @@
             lines.forEach(line => {
                 if (!line.trim()) return;
 
-                // Разбор строк с учетом разделителей (| или ,)
-                let cols = [];
-                if (line.includes('|')) {
-                    cols = line.split('|').map(item => item.replace(/^"|"$/g, '').trim());
-                } else {
-                    cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-                    cols = cols.map(item => item.replace(/^"|"$/g, '').trim());
-                }
+                // Разделяем по разделителям |, comma или tab
+                let cols = line.split(/[|,\t]/).map(item => item.replace(/^"|"$/g, '').trim());
 
-                let title = "";
-                let priceNum = NaN;
+                if (cols.length >= 1) {
+                    let title = cols[0];
 
-                // Парсинг 4 колонок (Название | от | 211.68 | р.)
-                if (cols.length >= 3 && (cols[1] === "от" || cols[3] === "р.")) {
-                    title = cols[0];
-                    let priceText = cols[2].replace(/[^\d.]/g, '');
-                    priceNum = parseFloat(priceText);
-                } 
-                // Парсинг стандартных 2 колонок
-                else if (cols.length >= 2) {
-                    title = cols[0];
-                    let priceText = cols[1].replace(/[^\d.]/g, '');
-                    priceNum = parseFloat(priceText);
-                }
+                    // Ищем первое числовое значение во всех оставшихся столбцах
+                    let priceNum = NaN;
+                    for (let i = 1; i < cols.length; i++) {
+                        // Извлекаем первое число с точкой/запятой из ячейки
+                        let match = cols[i].match(/(\d+[\.,]?\d*)/);
+                        if (match) {
+                            let cleanPrice = match[0].replace(',', '.');
+                            let parsed = parseFloat(cleanPrice);
+                            if (!isNaN(parsed) && parsed > 0) {
+                                priceNum = parsed;
+                                break;
+                            }
+                        }
+                    }
 
-                // Отсеивание технических заголовков
-                const isHeader = title.includes("Фаворит") || title.includes("ДСП, ДВП, МДФ") || title.includes("#N/A") || title.includes("#Н/Д");
+                    // Отсекаем технические заголовки
+                    const isHeader = title.includes("Фаворит") || title.includes("ДСП, ДВП, МДФ") || title.includes("#N/A") || title.includes("#Н/Д") || title.toLowerCase().includes("название");
 
-                if (title && !isNaN(priceNum) && !isHeader) {
-                    const opt = document.createElement('option');
-                    opt.value = priceNum;
-                    opt.dataset.name = title;
-                    opt.textContent = `${title} — ${priceNum} руб.`;
-                    selectEl.appendChild(opt);
-                    count++;
+                    if (title && !isNaN(priceNum) && !isHeader) {
+                        const opt = document.createElement('option');
+                        opt.value = priceNum;
+                        opt.dataset.name = title;
+                        opt.textContent = `${title} — ${priceNum} руб.`;
+                        selectEl.appendChild(opt);
+                        count++;
+                    }
                 }
             });
 
@@ -231,7 +228,7 @@
                 statusBadge.className = "status-badge status-success";
                 statusBadge.innerText = `✓ Успешно загружено ${count} декоров ДСП`;
             } else {
-                throw new Error("Не найдено корректных записей ДСП");
+                throw new Error("Не найдено корректных строк");
             }
 
         } catch (err) {
@@ -242,7 +239,7 @@
         }
     }
 
-    // 4. Поиск по выпадающему списку
+    // 4. Фильтр поиска
     function filterOptions() {
         const query = document.getElementById('searchBox').value.toLowerCase();
         const options = document.getElementById('dspSelect').options;
@@ -253,7 +250,7 @@
         }
     }
 
-    // 5. Вывод выбранного декора и цены
+    // 5. Показ цены
     function showSelectedPrice() {
         const select = document.getElementById('dspSelect');
         const opt = select.options[select.selectedIndex];
