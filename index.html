@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Каталог ДСП — Фаворит</title>
+    <title>Калькулятор материалов — Фаворит</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -25,7 +25,7 @@
 
         h3 {
             margin-top: 0;
-            color: #5c1724; /* Фирменный бордовый «Фаворит» */
+            color: #5c1724; /* Фирменный цвет «Фаворит» */
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 10px;
         }
@@ -75,7 +75,7 @@
             line-height: 1.5;
         }
 
-        /* Экран блокировки по IP */
+        /* Экран блокировки при несовпадении IP */
         .access-denied {
             max-width: 450px;
             margin: 80px auto;
@@ -96,44 +96,59 @@
 <!-- Основной интерфейс калькулятора -->
 <div id="appContainer" style="display: none;">
     <div class="card">
-        <h3>Каталог ДСП (favoritmd.com)</h3>
-        <div id="statusBadge" class="status-badge status-loading">⏳ Подключение к базе Google Таблиц...</div>
+        <h3>Каталог материалов (favoritmd.com)</h3>
+        <div id="statusBadge" class="status-badge status-loading">⏳ Подключение к базе данных...</div>
 
+        <!-- Переключатель категорий -->
         <div class="form-group">
-            <label for="searchBox">🔍 Быстрый поиск декора:</label>
-            <input type="text" id="searchBox" placeholder="Введите название (Дуб, Акация, Egger, Swisspan)..." oninput="filterOptions()">
+            <label for="categorySelect">📂 Категория материала:</label>
+            <select id="categorySelect" onchange="switchCategory()">
+                <option value="dsp">ДСП</option>
+                <option value="mdf">Панели МДФ</option>
+            </select>
         </div>
 
         <div class="form-group">
-            <label for="dspSelect">Выберите ДСП из списка:</label>
-            <select id="dspSelect" onchange="showSelectedPrice()">
+            <label for="searchBox">🔍 Быстрый поиск:</label>
+            <input type="text" id="searchBox" placeholder="Введите название или декор..." oninput="filterOptions()">
+        </div>
+
+        <div class="form-group">
+            <label for="materialSelect">Выберите позицию из списка:</label>
+            <select id="materialSelect" onchange="showSelectedPrice()">
                 <option value="">Загрузка данных...</option>
             </select>
         </div>
 
         <div id="priceDisplay" class="price-box" style="display: none;">
-            <strong>Выбран декор:</strong> <span id="dspName">-</span><br>
-            <strong>Цена за м²:</strong> <span id="dspPrice" style="color: #5c1724; font-weight: bold;">-</span>
+            <strong>Выбран материал:</strong> <span id="matName">-</span><br>
+            <strong>Цена:</strong> <span id="matPrice" style="color: #5c1724; font-weight: bold;">-</span>
         </div>
     </div>
 </div>
 
-<!-- Окно блокировки IP -->
+<!-- Блокировка доступа вне офиса -->
 <div id="deniedContainer" class="access-denied" style="display: none;">
     <h2>⛔ Доступ ограничен</h2>
-    <p>Калькулятор предназначен только для использования внутри офисов компании.</p>
+    <p>Калькулятор предназначен только для использования внутри офиса компании.</p>
     <p>Ваш IP-адрес: <span id="userIpSpan" class="ip-badge">проверка...</span></p>
 </div>
 
 <script>
-    // 1. Настройка офисных IP
+    // 1. Конфигурация IP
     const ALLOWED_IPS = [
-        "217.19.209.217" // Основной IP офиса Фаворит
+        "217.19.209.217" // Основной IP офиса
     ];
 
-    const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?gid=0&single=true&output=csv";
+    // 2. Ссылки на листы Google Таблицы
+    const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?output=csv";
 
-    // 2. Проверка IP
+    const SOURCES = {
+        dsp: BASE_URL + "&gid=0", 
+        mdf: BASE_URL + "&gid=96674774" // Указан gid для Панелей МДФ
+    };
+
+    // 3. Проверка IP
     async function checkIpAndInit() {
         try {
             const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -142,27 +157,39 @@
 
             if (ALLOWED_IPS.includes(userIp)) {
                 document.getElementById('appContainer').style.display = 'block';
-                loadData();
+                loadCategoryData('dsp');
             } else {
                 document.getElementById('userIpSpan').innerText = userIp;
                 document.getElementById('deniedContainer').style.display = 'block';
             }
         } catch (e) {
-            console.warn("Проверка IP не удалась, пропускаем:", e);
+            console.warn("Ошибка проверки IP, подгружаем по умолчанию:", e);
             document.getElementById('appContainer').style.display = 'block';
-            loadData();
+            loadCategoryData('dsp');
         }
     }
 
-    // 3. Загрузка и универсальный парсинг
-    async function loadData() {
+    // 4. Переключение категории (ДСП / Панели МДФ)
+    function switchCategory() {
+        const selectedCat = document.getElementById('categorySelect').value;
+        document.getElementById('priceDisplay').style.display = 'none';
+        document.getElementById('searchBox').value = '';
+        loadCategoryData(selectedCat);
+    }
+
+    // 5. Загрузка данных
+    async function loadCategoryData(categoryKey) {
         const statusBadge = document.getElementById('statusBadge');
-        const selectEl = document.getElementById('dspSelect');
+        const selectEl = document.getElementById('materialSelect');
+        const targetCsvUrl = SOURCES[categoryKey] || BASE_URL;
+
+        statusBadge.className = "status-badge status-loading";
+        statusBadge.innerText = "⏳ Загрузка выбранной категории...";
 
         const endpoints = [
-            "https://corsproxy.io/?" + encodeURIComponent(GOOGLE_CSV_URL),
-            "https://api.allorigins.win/raw?url=" + encodeURIComponent(GOOGLE_CSV_URL),
-            GOOGLE_CSV_URL
+            "https://corsproxy.io/?" + encodeURIComponent(targetCsvUrl),
+            "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetCsvUrl),
+            targetCsvUrl
         ];
 
         let textData = "";
@@ -183,22 +210,19 @@
             if (!textData) throw new Error("Не удалось получить CSV-данные");
 
             const lines = textData.split(/\r?\n/);
-            selectEl.innerHTML = '<option value="">-- Выберите декор ДСП --</option>';
+            selectEl.innerHTML = '<option value="">-- Выберите позицию --</option>';
             let count = 0;
 
             lines.forEach(line => {
                 if (!line.trim()) return;
 
-                // Разделяем по разделителям |, comma или tab
                 let cols = line.split(/[|,\t]/).map(item => item.replace(/^"|"$/g, '').trim());
 
                 if (cols.length >= 1) {
                     let title = cols[0];
 
-                    // Ищем первое числовое значение во всех оставшихся столбцах
                     let priceNum = NaN;
                     for (let i = 1; i < cols.length; i++) {
-                        // Извлекаем первое число с точкой/запятой из ячейки
                         let match = cols[i].match(/(\d+[\.,]?\d*)/);
                         if (match) {
                             let cleanPrice = match[0].replace(',', '.');
@@ -210,8 +234,11 @@
                         }
                     }
 
-                    // Отсекаем технические заголовки
-                    const isHeader = title.includes("Фаворит") || title.includes("ДСП, ДВП, МДФ") || title.includes("#N/A") || title.includes("#Н/Д") || title.toLowerCase().includes("название");
+                    const isHeader = title.includes("Фаворит") || 
+                                     title.includes("ДСП, ДВП, МДФ") || 
+                                     title.includes("#N/A") || 
+                                     title.includes("#Н/Д") || 
+                                     title.toLowerCase().includes("название");
 
                     if (title && !isNaN(priceNum) && !isHeader) {
                         const opt = document.createElement('option');
@@ -226,23 +253,23 @@
 
             if (count > 0) {
                 statusBadge.className = "status-badge status-success";
-                statusBadge.innerText = `✓ Успешно загружено ${count} декоров ДСП`;
+                statusBadge.innerText = `✓ Успешно загружено позиций: ${count}`;
             } else {
-                throw new Error("Не найдено корректных строк");
+                throw new Error("Нет корректных позиций в листе");
             }
 
         } catch (err) {
-            console.error("Ошибка обработки:", err);
+            console.error("Ошибка загрузки:", err);
             statusBadge.className = "status-badge status-error";
-            statusBadge.innerText = "⚠️ Ошибка подгрузки данных. Проверьте публикацию Google Таблицы.";
+            statusBadge.innerText = "⚠️ Ошибка подгрузки данных из таблицы.";
             selectEl.innerHTML = '<option value="">Ошибка подгрузки данных</option>';
         }
     }
 
-    // 4. Фильтр поиска
+    // 6. Фильтрация списка
     function filterOptions() {
         const query = document.getElementById('searchBox').value.toLowerCase();
-        const options = document.getElementById('dspSelect').options;
+        const options = document.getElementById('materialSelect').options;
 
         for (let i = 1; i < options.length; i++) {
             const text = options[i].textContent.toLowerCase();
@@ -250,15 +277,15 @@
         }
     }
 
-    // 5. Показ цены
+    // 7. Показ выбранного элемента
     function showSelectedPrice() {
-        const select = document.getElementById('dspSelect');
+        const select = document.getElementById('materialSelect');
         const opt = select.options[select.selectedIndex];
         const display = document.getElementById('priceDisplay');
 
         if (opt && opt.value) {
-            document.getElementById('dspName').innerText = opt.dataset.name;
-            document.getElementById('dspPrice').innerText = `${opt.value} руб.`;
+            document.getElementById('matName').innerText = opt.dataset.name;
+            document.getElementById('matPrice').innerText = `${opt.value} руб.`;
             display.style.display = "block";
         } else {
             display.style.display = "none";
