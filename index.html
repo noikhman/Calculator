@@ -191,15 +191,22 @@
         <h2>🏗️ Конструктор и Визуализатор Кухни</h2>
         <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка базы данных...</div>
 
-        <!-- 1. ВЫБОР ДЕКОРОВ -->
-        <div class="section-title">1. Декоры и материалы</div>
+        <!-- 1. ВЫБОР МАТЕРИАЛА И ДЕКОРОВ -->
+        <div class="section-title">1. Материалы и декоры</div>
         <div class="form-row">
+            <div class="form-group">
+                <label>Материал фасадов:</label>
+                <select id="facadeTypeSelect" onchange="handleFacadeTypeChange()">
+                    <option value="mdf" selected>МДФ Панели</option>
+                    <option value="dsp">ДСП Панели</option>
+                </select>
+            </div>
             <div class="form-group">
                 <label>Корпус (ДСП):</label>
                 <select id="bodyMaterialSelect" onchange="calculateProject()"></select>
             </div>
             <div class="form-group">
-                <label>Фасады (МДФ / Панели):</label>
+                <label>Фасады (Декор):</label>
                 <select id="facadeMaterialSelect" onchange="calculateProject()"></select>
             </div>
             <div class="form-group">
@@ -211,12 +218,12 @@
         <div class="main-layout">
             <!-- ЛЕВАЯ КОЛОНКА: Конструктор -->
             <div class="config-side">
-                <div class="section-title">2. Набор модулей</div>
+                <div class="section-title">2. Конструктор и размеры модулей</div>
                 <div class="form-row">
                     <div class="form-group" style="flex: 2;">
                         <label>Конфигурация модуля:</label>
                         <select id="moduleTypeInput">
-                            <optgroup label="Нижние модули (Выс: 720 мм)">
+                            <optgroup label="Нижние модули">
                                 <option value="bottom_m1d">Мойка 1 дверь</option>
                                 <option value="bottom_m2d">Мойка 2 двери</option>
                                 <option value="bottom_p1d">Полка 1 дверь</option>
@@ -224,7 +231,7 @@
                                 <option value="bottom_ya3">Три ящика</option>
                                 <option value="bottom_ya2vn">Два фасада + скрытый</option>
                             </optgroup>
-                            <optgroup label="Верхние модули (Выс: 720 мм)">
+                            <optgroup label="Верхние модули">
                                 <option value="top_1d">Верх 1 дверь</option>
                                 <option value="top_2d">Верх 2 двери</option>
                             </optgroup>
@@ -234,6 +241,10 @@
                         <label>Ширина (мм):</label>
                         <input type="number" id="moduleWidthInput" value="600" min="150" max="1200" step="50">
                     </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Высота (мм):</label>
+                        <input type="number" id="moduleHeightInput" value="720" min="300" max="1200" step="10">
+                    </div>
                     <button class="btn" type="button" onclick="addModule()">+ Добавить</button>
                 </div>
 
@@ -241,23 +252,23 @@
                     <thead>
                         <tr>
                             <th>Конфигурация</th>
-                            <th>Ширина</th>
+                            <th>Габариты (ШхВ)</th>
                             <th>ДСП (м²)</th>
-                            <th>МДФ (м²)</th>
+                            <th>Фасады (м²)</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody id="modulesTableBody"></tbody>
                 </table>
 
-                <div class="section-title">3. Расход и параметры</div>
+                <div class="section-title">3. Расход материалов</div>
                 <div class="summary-box">
                     <div class="summary-item">
-                        <span>Площадь ДСП (Корпус):</span>
+                        <span>Площадь ДСП (Корпус + ДСП Фасады):</span>
                         <strong id="totalDspArea">0.00 м²</strong>
                     </div>
                     <div class="summary-item">
-                        <span>Площадь МДФ (Фасады):</span>
+                        <span>Площадь МДФ (Фасады МДФ):</span>
                         <strong id="totalMdfArea">0.00 м²</strong>
                     </div>
                     <div class="summary-item">
@@ -310,14 +321,14 @@
 
     const DATA_STORE = { dsp: [], mdf: [], countertops: [] };
 
-    // Стартовая сборка гарнитура
+    // Набор модулей по умолчанию с указанием индивидуальной высоты
     let projectModules = [
-        { id: 1, type: 'bottom_m2d', name: 'Мойка 2 двери', width: 800 },
-        { id: 2, type: 'bottom_ya3', name: 'Три ящика', width: 600 },
-        { id: 3, type: 'bottom_p2d', name: 'Полка 2 двери', width: 600 },
-        { id: 4, type: 'top_2d', name: 'Верх 2 двери', width: 800 },
-        { id: 5, type: 'top_2d', name: 'Верх 2 двери', width: 600 },
-        { id: 6, type: 'top_1d', name: 'Верх 1 дверь', width: 600 }
+        { id: 1, type: 'bottom_m2d', name: 'Мойка 2 двери', width: 800, height: 720 },
+        { id: 2, type: 'bottom_ya3', name: 'Три ящика', width: 600, height: 720 },
+        { id: 3, type: 'bottom_p2d', name: 'Полка 2 двери', width: 600, height: 720 },
+        { id: 4, type: 'top_2d', name: 'Верх 2 двери', width: 800, height: 720 },
+        { id: 5, type: 'top_2d', name: 'Верх 2 двери', width: 600, height: 720 },
+        { id: 6, type: 'top_1d', name: 'Верх 1 дверь', width: 600, height: 720 }
     ];
 
     async function checkIpAndInit() {
@@ -404,8 +415,9 @@
             DATA_STORE.countertops = parseCsvToItems(countertopsCsv);
 
             fillSelect('bodyMaterialSelect', DATA_STORE.dsp);
-            fillSelect('facadeMaterialSelect', DATA_STORE.mdf);
             fillSelect('topMaterialSelect', DATA_STORE.countertops);
+            
+            handleFacadeTypeChange();
 
             statusBadge.className = "status-badge status-success";
             statusBadge.innerText = "✓ База декоров успешно загружена";
@@ -416,6 +428,17 @@
             statusBadge.className = "status-badge status-error";
             statusBadge.innerText = "⚠️ Ошибка загрузки базы.";
         }
+    }
+
+    // Переключение материала фасада (ДСП / МДФ)
+    function handleFacadeTypeChange() {
+        const facadeType = document.getElementById('facadeTypeSelect').value;
+        if (facadeType === 'dsp') {
+            fillSelect('facadeMaterialSelect', DATA_STORE.dsp);
+        } else {
+            fillSelect('facadeMaterialSelect', DATA_STORE.mdf);
+        }
+        calculateProject();
     }
 
     function fillSelect(elementId, items) {
@@ -429,35 +452,36 @@
         });
     }
 
-    // Точный расчёт раскроя материалов (ДСП и МДФ)
-    function getModuleArea(type, widthMm) {
+    // Расчёт раскроя с учётом ДИНАМИЧЕСКОЙ высоты модуля (h)
+    function getModuleArea(type, widthMm, heightMm) {
         const w = widthMm / 1000.0;
+        const h = heightMm / 1000.0;
         let dsp = 0;
-        let mdf = 0;
+        let facadeArea = 0;
 
         if (type.startsWith('bottom_')) {
-            // Каркас нижнего модуля: 2 боковины (720х560) + дно (W-32х560) + 2 царги
-            dsp = (2 * 0.72 * 0.56) + (2 * (w - 0.032) * 0.56);
+            // Корпус: 2 боковины (h x 560) + дно + 2 царги
+            dsp = (2 * h * 0.56) + (2 * (w - 0.032) * 0.56);
 
             if (type === 'bottom_m1d' || type === 'bottom_m2d') {
-                mdf = 0.716 * (w - 0.004);
+                facadeArea = (h - 0.004) * (w - 0.004);
             } else if (type === 'bottom_p1d' || type === 'bottom_p2d') {
-                dsp += (w - 0.032) * 0.50; // + 1 полка ДСП
-                mdf = 0.716 * (w - 0.004);
+                dsp += (w - 0.032) * 0.50; // +1 полка
+                facadeArea = (h - 0.004) * (w - 0.004);
             } else if (type === 'bottom_ya3') {
-                dsp += (3 * (w - 0.032) * 0.45); // 3 ящика из ДСП
-                mdf = (0.146 * (w - 0.004)) + (2 * 0.281 * (w - 0.004));
+                dsp += (3 * (w - 0.032) * 0.45); // 3 ящика
+                facadeArea = (h - 0.004) * (w - 0.004);
             } else if (type === 'bottom_ya2vn') {
-                dsp += (3 * (w - 0.032) * 0.45); // 2 основных ящика + 1 внутренний
-                mdf = 2 * (0.356 * (w - 0.004)); // 2 внешних фасада по 360мм
+                dsp += (3 * (w - 0.032) * 0.45); // 2 основных + 1 внутренний
+                facadeArea = (h - 0.004) * (w - 0.004);
             }
         } else if (type.startsWith('top_')) {
-            // Верхний модуль (Выс: 720, Гл: 320)
-            dsp = (2 * 0.72 * 0.32) + (2 * (w - 0.032) * 0.32) + ((w - 0.032) * 0.30); // Корпус + полка
-            mdf = 0.716 * (w - 0.004);
+            // Верхний модуль: 2 боковины (h x 320) + верх/низ + полка
+            dsp = (2 * h * 0.32) + (2 * (w - 0.032) * 0.32) + ((w - 0.032) * 0.30);
+            facadeArea = (h - 0.004) * (w - 0.004);
         }
 
-        return { dsp: dsp, mdf: mdf };
+        return { dsp: dsp, facade: facadeArea };
     }
 
     function addModule() {
@@ -465,12 +489,14 @@
         const type = typeSelect.value;
         const name = typeSelect.options[typeSelect.selectedIndex].text;
         const width = parseInt(document.getElementById('moduleWidthInput').value) || 600;
+        const height = parseInt(document.getElementById('moduleHeightInput').value) || 720;
 
         projectModules.push({
             id: Date.now(),
             type: type,
             name: name,
-            width: width
+            width: width,
+            height: height
         });
 
         renderModulesTable();
@@ -488,14 +514,14 @@
         tbody.innerHTML = '';
 
         projectModules.forEach(m => {
-            const area = getModuleArea(m.type, m.width);
+            const area = getModuleArea(m.type, m.width, m.height);
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${m.name}</td>
-                <td>${m.width} мм</td>
+                <td>${m.width}x${m.height} мм</td>
                 <td>${area.dsp.toFixed(2)} м²</td>
-                <td>${area.mdf.toFixed(2)} м²</td>
+                <td>${area.facade.toFixed(2)} м²</td>
                 <td><button class="btn btn-danger" onclick="removeModule(${m.id})">✕</button></td>
             `;
             tbody.appendChild(tr);
@@ -503,14 +529,21 @@
     }
 
     function calculateProject() {
+        const facadeType = document.getElementById('facadeTypeSelect').value;
+
         let totalDspArea = 0;
         let totalMdfArea = 0;
         let totalTopLength = 0;
 
         projectModules.forEach(m => {
-            const area = getModuleArea(m.type, m.width);
+            const area = getModuleArea(m.type, m.width, m.height);
             totalDspArea += area.dsp;
-            totalMdfArea += area.mdf;
+
+            if (facadeType === 'dsp') {
+                totalDspArea += area.facade; // Фасады прибавляются к площади ДСП
+            } else {
+                totalMdfArea += area.facade; // Фасады идут в МДФ
+            }
 
             if (m.type.startsWith('bottom_')) {
                 totalTopLength += (m.width / 1000.0);
@@ -540,7 +573,7 @@
         drawKitchen2D();
     }
 
-    // Отрисовка 2D-эскиза фасадов
+    // 2D Визуализация с динамическими высотами
     function drawKitchen2D() {
         const canvas = document.getElementById('kitchenCanvas');
         const ctx = canvas.getContext('2d');
@@ -558,7 +591,7 @@
         const scale = (canvas.width - 40) / totalWidthMm;
         const startX = 20;
 
-        // 1. Отрисовка ЦОКОЛЯ (100 мм)
+        // 1. Цоколь
         const plinthY = 360;
         const plinthH = 100 * scale;
         ctx.fillStyle = "#cbd5e1";
@@ -566,11 +599,11 @@
         ctx.strokeStyle = "#64748b";
         ctx.strokeRect(startX, plinthY, totalWidthMm * scale, plinthH);
 
-        // 2. Отрисовка НИЖНИХ МОДУЛЕЙ
+        // 2. Нижние модули с учётом их высоты (m.height)
         let currentX = startX;
         bottomModules.forEach(m => {
             const w = m.width * scale;
-            const h = 720 * scale;
+            const h = m.height * scale;
             const y = plinthY - h;
 
             ctx.fillStyle = "#f8fafc";
@@ -579,7 +612,6 @@
             ctx.lineWidth = 1.5;
             ctx.strokeRect(currentX, y, w, h);
 
-            // Отрисовка фасадов по типам
             ctx.fillStyle = "#e2e8f0";
             if (m.type === 'bottom_m1d' || m.type === 'bottom_p1d') {
                 ctx.fillRect(currentX + 2, y + 2, w - 4, h - 4);
@@ -592,7 +624,7 @@
                 ctx.strokeRect(currentX + 4 + halfW, y + 2, halfW, h - 4);
             } else if (m.type === 'bottom_ya3') {
                 const h1 = 150 * scale;
-                const h2 = 285 * scale;
+                const h2 = (h - h1) / 2;
                 ctx.fillRect(currentX + 2, y + 2, w - 4, h1 - 2);
                 ctx.strokeRect(currentX + 2, y + 2, w - 4, h1 - 2);
                 ctx.fillRect(currentX + 2, y + h1 + 2, w - 4, h2 - 2);
@@ -600,11 +632,10 @@
                 ctx.fillRect(currentX + 2, y + h1 + h2 + 2, w - 4, h2 - 4);
                 ctx.strokeRect(currentX + 2, y + h1 + h2 + 2, w - 4, h2 - 4);
             } else if (m.type === 'bottom_ya2vn') {
-                const hHalf = (720 / 2) * scale;
+                const hHalf = h / 2;
                 ctx.fillRect(currentX + 2, y + 2, w - 4, hHalf - 2);
                 ctx.strokeRect(currentX + 2, y + 2, w - 4, hHalf - 2);
                 
-                // Пунктир внутреннего ящика
                 ctx.setLineDash([3, 3]);
                 ctx.strokeRect(currentX + 6, y + 6, w - 12, 100 * scale);
                 ctx.setLineDash([]);
@@ -616,33 +647,31 @@
             currentX += w;
         });
 
-        // 3. Отрисовка СТОЛЕШНИЦЫ (38 мм)
-        const topH = 38 * scale;
-        const topY = plinthY - (720 * scale) - topH;
-        ctx.fillStyle = "#475569";
-        ctx.fillRect(startX - 5, topY, (bottomModules.reduce((s,m)=>s+m.width,0) * scale) + 10, topH);
-
-        // 4. Отрисовка ВЕРХНИХ МОДУЛЕЙ
+        // 3. Верхние модули
         currentX = startX;
-        const topCabinetsY = topY - (600 * scale) - (720 * scale); // Фартук ~600 мм
+        const maxBottomH = Math.max(...bottomModules.map(m => m.height), 720);
+        const topY = plinthY - (maxBottomH * scale) - (38 * scale);
+        const topCabinetsBaseY = topY - (550 * scale); // Высота фартука
+
         topModules.forEach(m => {
             const w = m.width * scale;
-            const h = 720 * scale;
+            const h = m.height * scale;
+            const y = topCabinetsBaseY - h;
 
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(currentX, topCabinetsY, w, h);
+            ctx.fillRect(currentX, y, w, h);
             ctx.strokeStyle = "#5c1724";
-            ctx.strokeRect(currentX, topCabinetsY, w, h);
+            ctx.strokeRect(currentX, y, w, h);
 
             if (m.type === 'top_1d') {
-                ctx.fillRect(currentX + 2, topCabinetsY + 2, w - 4, h - 4);
-                ctx.strokeRect(currentX + 2, topCabinetsY + 2, w - 4, h - 4);
+                ctx.fillRect(currentX + 2, y + 2, w - 4, h - 4);
+                ctx.strokeRect(currentX + 2, y + 2, w - 4, h - 4);
             } else if (m.type === 'top_2d') {
                 const halfW = (w - 6) / 2;
-                ctx.fillRect(currentX + 2, topCabinetsY + 2, halfW, h - 4);
-                ctx.strokeRect(currentX + 2, topCabinetsY + 2, halfW, h - 4);
-                ctx.fillRect(currentX + 4 + halfW, topCabinetsY + 2, halfW, h - 4);
-                ctx.strokeRect(currentX + 4 + halfW, topCabinetsY + 2, halfW, h - 4);
+                ctx.fillRect(currentX + 2, y + 2, halfW, h - 4);
+                ctx.strokeRect(currentX + 2, y + 2, halfW, h - 4);
+                ctx.fillRect(currentX + 4 + halfW, y + 2, halfW, h - 4);
+                ctx.strokeRect(currentX + 4 + halfW, y + 2, halfW, h - 4);
             }
 
             currentX += w;
