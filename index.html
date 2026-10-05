@@ -3,166 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фабрика мебели "Фаворит" | Калькулятор</title>
+    <title>Каталог ДСП — Фаворит</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #27ae60; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--bg); padding-bottom: 15px; }
-        
-        .setup-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--bg); padding: 20px; border-radius: 10px; margin-bottom: 25px; }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr 1fr 120px 100px; gap: 10px; margin-bottom: 20px; }
-        
-        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; color: #7f8c8d; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        
-        button { cursor: pointer; transition: 0.3s; font-weight: bold; text-transform: uppercase; border: none; border-radius: 6px; }
-        .add-btn { background: var(--accent); color: white; }
-        .add-btn:hover { background: #219150; }
-        .export-btn { background: var(--primary); color: white; padding: 15px 30px; margin-top: 20px; width: 100%; font-size: 16px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th { background: var(--primary); color: white; padding: 12px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-        .footer-note { font-size: 12px; color: #95a5a6; margin-top: 20px; text-align: center; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f1f5f9;
+            padding: 20px;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #cbd5e1;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #5c1724; /* Фирменный бордовый «Фаворит» */
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .status-loading { background: #fef3c7; color: #b45309; }
+        .status-success { background: #dcfce7; color: #15803d; }
+        .status-error { background: #fee2e2; color: #b91c1c; }
+
+        .form-group { margin-bottom: 15px; }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input[type="text"]:focus, select:focus { border-color: #5c1724; }
+
+        .price-box {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 4px solid #5c1724;
+            font-size: 0.95rem;
+        }
+
+        /* Экран блокировки */
+        .access-denied {
+            max-width: 450px;
+            margin: 80px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border-top: 5px solid #ef4444;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .access-denied h2 { color: #b91c1c; margin-top: 0; }
+        .access-denied p { color: #64748b; font-size: 0.95rem; }
+        .ip-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Мебель, которая становится любимой</h2>
-    
-    <div class="setup-section">
-        <div>
-            <label>Тип покрытия</label>
-            <select id="mainTech" onchange="toggleFields()">
-                <option value="Пленка">Пленка ПВХ</option>
-                <option value="Эмаль">Эмаль (Покраска)</option>
+<!-- Контейнер калькулятора (скрыт по умолчанию до проверки IP) -->
+<div id="appContainer" style="display: none;">
+    <div class="card">
+        <h3>Каталог ДСП (favoritmd.com)</h3>
+        <div id="statusBadge" class="status-badge status-loading">⏳ Подключение к базе Google Таблиц...</div>
+
+        <div class="form-group">
+            <label for="searchBox">🔍 Быстрый поиск декора:</label>
+            <input type="text" id="searchBox" placeholder="Введите название (Дуб, Swisspan, Egger)..." oninput="filterOptions()">
+        </div>
+
+        <div class="form-group">
+            <label for="dspSelect">Выберите ДСП из списка:</label>
+            <select id="dspSelect" onchange="showSelectedPrice()">
+                <option value="">Загрузка данных...</option>
             </select>
         </div>
-        <div>
-            <label>Толщина МДФ</label>
-            <select id="mdf">
-                <option value="16">16 мм</option>
-                <option value="19">19 мм</option>
-                <option value="22">22 мм</option>
-            </select>
-        </div>
-        <div id="paintTypeGroup" style="display:none;">
-            <label>Вид покраски</label>
-            <select id="paintStyle">
-                <option value="Матовая">Матовая</option>
-                <option value="Глянцевая">Глянцевая</option>
-                <option value="Спецэффект">Спецэффект</option>
-            </select>
+
+        <div id="priceDisplay" class="price-box" style="display: none;">
+            <strong>Выбран декор:</strong> <span id="dspName">-</span><br>
+            <strong>Цена:</strong> <span id="dspPrice" style="color: #5c1724; font-weight: bold;">-</span>
         </div>
     </div>
+</div>
 
-    <div class="input-row">
-        <div><label>Высота</label><input type="number" id="h" placeholder="мм"></div>
-        <div><label>Ширина</label><input type="number" id="w" placeholder="мм"></div>
-        <div><label>Кол-во</label><input type="number" id="q" placeholder="шт"></div>
-        <div><label>Фреза</label>
-            <select id="frez">
-                <option value="Стандарт">Стандарт</option>
-                <option value="Мыло">Мыло</option>
-                <option value="Интегрированная">Интегрированная</option>
-            </select>
-        </div>
-        <div><label>&nbsp;</label><button class="add-btn" onclick="addItem()">+</button></div>
-    </div>
-
-    <table id="resultTable">
-        <thead>
-            <tr>
-                <th>Деталь</th>
-                <th>Размер</th>
-                <th>МДФ (м²)</th>
-                <th>Услуга (м²)</th>
-                <th>Удалить</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-    <button class="export-btn" onclick="exportTo1C()">Сформировать файл для 1С (.csv)</button>
-    <p class="footer-note">Минимальная расчетная площадь детали — 0.1 м²</p>
+<!-- Заглушка при отказе в доступе -->
+<div id="deniedContainer" class="access-denied" style="display: none;">
+    <h2>⛔ Доступ ограничен</h2>
+    <p>Калькулятор предназначен только для использования внутри сети компании.</p>
+    <p>Ваш IP-адрес: <span id="userIpSpan" class="ip-badge">проверка...</span></p>
 </div>
 
 <script>
-    let items = [];
+    // 1. Список разрешенных IP-адресов
+    const ALLOWED_IPS = [
+        "217.19.209.217" // Основной IP офиса Фаворит
+        // Сюда можно через запятую добавить другие IP (например, "185.12.34.56")
+    ];
 
-    function toggleFields() {
-        const tech = document.getElementById('mainTech').value;
-        document.getElementById('paintTypeGroup').style.display = tech === 'Эмаль' ? 'block' : 'none';
+    const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?gid=0&single=true&output=csv";
+    const PROXY_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(GOOGLE_CSV_URL);
+
+    // 2. Функция проверки IP
+    async function checkIpAndInit() {
+        try {
+            const ipRes = await fetch("https://api.ipify.org?format=json");
+            const ipData = await ipRes.json();
+            const userIp = ipData.ip;
+
+            if (ALLOWED_IPS.includes(userIp)) {
+                // Доступ разрешен
+                document.getElementById('appContainer').style.display = 'block';
+                loadData();
+            } else {
+                // Доступ запрещен
+                document.getElementById('userIpSpan').innerText = userIp;
+                document.getElementById('deniedContainer').style.display = 'block';
+            }
+        } catch (e) {
+            console.error("Ошибка проверки IP, используем прямой вход:", e);
+            // Если сервис проверки IP временно недоступен, пропускаем пользователя
+            document.getElementById('appContainer').style.display = 'block';
+            loadData();
+        }
     }
 
-    function addItem() {
-        const h = parseFloat(document.getElementById('h').value);
-        const w = parseFloat(document.getElementById('w').value);
-        const q = parseInt(document.getElementById('q').value);
-        const tech = document.getElementById('mainTech').value;
-        const mdf = document.getElementById('mdf').value;
-        const frez = document.getElementById('frez').value;
+    // 3. Загрузка данных из Google Таблицы
+    async function loadData() {
+        const statusBadge = document.getElementById('statusBadge');
+        const selectEl = document.getElementById('dspSelect');
 
-        if (!h || !w || !q) { alert("Введите размеры и количество"); return; }
+        try {
+            let response = await fetch(PROXY_URL);
+            if (!response.ok) response = await fetch(GOOGLE_CSV_URL);
 
-        // Расчет площади (Ваша формула из Excel)
-        let areaOne = (h * w) / 1000000;
-        let areaBilled = Math.max(areaOne, 0.1) * q; // Минимум 0.1 м2
-        let areaReal = areaOne * q;
+            if (!response.ok) throw new Error("Не удалось загрузить данные");
 
-        const item = {
-            name: `Фасад ${tech} ${mdf}мм`,
-            size: `${h}x${w}`,
-            mdfArea: areaReal.toFixed(3),
-            workArea: areaBilled.toFixed(3),
-            tech: tech,
-            frez: frez
-        };
+            const text = await response.text();
+            const lines = text.split(/\r?\n/);
+            
+            selectEl.innerHTML = '<option value="">-- Выберите декор ДСП --</option>';
+            let count = 0;
 
-        items.push(item);
-        updateTable();
-        
-        // Очистка полей для быстрого ввода следующей детали
-        document.getElementById('h').value = '';
-        document.getElementById('w').value = '';
-        document.getElementById('h').focus();
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+
+                if (cols && cols.length >= 2) {
+                    let title = cols[0].replace(/^"|"$/g, '').trim();
+                    let priceNum = parseFloat(cols[1].replace(/^"|"$/g, '').replace(/[^\d.]/g, ''));
+
+                    if (title && !isNaN(priceNum)) {
+                        const opt = document.createElement('option');
+                        opt.value = priceNum;
+                        opt.dataset.name = title;
+                        opt.textContent = `${title} — ${priceNum} руб.`;
+                        selectEl.appendChild(opt);
+                        count++;
+                    }
+                }
+            });
+
+            if (count > 0) {
+                statusBadge.className = "status-badge status-success";
+                statusBadge.innerText = `✓ Успешно загружено ${count} декоров ДСП`;
+            } else {
+                throw new Error("Пустая таблица");
+            }
+
+        } catch (err) {
+            console.error(err);
+            statusBadge.className = "status-badge status-error";
+            statusBadge.innerText = "⚠️ Ошибка подгрузки данных из таблицы.";
+            selectEl.innerHTML = '<option value="">Ошибка подгрузки данных</option>';
+        }
     }
 
-    function updateTable() {
-        const tbody = document.querySelector("#resultTable tbody");
-        tbody.innerHTML = items.map((it, idx) => `
-            <tr>
-                <td>${it.name} (${it.frez})</td>
-                <td>${it.size}</td>
-                <td>${it.mdfArea}</td>
-                <td>${it.workArea}</td>
-                <td><button onclick="items.splice(${idx}, 1); updateTable()">✕</button></td>
-            </tr>
-        `).join('');
+    function filterOptions() {
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        const options = document.getElementById('dspSelect').options;
+
+        for (let i = 1; i < options.length; i++) {
+            const text = options[i].textContent.toLowerCase();
+            options[i].style.display = text.includes(query) ? "" : "none";
+        }
     }
 
-    function exportTo1C() {
-        if (items.length === 0) return alert("Список пуст");
-        
-        // Формируем CSV с разделителем ;
-        let csv = "\uFEFF"; // BOM для корректного отображения кириллицы в Excel
-        csv += "Номенклатура;Характеристика;Количество;ЕдИзм\n";
-        
-        items.forEach(it => {
-            csv += `${it.name};${it.size};${it.mdfArea};м2\n`;
-            csv += `Услуга покрытия ${it.tech};${it.frez};${it.workArea};м2\n`;
-        });
+    function showSelectedPrice() {
+        const select = document.getElementById('dspSelect');
+        const opt = select.options[select.selectedIndex];
+        const display = document.getElementById('priceDisplay');
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `zakaz_favorit_${new Date().toLocaleDateString()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if (opt && opt.value) {
+            document.getElementById('dspName').innerText = opt.dataset.name;
+            document.getElementById('dspPrice').innerText = `${opt.value} руб.`;
+            display.style.display = "block";
+        } else {
+            display.style.display = "none";
+        }
     }
+
+    window.addEventListener('DOMContentLoaded', checkIpAndInit);
 </script>
+
 </body>
 </html>
