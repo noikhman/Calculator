@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор Кухни — Фаворит</title>
+    <title>Конструктор Кухни — Фаворит</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 650px;
+            max-width: 800px;
             margin: 20px auto;
             background: #ffffff;
             padding: 25px;
@@ -35,7 +35,7 @@
             font-size: 0.85rem;
             padding: 6px 12px;
             border-radius: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: 600;
         }
         .status-loading { background: #fef3c7; color: #b45309; }
@@ -46,16 +46,17 @@
             font-size: 1.05rem;
             font-weight: bold;
             color: #334155;
-            margin-top: 15px;
+            margin-top: 20px;
             margin-bottom: 10px;
             padding-bottom: 4px;
-            border-bottom: 1px dashed #cbd5e1;
+            border-bottom: 2px solid #cbd5e1;
         }
 
         .form-row {
             display: flex;
             gap: 10px;
             margin-bottom: 12px;
+            align-items: flex-end;
         }
 
         .form-group {
@@ -70,7 +71,7 @@
             color: #475569;
         }
 
-        input[type="number"], select {
+        input[type="number"], select, input[type="text"] {
             width: 100%;
             padding: 9px 11px;
             border: 1px solid #cbd5e1;
@@ -82,8 +83,55 @@
 
         input[type="number"]:focus, select:focus { border-color: #5c1724; }
 
+        .btn {
+            background-color: #5c1724;
+            color: white;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: #43101a; }
+        .btn-danger { background-color: #ef4444; padding: 6px 10px; }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        /* Таблица конструктора */
+        .modules-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .modules-table th, .modules-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .modules-table th {
+            background-color: #f8fafc;
+            color: #475569;
+        }
+
+        /* Сводка расхода */
+        .summary-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
         .total-box {
-            margin-top: 25px;
+            margin-top: 20px;
             padding: 20px;
             background: #f8fafc;
             border-radius: 10px;
@@ -98,7 +146,7 @@
             margin-top: 5px;
         }
 
-        /* Окно блокировки вне офиса */
+        /* Экран блокировки чужих IP */
         .access-denied {
             max-width: 450px;
             margin: 80px auto;
@@ -117,76 +165,99 @@
 
 <div id="appContainer" style="display: none;">
     <div class="container">
-        <h2>🍽️ Калькулятор Расчета Кухни</h2>
-        <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка материалов...</div>
+        <h2>🏗️ Конструктор и Расчет Кухни</h2>
+        <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка базы материалов...</div>
 
-        <form id="kitchenForm" oninput="calculateTotal()">
-            
-            <!-- 1. КОРПУС КУХНИ (ДСП) -->
-            <div class="section-title">1. Корпус кухни (ДСП)</div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 2;">
-                    <label>Материал корпуса:</label>
-                    <select id="bodyMaterial">
-                        <option value="0">Загрузка...</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Площадь (м²):</label>
-                    <input type="number" id="bodyArea" value="12" min="0" step="0.5">
-                </div>
+        <!-- 1. ВЫБОР МАТЕРИАЛОВ ИЗ ТАБЛИЦЫ -->
+        <div class="section-title">1. Выбор декоров из базы</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Корпус (ДСП):</label>
+                <select id="bodyMaterialSelect" onchange="calculateProject()"></select>
             </div>
-
-            <!-- 2. ФАСАДЫ (МДФ / ДСП) -->
-            <div class="section-title">2. Фасады кухни (Панели МДФ)</div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 2;">
-                    <label>Материал фасадов:</label>
-                    <select id="facadeMaterial">
-                        <option value="0">Загрузка...</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Площадь (м²):</label>
-                    <input type="number" id="facadeArea" value="5" min="0" step="0.5">
-                </div>
+            <div class="form-group">
+                <label>Фасады (МДФ / Панели):</label>
+                <select id="facadeMaterialSelect" onchange="calculateProject()"></select>
             </div>
-
-            <!-- 3. СТОЛЕШНИЦА -->
-            <div class="section-title">3. Столешница</div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 2;">
-                    <label>Модель столешницы:</label>
-                    <select id="topMaterial">
-                        <option value="0">Загрузка...</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Длина (пог. м):</label>
-                    <input type="number" id="topLength" value="3" min="0" step="0.1">
-                </div>
+            <div class="form-group">
+                <label>Столешница:</label>
+                <select id="topMaterialSelect" onchange="calculateProject()"></select>
             </div>
+        </div>
 
-            <!-- 4. ФУРНИТУРА И РАБОТЫ -->
-            <div class="section-title">4. Фурнитура и Комплектующие</div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Фурнитура / Навесы (руб):</label>
-                    <input type="number" id="hardwarePrice" value="5000" min="0" step="500">
-                </div>
-                <div class="form-group">
-                    <label>Наценка на работы (%):</label>
-                    <input type="number" id="marginPercent" value="30" min="0" max="200">
-                </div>
+        <!-- 2. КОНСТРУКТОР МОДУЛЕЙ -->
+        <div class="section-title">2. Модули кухни</div>
+        <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+                <label>Тип модуля:</label>
+                <select id="moduleTypeInput">
+                    <option value="bottom">Нижний шкаф (Гл. 560мм, Выс. 720мм)</option>
+                    <option value="top">Верхний шкаф (Гл. 320мм, Выс. 720мм)</option>
+                    <option value="tall">Пенал (Гл. 560мм, Выс. 2140мм)</option>
+                </select>
             </div>
-
-            <!-- ИТОГОВЫЙ РАСЧЕТ -->
-            <div class="total-box">
-                <div>Предварительная стоимость кухни:</div>
-                <div id="totalDisplay" class="total-price">0 руб.</div>
+            <div class="form-group" style="flex: 1;">
+                <label>Ширина (мм):</label>
+                <input type="number" id="moduleWidthInput" value="600" min="150" max="1200" step="50">
             </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Кол-во (шт):</label>
+                <input type="number" id="moduleCountInput" value="1" min="1" max="10">
+            </div>
+            <button class="btn" type="button" onclick="addModule()">+ Добавить</button>
+        </div>
 
-        </form>
+        <table class="modules-table">
+            <thead>
+                <tr>
+                    <th>Тип модуля</th>
+                    <th>Ширина</th>
+                    <th>Кол-во</th>
+                    <th>ДСП (м²)</th>
+                    <th>МДФ (м²)</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="modulesTableBody">
+                <!-- Сюда динамически добавляются модули -->
+            </tbody>
+        </table>
+
+        <!-- 3. АВТОМАТИЧЕСКИЙ РАСЧЕТ МАТЕРИАЛОВ -->
+        <div class="section-title">3. Автоматический расход материалов</div>
+        <div class="summary-box">
+            <div class="summary-item">
+                <span>Общая площадь ДСП (Корпус):</span>
+                <strong id="totalDspArea">0.00 м²</strong>
+            </div>
+            <div class="summary-item">
+                <span>Общая площадь МДФ (Фасады):</span>
+                <strong id="totalMdfArea">0.00 м²</strong>
+            </div>
+            <div class="summary-item">
+                <span>Длина столешницы:</span>
+                <strong id="totalTopLength">0.00 пог. м</strong>
+            </div>
+        </div>
+
+        <!-- 4. ФУРНИТУРА И НАЦЕНКА -->
+        <div class="section-title">4. Дополнительно</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Фурнитура и комплектующие (руб):</label>
+                <input type="number" id="hardwareCost" value="6000" min="0" step="500" oninput="calculateProject()">
+            </div>
+            <div class="form-group">
+                <label>Наценка на работы / сборку (%):</label>
+                <input type="number" id="marginPercent" value="30" min="0" max="200" oninput="calculateProject()">
+            </div>
+        </div>
+
+        <!-- ИТОГОВАЯ СТОИМОСТЬ -->
+        <div class="total-box">
+            <div>Предварительная стоимость проекта:</div>
+            <div id="totalPriceDisplay" class="total-price">0 руб.</div>
+        </div>
     </div>
 </div>
 
@@ -198,7 +269,6 @@
 
 <script>
     const ALLOWED_IPS = ["217.19.209.217"];
-
     const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?output=csv";
 
     const SOURCES = {
@@ -209,7 +279,14 @@
 
     const DATA_STORE = { dsp: [], mdf: [], countertops: [] };
 
-    // Проверка IP
+    // Стартовый набор модулей
+    let projectModules = [
+        { id: 1, type: 'bottom', name: 'Нижний шкаф', width: 600, count: 2 },
+        { id: 2, type: 'bottom', name: 'Нижний шкаф', width: 800, count: 1 },
+        { id: 3, type: 'top', name: 'Верхний шкаф', width: 600, count: 2 },
+        { id: 4, type: 'top', name: 'Верхний шкаф', width: 800, count: 1 }
+    ];
+
     async function checkIpAndInit() {
         try {
             const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -293,14 +370,15 @@
             DATA_STORE.mdf = parseCsvToItems(mdfCsv);
             DATA_STORE.countertops = parseCsvToItems(countertopsCsv);
 
-            fillSelect('bodyMaterial', DATA_STORE.dsp);
-            fillSelect('facadeMaterial', DATA_STORE.mdf);
-            fillSelect('topMaterial', DATA_STORE.countertops);
+            fillSelect('bodyMaterialSelect', DATA_STORE.dsp);
+            fillSelect('facadeMaterialSelect', DATA_STORE.mdf);
+            fillSelect('topMaterialSelect', DATA_STORE.countertops);
 
             statusBadge.className = "status-badge status-success";
-            statusBadge.innerText = "✓ База материалов готова к расчету!";
-            
-            calculateTotal();
+            statusBadge.innerText = "✓ База материалов загружена!";
+
+            renderModulesTable();
+            calculateProject();
         } catch (err) {
             statusBadge.className = "status-badge status-error";
             statusBadge.innerText = "⚠️ Ошибка загрузки базы.";
@@ -318,27 +396,115 @@
         });
     }
 
-    // РАСЧЕТ ИТОГОВОЙ СТОИМОСТИ КУХНИ
-    function calculateTotal() {
-        const bodyPrice = parseFloat(document.getElementById('bodyMaterial').value) || 0;
-        const bodyArea = parseFloat(document.getElementById('bodyArea').value) || 0;
+    // Расчет деталей одного модуля (м²)
+    function getModuleArea(type, widthMm) {
+        const w = widthMm / 1000.0;
+        let dsp = 0;
+        let mdf = 0;
 
-        const facadePrice = parseFloat(document.getElementById('facadeMaterial').value) || 0;
-        const facadeArea = parseFloat(document.getElementById('facadeArea').value) || 0;
+        if (type === 'bottom') { // Выс: 720, Гл: 560
+            dsp = (2 * 0.72 * 0.56) + (2 * (w - 0.032) * 0.56);
+            mdf = (0.716 * (w - 0.004));
+        } else if (type === 'top') { // Выс: 720, Гл: 320
+            dsp = (2 * 0.72 * 0.32) + (2 * (w - 0.032) * 0.32) + ((w - 0.032) * 0.30); // Полка
+            mdf = (0.716 * (w - 0.004));
+        } else if (type === 'tall') { // Пенал Выс: 2140, Гл: 560
+            dsp = (2 * 2.14 * 0.56) + (4 * (w - 0.032) * 0.56);
+            mdf = (2.136 * (w - 0.004));
+        }
 
-        const topPrice = parseFloat(document.getElementById('topMaterial').value) || 0;
-        const topLength = parseFloat(document.getElementById('topLength').value) || 0;
+        return { dsp: dsp, mdf: mdf };
+    }
 
-        const hardware = parseFloat(document.getElementById('hardwarePrice').value) || 0;
+    // Добавление модуля
+    function addModule() {
+        const typeSelect = document.getElementById('moduleTypeInput');
+        const type = typeSelect.value;
+        const name = typeSelect.options[typeSelect.selectedIndex].text.split(' (')[0];
+        const width = parseInt(document.getElementById('moduleWidthInput').value) || 600;
+        const count = parseInt(document.getElementById('moduleCountInput').value) || 1;
+
+        projectModules.push({
+            id: Date.now(),
+            type: type,
+            name: name,
+            width: width,
+            count: count
+        });
+
+        renderModulesTable();
+        calculateProject();
+    }
+
+    // Удаление модуля
+    function removeModule(id) {
+        projectModules = projectModules.filter(m => m.id !== id);
+        renderModulesTable();
+        calculateProject();
+    }
+
+    // Отрисовка таблицы
+    function renderModulesTable() {
+        const tbody = document.getElementById('modulesTableBody');
+        tbody.innerHTML = '';
+
+        projectModules.forEach(m => {
+            const area = getModuleArea(m.type, m.width);
+            const totalDsp = (area.dsp * m.count).toFixed(2);
+            const totalMdf = (area.mdf * m.count).toFixed(2);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${m.name}</td>
+                <td>${m.width} мм</td>
+                <td>${m.count} шт</td>
+                <td>${totalDsp} м²</td>
+                <td>${totalMdf} м²</td>
+                <td><button class="btn btn-danger" onclick="removeModule(${m.id})">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Полный авторасчет стоимости проекта
+    function calculateProject() {
+        let totalDspArea = 0;
+        let totalMdfArea = 0;
+        let totalTopLength = 0;
+
+        projectModules.forEach(m => {
+            const area = getModuleArea(m.type, m.width);
+            totalDspArea += area.dsp * m.count;
+            totalMdfArea += area.mdf * m.count;
+
+            // Столешница считается только для нижних модулей
+            if (m.type === 'bottom') {
+                totalTopLength += (m.width / 1000.0) * m.count;
+            }
+        });
+
+        // Вывод количества материала
+        document.getElementById('totalDspArea').innerText = totalDspArea.toFixed(2) + " м²";
+        document.getElementById('totalMdfArea').innerText = totalMdfArea.toFixed(2) + " м²";
+        document.getElementById('totalTopLength').innerText = totalTopLength.toFixed(2) + " пог. м";
+
+        // Получаем цены из выбранных опций
+        const bodyPrice = parseFloat(document.getElementById('bodyMaterialSelect').value) || 0;
+        const facadePrice = parseFloat(document.getElementById('facadeMaterialSelect').value) || 0;
+        const topPrice = parseFloat(document.getElementById('topMaterialSelect').value) || 0;
+
+        const hardware = parseFloat(document.getElementById('hardwareCost').value) || 0;
         const margin = parseFloat(document.getElementById('marginPercent').value) || 0;
 
-        // Расчет материалов
-        const materialsCost = (bodyPrice * bodyArea) + (facadePrice * facadeArea) + (topPrice * topLength) + hardware;
+        // Расчет чистой себестоимости
+        const dspCost = totalDspArea * bodyPrice;
+        const mdfCost = totalMdfArea * facadePrice;
+        const topCost = totalTopLength * topPrice;
 
-        // Расчет с наценкой
-        const total = materialsCost * (1 + margin / 100);
+        const netCost = dspCost + mdfCost + topCost + hardware;
+        const finalPrice = netCost * (1 + margin / 100.0);
 
-        document.getElementById('totalDisplay').innerText = total.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + " руб.";
+        document.getElementById('totalPriceDisplay').innerText = finalPrice.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + " руб.";
     }
 
     window.addEventListener('DOMContentLoaded', checkIpAndInit);
