@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Конструктор Кухни — Фаворит</title>
+    <title>Конструктор Кухни — Фаворит (ДСП 18 мм)</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -116,7 +116,6 @@
             text-align: center;
         }
 
-        /* Таблица модулей */
         .modules-table {
             width: 100%;
             border-collapse: collapse;
@@ -130,7 +129,6 @@
         }
         .modules-table th { background-color: #f8fafc; color: #475569; }
 
-        /* Табло результатов */
         .summary-box {
             background: #f8fafc;
             border-radius: 8px;
@@ -172,7 +170,6 @@
             margin-top: 5px;
         }
 
-        /* 2D Канвас */
         #kitchenCanvas {
             background: #ffffff;
             border: 1px solid #cbd5e1;
@@ -181,7 +178,6 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
         }
 
-        /* Экран блокировки */
         .access-denied {
             max-width: 450px;
             margin: 80px auto;
@@ -200,7 +196,7 @@
 
 <div id="appContainer" style="display: none;">
     <div class="container">
-        <h2>🏗️ Конструктор и Визуализатор Кухни</h2>
+        <h2>🏗️ Конструктор и Визуализатор Кухни (ЛДСП 18 мм)</h2>
         <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка базы данных...</div>
 
         <!-- 1. ВЫБОР МАТЕРИАЛА И ДЕКОРОВ -->
@@ -214,7 +210,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Корпус (ДСП):</label>
+                <label>Корпус (ДСП 18 мм):</label>
                 <select id="bodyMaterialSelect" onchange="calculateProject()"></select>
             </div>
             <div class="form-group">
@@ -240,16 +236,16 @@
                                 <option value="bottom_m2d">Мойка 2 двери</option>
                                 <option value="bottom_p1d">Полка 1 дверь</option>
                                 <option value="bottom_p2d" selected>Полка 2 двери</option>
-                                <option value="bottom_ya2">Два ящика</option>
-                                <option value="bottom_ya3">Три ящика</option>
-                                <option value="bottom_ya2vn">Два фасада + скрытый</option>
-                                <option value="bottom_oven_drawer">Духовка + ящик</option>
+                                <option value="bottom_ya2">Два ящика (дно ДСП)</option>
+                                <option value="bottom_ya3">Три ящика (дно ДСП)</option>
+                                <option value="bottom_ya2vn">Два фасада + скрытый (дно ДСП)</option>
+                                <option value="bottom_oven_drawer">Духовка + ящик (дно ДСП)</option>
                             </optgroup>
                             <optgroup label="Верхние модули">
                                 <option value="top_sush_1d">Сушка 1 дверь</option>
                                 <option value="top_sush_2d">Сушка 2 двери</option>
-                                <option value="top_lift_2">2 подъёмника</option>
-                                <option value="top_lift_3">3 подъёмника</option>
+                                <option value="top_lift_2">2 подъёмника (1 полка)</option>
+                                <option value="top_lift_3">3 подъёмника (2 полки)</option>
                                 <option value="top_p1_1d">1 полка 1 дверь</option>
                                 <option value="top_p2_1d">2 полки 1 дверь</option>
                                 <option value="top_p1_2d">1 полка 2 двери</option>
@@ -283,19 +279,27 @@
                             <th>Конфигурация</th>
                             <th>Ш х В х Г (мм)</th>
                             <th>ДСП (м²)</th>
-                            <th>Кромка (м)</th>
-                            <th>Фасады (м²)</th>
+                            <th>ДВП (м²)</th>
+                            <th>Паз (м)</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody id="modulesTableBody"></tbody>
                 </table>
 
-                <div class="section-title">3. Расход материалов и услуги работы</div>
+                <div class="section-title">3. Расход материалов и работы</div>
                 <div class="summary-box">
                     <div class="summary-item">
-                        <span>Площадь ДСП (Корпус + ДСП Фасады):</span>
+                        <span>Площадь ДСП 18 мм (Корпус + Фасады + Дно ящиков):</span>
                         <strong id="totalDspArea">0.00 м²</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Площадь ДВП/ХДФ (Задняя стенка):</span>
+                        <strong id="totalDvpArea">0.00 м²</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Пропил паза под ДВП (Только верхние модули):</span>
+                        <strong id="totalGrooveLength">0.00 пог. м</strong>
                     </div>
                     <div class="summary-item">
                         <span>Длина распила ДСП (7 м / м² ДСП):</span>
@@ -327,6 +331,14 @@
                 </div>
 
                 <div class="form-row" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Цена ДВП (руб/м²):</label>
+                        <input type="number" id="dvpPrice" value="250" min="0" step="10" oninput="calculateProject()">
+                    </div>
+                    <div class="form-group">
+                        <label>Цена паза (руб/м):</label>
+                        <input type="number" id="groovePrice" value="30" min="0" step="5" oninput="calculateProject()">
+                    </div>
                     <div class="form-group">
                         <label>Цена кромки (руб/м):</label>
                         <input type="number" id="edgePrice" value="35" min="0" step="5" oninput="calculateProject()">
@@ -378,14 +390,14 @@
 
     const DATA_STORE = { dsp: [], mdf: [], countertops: [] };
 
-    // Проект по умолчанию с глубиной нижних модулей 530 мм
+    // Проект по умолчанию (ДСП 18 мм)
     let projectModules = [
         { id: 1, type: 'bottom_m2d', name: 'Мойка 2 двери', width: 800, height: 720, depth: 530 },
         { id: 2, type: 'bottom_oven_drawer', name: 'Духовка + ящик', width: 600, height: 720, depth: 530 },
         { id: 3, type: 'bottom_ya2', name: 'Два ящика', width: 600, height: 720, depth: 530 },
         { id: 4, type: 'top_sush_2d', name: 'Сушка 2 двери', width: 800, height: 720, depth: 320 },
         { id: 5, type: 'top_p2_2d', name: '2 полки 2 двери', width: 600, height: 720, depth: 320 },
-        { id: 6, type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
+        { id: 6, type: 'top_lift_3', name: '3 подъёмника (2 полки)', width: 600, height: 720, depth: 320 }
     ];
 
     async function checkIpAndInit() {
@@ -514,7 +526,7 @@
         const heightInput = document.getElementById('moduleHeightInput');
 
         if (type.startsWith('bottom_')) {
-            depthInput.value = 530; // Стандартная глубина нижних модулей
+            depthInput.value = 530;
             if (parseInt(heightInput.value) > 1000) heightInput.value = 720;
         } else if (type.startsWith('top_')) {
             depthInput.value = 320;
@@ -525,7 +537,6 @@
         }
     }
 
-    // Расчёт количества петель по высоте фасада
     function getHingesForDoor(heightMm) {
         if (heightMm <= 900) return 2;
         if (heightMm <= 1600) return 3;
@@ -533,25 +544,36 @@
         return 5;
     }
 
-    // Расчёт детального состава модуля, кромки и фурнитуры
+    // Расчёт деталей с учётом ДСП 18 мм, ДВП и Паза для верхних модулей
     function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         const w = widthMm / 1000.0;
         const h = heightMm / 1000.0;
         const d = depthMm / 1000.0;
 
-        let parts = []; // Детали корпуса: [кол-во, длина, ширина]
+        const dspT = 0.036; // 18 мм * 2 = 36 мм вычет для внутренних деталей корпуса
+        const drawerDspT = 0.072; // 18 мм * 4 = 72 мм вычет под ящики
+
+        let parts = [];
         let facadeArea = 0;
 
-        // Фурнитура для модуля
         let hinges = 0;
         let slides = 0;
         let lifts = 0;
         let hangers = 0;
 
+        // 1. ДВП (Задняя стенка) — для всех модулей
+        const dvpArea = w * h;
+
+        // 2. Пропил паза под ДВП — ТОЛЬКО ДЛЯ ВЕРХНИХ МОДУЛЕЙ
+        let grooveLength = 0;
+        if (type.startsWith('top_')) {
+            grooveLength = 2 * (w + h);
+        }
+
         if (type.startsWith('bottom_')) {
-            parts.push([2, h, d]); // Боковины
-            parts.push([2, w - 0.032, d]); // Дно + горизонт
-            parts.push([2, w - 0.032, 0.10]); // Царги
+            parts.push([2, h, d]); 
+            parts.push([2, w - dspT, d]); 
+            parts.push([2, w - dspT, 0.10]); 
 
             if (type === 'bottom_m1d') {
                 facadeArea = (h - 0.004) * (w - 0.004);
@@ -559,74 +581,70 @@
             } else if (type === 'bottom_m2d') {
                 facadeArea = (h - 0.004) * (w - 0.004);
                 hinges += getHingesForDoor(heightMm) * 2;
-            } else if (type === 'bottom_p1d') {
-                parts.push([1, w - 0.032, d - 0.02]);
+            } else if (type === 'bottom_p1d' || type === 'bottom_p2d') {
+                parts.push([1, w - dspT, d - 0.02]);
                 facadeArea = (h - 0.004) * (w - 0.004);
-                hinges += getHingesForDoor(heightMm);
-            } else if (type === 'bottom_p2d') {
-                parts.push([1, w - 0.032, d - 0.02]);
-                facadeArea = (h - 0.004) * (w - 0.004);
-                hinges += getHingesForDoor(heightMm) * 2;
+                hinges += getHingesForDoor(heightMm) * (type === 'bottom_p1d' ? 1 : 2);
             } else if (type === 'bottom_ya2') {
-                // Два ящика (высота модуля пополам)
-                parts.push([4, h / 2 - 0.05, d - 0.05]);
-                parts.push([4, h / 2 - 0.05, w - 0.064]);
+                const drawerH = h / 2 - 0.05;
+                parts.push([4, drawerH, d - 0.05]);
+                parts.push([4, drawerH, w - drawerDspT]);
+                parts.push([2, w - drawerDspT, d - 0.05]); // Дно ДСП 18 мм
                 facadeArea = (h - 0.004) * (w - 0.004);
                 slides += 2;
-            } else if (type === 'bottom_ya3') {
+            } else if (type === 'bottom_ya3' || type === 'bottom_ya2vn') {
                 parts.push([6, 0.12, d - 0.05]);
-                parts.push([6, 0.12, w - 0.064]);
-                facadeArea = (h - 0.004) * (w - 0.004);
-                slides += 3;
-            } else if (type === 'bottom_ya2vn') {
-                parts.push([6, 0.12, d - 0.05]);
-                parts.push([6, 0.12, w - 0.064]);
+                parts.push([6, 0.12, w - drawerDspT]);
+                parts.push([3, w - drawerDspT, d - 0.05]); // Дно ДСП 18 мм
                 facadeArea = (h - 0.004) * (w - 0.004);
                 slides += 3;
             } else if (type === 'bottom_oven_drawer') {
                 const drawerH = Math.max(0.10, h - 0.600 - 0.004);
-                parts.push([1, w - 0.032, d]);
+                parts.push([1, w - dspT, d]);
                 parts.push([2, 0.10, d - 0.05]);
-                parts.push([2, 0.10, w - 0.064]);
+                parts.push([2, 0.10, w - drawerDspT]);
+                parts.push([1, w - drawerDspT, d - 0.05]); // Дно ДСП 18 мм
                 facadeArea = drawerH * (w - 0.004);
                 slides += 1;
             }
         } else if (type.startsWith('top_')) {
             parts.push([2, h, d]);
-            parts.push([2, w - 0.032, d]);
-            hangers += 2; // По 2 навеса на верхний шкаф
+            parts.push([2, w - dspT, d]);
+            hangers += 2;
 
-            if (type === 'top_sush_1d' || type.includes('1d')) {
-                if (type.includes('p1_')) parts.push([1, w - 0.032, d - 0.02]);
-                if (type.includes('p2_')) parts.push([2, w - 0.032, d - 0.02]);
+            if (type.includes('1d')) {
+                if (type.includes('p1_')) parts.push([1, w - dspT, d - 0.02]);
+                if (type.includes('p2_')) parts.push([2, w - dspT, d - 0.02]);
                 facadeArea = (h - 0.004) * (w - 0.004);
                 hinges += getHingesForDoor(heightMm);
-            } else if (type === 'top_sush_2d' || type.includes('2d')) {
-                if (type.includes('p1_')) parts.push([1, w - 0.032, d - 0.02]);
-                if (type.includes('p2_')) parts.push([2, w - 0.032, d - 0.02]);
+            } else if (type.includes('2d')) {
+                if (type.includes('p1_')) parts.push([1, w - dspT, d - 0.02]);
+                if (type.includes('p2_')) parts.push([2, w - dspT, d - 0.02]);
                 facadeArea = (h - 0.004) * (w - 0.004);
                 hinges += getHingesForDoor(heightMm) * 2;
             } else if (type === 'top_lift_2') {
+                parts.push([1, w - dspT, d - 0.02]); // 1 ПОЛКА
                 facadeArea = (h - 0.004) * (w - 0.004);
-                lifts += 4; // 2 подъёмника по 2 механизма
+                lifts += 4;
             } else if (type === 'top_lift_3') {
-                facadeArea = (h - 0.004) * (w - 0.004); // 3 фасада
-                lifts += 6; // 3 подъёмника по 2 механизма
+                parts.push([2, w - dspT, d - 0.02]); // 2 ПОЛКИ
+                facadeArea = (h - 0.004) * (w - 0.004);
+                lifts += 6;
             }
         } else if (type.startsWith('penal_')) {
             parts.push([2, h, d]);
-            parts.push([2, w - 0.032, d]);
+            parts.push([2, w - dspT, d]);
 
             if (type === 'penal_shelves') {
-                parts.push([4, w - 0.032, d - 0.02]);
+                parts.push([4, w - dspT, d - 0.02]);
                 facadeArea = (h - 0.004) * (w - 0.004);
                 hinges += getHingesForDoor(heightMm / 2) * 2;
             } else if (type === 'penal_appliances') {
-                parts.push([3, w - 0.032, d - 0.02]);
+                parts.push([3, w - dspT, d - 0.02]);
                 facadeArea = Math.max(0, h - 0.900) * (w - 0.004);
                 hinges += getHingesForDoor(700) * 2;
             } else if (type === 'penal_fridge') {
-                parts.push([1, w - 0.032, d - 0.02]);
+                parts.push([1, w - dspT, d - 0.02]);
                 facadeArea = (h - 0.004) * (w - 0.004);
                 hinges += getHingesForDoor(heightMm / 2) * 2;
             }
@@ -648,6 +666,8 @@
 
         return { 
             dsp: dspArea, 
+            dvp: dvpArea,
+            groove: grooveLength,
             edge: edgeLength, 
             facade: facadeArea,
             partCount: totalPartCount,
@@ -694,8 +714,8 @@
                 <td>${m.name}</td>
                 <td>${m.width}x${m.height}x${m.depth}</td>
                 <td>${calc.dsp.toFixed(2)} м²</td>
-                <td>${calc.edge.toFixed(2)} м</td>
-                <td>${calc.facade.toFixed(2)} м²</td>
+                <td>${calc.dvp.toFixed(2)} м²</td>
+                <td>${calc.groove.toFixed(2)} м</td>
                 <td><button class="btn btn-danger" onclick="removeModule(${m.id})">✕</button></td>
             `;
             tbody.appendChild(tr);
@@ -706,6 +726,8 @@
         const facadeType = document.getElementById('facadeTypeSelect').value;
 
         let totalDspArea = 0;
+        let totalDvpArea = 0;
+        let totalGrooveLength = 0;
         let totalEdgeLength = 0;
         let totalMdfArea = 0;
         let totalTopLength = 0;
@@ -717,12 +739,13 @@
         let totalMountRail = 0;
         let totalPartsCount = 0;
 
-        // Расчёт ширины низа под цоколь
         let bottomTotalWidthMm = 0;
 
         projectModules.forEach(m => {
             const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
             totalDspArea += calc.dsp;
+            totalDvpArea += calc.dvp;
+            totalGrooveLength += calc.groove;
             totalEdgeLength += calc.edge;
             totalPartsCount += calc.partCount;
 
@@ -748,7 +771,7 @@
             }
         });
 
-        // РАСЧЁТ ЦОКОЛЯ (Материал фасадов: 100 мм высота x длина всей нижней базы)
+        // ЦОКОЛЬ (Высота 100 мм)
         const plinthArea = (bottomTotalWidthMm / 1000.0) * 0.10;
         const plinthEdge = 2 * ((bottomTotalWidthMm / 1000.0) + 0.10);
 
@@ -759,22 +782,24 @@
         }
         totalEdgeLength += plinthEdge;
 
-        // РАСПИЛ ДСП: 7 метров на 1 м² ДСП
+        // РАСПИЛ ДСП (7 м / 1 м² ДСП)
         const totalSawingLength = totalDspArea * 7.0;
 
         // КРЕПЕЖ
-        const totalConfirmats = totalPartsCount * 2; // по 2 конфирмата на деталь
+        const totalConfirmats = totalPartsCount * 2;
         const totalMechanisms = totalHinges + totalSlides + totalLifts + totalHangers;
-        const totalScrews = totalMechanisms * 4; // по 4 шурупа на механизм
+        const totalScrews = totalMechanisms * 4;
 
-        // Вывод сводных показателей
+        // Вывод показателей
         document.getElementById('totalDspArea').innerText = totalDspArea.toFixed(2) + " м²";
+        document.getElementById('totalDvpArea').innerText = totalDvpArea.toFixed(2) + " м²";
+        document.getElementById('totalGrooveLength').innerText = totalGrooveLength.toFixed(2) + " пог. м";
         document.getElementById('totalSawingLength').innerText = totalSawingLength.toFixed(2) + " пог. м";
         document.getElementById('totalEdgeLength').innerText = totalEdgeLength.toFixed(2) + " пог. м";
         document.getElementById('totalMdfArea').innerText = totalMdfArea.toFixed(2) + " м²";
         document.getElementById('totalTopLength').innerText = totalTopLength.toFixed(2) + " пог. м";
 
-        // Вывод фурнитуры
+        // Фурнитура
         document.getElementById('hwHinges').innerText = totalHinges + " шт.";
         document.getElementById('hwSlides').innerText = totalSlides + " компл.";
         document.getElementById('hwLifts').innerText = totalLifts + " шт.";
@@ -787,6 +812,8 @@
         const bodyPrice = parseFloat(document.getElementById('bodyMaterialSelect').value) || 0;
         const facadePrice = parseFloat(document.getElementById('facadeMaterialSelect').value) || 0;
         const topPrice = parseFloat(document.getElementById('topMaterialSelect').value) || 0;
+        const dvpPrice = parseFloat(document.getElementById('dvpPrice').value) || 0;
+        const groovePrice = parseFloat(document.getElementById('groovePrice').value) || 0;
         const edgePrice = parseFloat(document.getElementById('edgePrice').value) || 0;
         const sawingPrice = parseFloat(document.getElementById('sawingPrice').value) || 0;
 
@@ -794,12 +821,14 @@
         const margin = parseFloat(document.getElementById('marginPercent').value) || 0;
 
         const dspCost = totalDspArea * bodyPrice;
+        const dvpCost = totalDvpArea * dvpPrice;
+        const grooveCost = totalGrooveLength * groovePrice;
         const sawingCost = totalSawingLength * sawingPrice;
         const edgeCost = totalEdgeLength * edgePrice;
         const mdfCost = totalMdfArea * facadePrice;
         const topCost = totalTopLength * topPrice;
 
-        const netCost = dspCost + sawingCost + edgeCost + mdfCost + topCost + hardware;
+        const netCost = dspCost + dvpCost + grooveCost + sawingCost + edgeCost + mdfCost + topCost + hardware;
         const finalPrice = netCost * (1 + margin / 100.0);
 
         document.getElementById('totalPriceDisplay').innerText = Math.round(finalPrice).toLocaleString('ru-RU') + " руб.";
@@ -807,7 +836,6 @@
         drawKitchen2D();
     }
 
-    // 2D Эскиз
     function drawKitchen2D() {
         const canvas = document.getElementById('kitchenCanvas');
         const ctx = canvas.getContext('2d');
@@ -825,7 +853,6 @@
         const scale = (canvas.width - 40) / totalWidthMm;
         const startX = 20;
 
-        // 1. Цоколь
         const plinthY = 370;
         const plinthH = 100 * scale;
         ctx.fillStyle = "#cbd5e1";
@@ -833,7 +860,6 @@
         ctx.strokeStyle = "#64748b";
         ctx.strokeRect(startX, plinthY, totalWidthMm * scale, plinthH);
 
-        // 2. Нижние модули и Пеналы
         let currentX = startX;
         bottomModules.forEach(m => {
             const w = m.width * scale;
@@ -881,7 +907,6 @@
             currentX += w;
         });
 
-        // 3. Верхние модули
         currentX = startX;
         const maxBottomH = 720;
         const topY = plinthY - (maxBottomH * scale) - (38 * scale);
