@@ -167,22 +167,45 @@
             font-size: 0.92rem;
         }
 
-        .hardware-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-            gap: 10px;
+        /* ФУРНИТУРА И УСЛУГИ В СТОЛБИК */
+        .hardware-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             background: #ffffff;
             padding: 12px;
             border-radius: 6px;
             border: 1px solid #cbd5e1;
             margin-top: 8px;
-            font-size: 0.85rem;
         }
-        .hardware-grid div {
+        .hardware-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: #f8fafc;
-            padding: 6px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             border: 1px solid #e2e8f0;
+            gap: 15px;
+        }
+        .hardware-label {
+            font-size: 0.88rem;
+            color: #334155;
+            font-weight: 500;
+            flex: 2;
+        }
+        .hardware-qty {
+            font-size: 0.88rem;
+            font-weight: bold;
+            color: #5c1724;
+            min-width: 110px;
+            text-align: right;
+        }
+        .hardware-price-input {
+            width: 110px !important;
+            padding: 4px 8px !important;
+            font-size: 0.85rem !important;
+            text-align: right;
         }
 
         .total-box {
@@ -328,6 +351,7 @@
                 <table class="modules-table">
                     <thead>
                         <tr>
+                            <th>№</th>
                             <th>Конфигурация</th>
                             <th>Ш х В х Г (мм)</th>
                             <th>ДСП (м²)</th>
@@ -380,54 +404,97 @@
                     </div>
                 </div>
 
-                <div class="section-title">4. Автоматический расчёт фурнитуры и услуг</div>
-                <div class="hardware-grid">
-                    <div>Петли: <strong id="hwHinges">0 шт.</strong></div>
-                    <div>Направляющие ящиков: <strong id="hwSlides">0 компл.</strong></div>
-                    <div>Карго + направляющая: <strong id="hwCargo" style="color: #5c1724;">0 шт.</strong></div>
-                    <div>Сушка для посуды: <strong id="hwSush">0 шт.</strong></div>
-                    <div>Мойка кухонная: <strong id="hwSink">0 шт.</strong></div>
-                    <div>Ножки кухонные (4 шт/мод): <strong id="hwLegs">0 шт.</strong></div>
-                    <div>Подъёмники: <strong id="hwLifts">0 шт.</strong></div>
-                    <div>Ручки: <strong id="hwHandles" style="color: #5c1724;">0 шт.</strong></div>
-                    <div>Навесы верхние: <strong id="hwHangers">0 шт.</strong></div>
-                    <div>Монтажная планка (кратно 2м): <strong id="hwMountRail">0 шт. (0 м)</strong></div>
-                    <div>Вырез под варочную: <strong id="srvCutOven">0 шт.</strong></div>
-                    <div>Вырез под мойку: <strong id="srvCutSink">0 шт.</strong></div>
-                </div>
-
-                <div class="form-row" style="margin-top: 15px;">
-                    <div class="form-group">
-                        <label>Цена ДВП (руб/м²):</label>
-                        <input type="number" id="dvpPrice" value="250" min="0" step="10" oninput="calculateProject()">
+                <div class="section-title">4. Автоматический расчёт фурнитуры, услуг и цен за единицу</div>
+                <div class="hardware-list">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Петли мебельные</span>
+                        <span class="hardware-qty" id="hwHinges">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="hingePrice" value="150" placeholder="Цена руб/шт" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Паз (до 1м - шт, >1м - м, руб):</label>
-                        <input type="number" id="groovePrice" value="30" min="0" step="5" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Направляющие для ящиков</span>
+                        <span class="hardware-qty" id="hwSlides">0 компл.</span>
+                        <input type="number" class="hardware-price-input" id="slidePrice" value="500" placeholder="Цена руб/компл" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Цена кромки (руб/м):</label>
-                        <input type="number" id="edgePrice" value="35" min="0" step="5" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Карго + направляющая</span>
+                        <span class="hardware-qty" id="hwCargo">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="cargoPrice" value="2500" placeholder="Цена руб/шт" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Цена распила (руб/м):</label>
-                        <input type="number" id="sawingPrice" value="40" min="0" step="5" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Сушка для посуды</span>
+                        <span class="hardware-qty" id="hwSush">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="sushPrice" value="1200" placeholder="Цена руб/шт" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Цена ручки (руб/шт):</label>
-                        <input type="number" id="handlePrice" value="200" min="0" step="10" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Мойка кухонная врезная</span>
+                        <span class="hardware-qty" id="hwSink">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="sinkPrice" value="3500" placeholder="Цена руб/шт" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Цена ножки (руб/шт):</label>
-                        <input type="number" id="legPrice" value="30" min="0" step="5" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Ножки кухонные регулируемые (4 шт/мод)</span>
+                        <span class="hardware-qty" id="hwLegs">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="legPrice" value="30" placeholder="Цена руб/шт" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Доп. фурнитура (руб):</label>
-                        <input type="number" id="hardwareCost" value="3000" min="0" step="500" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Подъёмные механизмы</span>
+                        <span class="hardware-qty" id="hwLifts">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="liftPrice" value="350" placeholder="Цена руб/шт" oninput="calculateProject()">
                     </div>
-                    <div class="form-group">
-                        <label>Наценка (%):</label>
-                        <input type="number" id="marginPercent" value="30" min="0" max="200" oninput="calculateProject()">
+                    <div class="hardware-row">
+                        <span class="hardware-label">Ручки мебельные</span>
+                        <span class="hardware-qty" id="hwHandles">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="handlePrice" value="200" placeholder="Цена руб/шт" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Навесы верхних модулей</span>
+                        <span class="hardware-qty" id="hwHangers">0 шт. (0 пар)</span>
+                        <input type="number" class="hardware-price-input" id="hangerPrice" value="100" placeholder="Цена руб/шт" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Монтажная планка (кратно 2 м)</span>
+                        <span class="hardware-qty" id="hwMountRail">0 шт. (0 м)</span>
+                        <input type="number" class="hardware-price-input" id="mountRailPrice" value="200" placeholder="Цена руб/шт" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Вырез под варочную панель</span>
+                        <span class="hardware-qty" id="srvCutOven">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="cutOvenPrice" value="600" placeholder="Цена руб/шт" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Вырез под мойку</span>
+                        <span class="hardware-qty" id="srvCutSink">0 шт.</span>
+                        <input type="number" class="hardware-price-input" id="cutSinkPrice" value="600" placeholder="Цена руб/шт" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Цена ДВП (руб/м²)</span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="dvpPrice" value="250" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Паз под ДВП (до 1м - шт, >1м - м)</span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="groovePrice" value="30" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Цена кромки (руб/м)</span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="edgePrice" value="35" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Цена распила (руб/м)</span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="sawingPrice" value="40" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Дополнительные метизы / расходники (руб)</span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="hardwareCost" value="3000" oninput="calculateProject()">
+                    </div>
+                    <div class="hardware-row">
+                        <span class="hardware-label">Наценка на весь проект (%)</span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="marginPercent" value="30" oninput="calculateProject()">
                     </div>
                 </div>
 
@@ -439,8 +506,8 @@
 
             <!-- ПРАВАЯ КОЛОНКА -->
             <div class="visual-side">
-                <div class="section-title" style="margin-top: 0;">2D Эскиз кухни</div>
-                <canvas id="kitchenCanvas" width="440" height="440"></canvas>
+                <div class="section-title" style="margin-top: 0;">2D Эскиз кухни с номерами и габаритами</div>
+                <canvas id="kitchenCanvas" width="440" height="480"></canvas>
             </div>
         </div>
     </div>
@@ -725,7 +792,7 @@
         } else if (type.startsWith('top_')) {
             parts.push([2, h, d]);
             parts.push([2, w - dspT, d]);
-            hangers += 2;
+            hangers += 2; // 2 навеса на модуль
 
             if (type === 'top_sush_1d' || type === 'top_sush_2d') {
                 sush = 1;
@@ -836,11 +903,12 @@
         const tbody = document.getElementById('modulesTableBody');
         tbody.innerHTML = '';
 
-        projectModules.forEach(m => {
+        projectModules.forEach((m, idx) => {
             const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
+                <td style="font-weight:bold; color:#5c1724;">№${idx + 1}</td>
                 <td>${m.name}</td>
                 <td>${m.width}x${m.height}x${m.depth}</td>
                 <td>${calc.dsp.toFixed(2)} м²</td>
@@ -939,11 +1007,12 @@
         // Стоимость паза (до 1 м = 1 шт., больше 1 м = по метрам)
         let grooveCost = 0;
         let grooveDisplayText = "";
+        const grooveUnitPrice = parseFloat(document.getElementById('groovePrice').value) || 30;
         if (totalGrooveLength > 0 && totalGrooveLength <= 1.0) {
-            grooveCost = parseFloat(document.getElementById('groovePrice').value) || 30; // за 1 шт
+            grooveCost = grooveUnitPrice; // за 1 шт
             grooveDisplayText = `${totalGrooveLength.toFixed(2)} м (1 шт)`;
         } else {
-            grooveCost = totalGrooveLength * (parseFloat(document.getElementById('groovePrice').value) || 30);
+            grooveCost = totalGrooveLength * grooveUnitPrice;
             grooveDisplayText = `${totalGrooveLength.toFixed(2)} м`;
         }
 
@@ -958,6 +1027,9 @@
         document.getElementById('totalEdgeLength').innerText = totalEdgeLength.toFixed(2) + " пог. м";
         document.getElementById('totalTopLength').innerText = totalTopLength.toFixed(2) + " пог. м";
 
+        // Навесы в шт. и в скобках пары
+        const hangerPairs = Math.ceil(totalHangers / 2.0);
+
         // Вывод фурнитуры и услуг
         document.getElementById('hwHinges').innerText = totalHinges + " шт.";
         document.getElementById('hwSlides').innerText = totalSlides + " компл.";
@@ -967,7 +1039,7 @@
         document.getElementById('hwLegs').innerText = totalLegs + " шт.";
         document.getElementById('hwLifts').innerText = totalLifts + " шт.";
         document.getElementById('hwHandles').innerText = totalHandles + " шт.";
-        document.getElementById('hwHangers').innerText = totalHangers + " шт.";
+        document.getElementById('hwHangers').innerText = `${totalHangers} шт. (${hangerPairs} пар)`;
         document.getElementById('hwMountRail').innerText = `${mountRailPcs} шт. (${totalMountRailMeters.toFixed(2)} м)`;
         document.getElementById('srvCutOven').innerText = totalCutOven + " шт.";
         document.getElementById('srvCutSink').innerText = totalCutSink + " шт.";
@@ -978,34 +1050,51 @@
         const bottomFacadePrice = parseFloat(document.getElementById('bottomFacadeSelect').value) || 0;
         const topFacadePrice = parseFloat(document.getElementById('topFacadeSelect').value) || 0;
         const topPrice = parseFloat(document.getElementById('topMaterialSelect').value) || 0;
+
         const dvpPrice = parseFloat(document.getElementById('dvpPrice').value) || 0;
         const edgePrice = parseFloat(document.getElementById('edgePrice').value) || 0;
         const sawingPrice = parseFloat(document.getElementById('sawingPrice').value) || 0;
-        const handlePrice = parseFloat(document.getElementById('handlePrice').value) || 0;
-        const legPrice = parseFloat(document.getElementById('legPrice').value) || 0;
 
-        const hardware = parseFloat(document.getElementById('hardwareCost').value) || 0;
+        const hingePrice = parseFloat(document.getElementById('hingePrice').value) || 0;
+        const slidePrice = parseFloat(document.getElementById('slidePrice').value) || 0;
+        const cargoPrice = parseFloat(document.getElementById('cargoPrice').value) || 0;
+        const sushPrice = parseFloat(document.getElementById('sushPrice').value) || 0;
+        const sinkPrice = parseFloat(document.getElementById('sinkPrice').value) || 0;
+        const legPrice = parseFloat(document.getElementById('legPrice').value) || 0;
+        const liftPrice = parseFloat(document.getElementById('liftPrice').value) || 0;
+        const handlePrice = parseFloat(document.getElementById('handlePrice').value) || 0;
+        const hangerPrice = parseFloat(document.getElementById('hangerPrice').value) || 0;
+        const mountRailPrice = parseFloat(document.getElementById('mountRailPrice').value) || 0;
+        const cutOvenPrice = parseFloat(document.getElementById('cutOvenPrice').value) || 0;
+        const cutSinkPrice = parseFloat(document.getElementById('cutSinkPrice').value) || 0;
+
+        const hardwareExtra = parseFloat(document.getElementById('hardwareCost').value) || 0;
         const margin = parseFloat(document.getElementById('marginPercent').value) || 0;
 
-        // Доп. фиксированная стоимость фурнитуры и вырезов
-        const cargoCost = totalCargo * 2500;
-        const sushCost = totalSush * 1200;
-        const sinkCost = totalSink * 3500;
-        const mountRailCost = mountRailPcs * 200; // 200 руб за рейку 2м
-        const cutOvenCost = totalCutOven * 600;
-        const cutSinkCost = totalCutSink * 600;
-
+        // Расчёт совокупных стоимостей
         const dspCost = (bottomDspArea * bottomBodyPrice) + (topDspArea * topBodyPrice);
         const facadeCost = (bottomFacadeArea * bottomFacadePrice) + (topFacadeArea * topFacadePrice);
         const dvpCost = totalDvpArea * dvpPrice;
         const sawingCost = totalSawingLength * sawingPrice;
         const edgeCost = totalEdgeLength * edgePrice;
-        const handlesCost = totalHandles * handlePrice;
-        const legsCost = totalLegs * legPrice;
         const topCost = totalTopLength * topPrice;
 
-        const netCost = dspCost + facadeCost + dvpCost + grooveCost + sawingCost + edgeCost + handlesCost + legsCost + topCost + 
-                        hardware + cargoCost + sushCost + sinkCost + mountRailCost + cutOvenCost + cutSinkCost;
+        const hingesCost = totalHinges * hingePrice;
+        const slidesCost = totalSlides * slidePrice;
+        const cargoCost = totalCargo * cargoPrice;
+        const sushCost = totalSush * sushPrice;
+        const sinkCost = totalSink * sinkPrice;
+        const legsCost = totalLegs * legPrice;
+        const liftsCost = totalLifts * liftPrice;
+        const handlesCost = totalHandles * handlePrice;
+        const hangersCost = totalHangers * hangerPrice;
+        const mountRailCost = mountRailPcs * mountRailPrice;
+        const cutOvenCost = totalCutOven * cutOvenPrice;
+        const cutSinkCost = totalCutSink * cutSinkPrice;
+
+        const netCost = dspCost + facadeCost + dvpCost + grooveCost + sawingCost + edgeCost + topCost +
+                        hingesCost + slidesCost + cargoCost + sushCost + sinkCost + legsCost + liftsCost + 
+                        handlesCost + hangersCost + mountRailCost + cutOvenCost + cutSinkCost + hardwareExtra;
 
         const finalPrice = netCost * (1 + margin / 100.0);
 
@@ -1014,14 +1103,23 @@
         drawKitchen2D();
     }
 
-    // 2D РИСОВАНИЕ
+    // 2D РИСОВАНИЕ С НОМЕРАМИ И ГАБАРИТАМИ
     function drawKitchen2D() {
         const canvas = document.getElementById('kitchenCanvas');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const bottomModules = projectModules.filter(m => m.type.startsWith('bottom_') || m.type.startsWith('penal_'));
-        const topModules = projectModules.filter(m => m.type.startsWith('top_'));
+        const bottomModules = [];
+        const topModules = [];
+
+        projectModules.forEach((m, idx) => {
+            const item = { ...m, num: idx + 1 };
+            if (m.type.startsWith('bottom_') || m.type.startsWith('penal_')) {
+                bottomModules.push(item);
+            } else if (m.type.startsWith('top_')) {
+                topModules.push(item);
+            }
+        });
 
         const totalWidthMm = Math.max(
             bottomModules.reduce((sum, m) => sum + m.width, 0),
@@ -1032,7 +1130,7 @@
         const scale = (canvas.width - 40) / totalWidthMm;
         const startX = 20;
 
-        const plinthY = 380;
+        const plinthY = 410;
         const plinthH = 90 * scale;
         
         ctx.fillStyle = "#cbd5e1";
@@ -1042,6 +1140,7 @@
 
         let currentX = startX;
 
+        // Отрисовка нижних модулей
         bottomModules.forEach(m => {
             const w = m.width * scale;
             const h = m.height * scale;
@@ -1065,8 +1164,6 @@
                 if (m.type === 'bottom_cargo') {
                     ctx.fillRect(currentX + 2, y + 2, w - 4, h - 4);
                     ctx.strokeRect(currentX + 2, y + 2, w - 4, h - 4);
-                    ctx.strokeStyle = "#94a3b8";
-                    ctx.strokeRect(currentX + 6, y + 10, w - 12, h - 20);
                 } else if (m.type === 'bottom_ya2') {
                     const halfH = h / 2;
                     ctx.fillRect(currentX + 2, y + 2, w - 4, halfH - 2);
@@ -1104,6 +1201,15 @@
                 }
             }
 
+            // Вывод Номера и Габаритов на эскизе
+            ctx.fillStyle = "#5c1724";
+            ctx.font = "bold 11px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(`№${m.num}`, currentX + w / 2, y + h / 2 - 4);
+            ctx.font = "10px Arial";
+            ctx.fillStyle = "#1e293b";
+            ctx.fillText(`${m.width}x${m.height}`, currentX + w / 2, y + h / 2 + 10);
+
             currentX += w;
         });
 
@@ -1112,6 +1218,7 @@
         const topY = plinthY - (maxBottomH * scale) - (38 * scale);
         const topCabinetsBaseY = topY - (500 * scale);
 
+        // Отрисовка верхних модулей
         topModules.forEach(m => {
             const w = m.width * scale;
             const h = m.height * scale;
@@ -1154,6 +1261,15 @@
                     ctx.strokeRect(currentX + 2, y + 2, w - 4, h - 4);
                 }
             }
+
+            // Вывод Номера и Габаритов на верхних модулях
+            ctx.fillStyle = "#5c1724";
+            ctx.font = "bold 11px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(`№${m.num}`, currentX + w / 2, y + h / 2 - 4);
+            ctx.font = "10px Arial";
+            ctx.fillStyle = "#1e293b";
+            ctx.fillText(`${m.width}x${m.height}`, currentX + w / 2, y + h / 2 + 10);
 
             currentX += w;
         });
