@@ -167,6 +167,7 @@
             font-size: 0.92rem;
         }
 
+        /* ФУРНИТУРА И УСЛУГИ В СТОЛБИК */
         .hardware-list {
             display: flex;
             flex-direction: column;
@@ -409,6 +410,7 @@
 
                 <div class="section-title">4. Выбор фурнитуры, услуг и присадки</div>
                 <div class="hardware-list">
+                    <!-- ПЕТЛИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Петли мебельные</span>
                         <select class="hardware-select" id="hingesSelect" onchange="syncPriceFromSelect('hingesSelect', 'hingePrice')"></select>
@@ -416,6 +418,7 @@
                         <input type="number" class="hardware-price-input" id="hingePrice" value="150" oninput="calculateProject()">
                     </div>
 
+                    <!-- НАПРАВЛЯЮЩИЕ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Направляющие</span>
                         <select class="hardware-select" id="slidesSelect" onchange="syncPriceFromSelect('slidesSelect', 'slidePrice')"></select>
@@ -423,6 +426,7 @@
                         <input type="number" class="hardware-price-input" id="slidePrice" value="500" oninput="calculateProject()">
                     </div>
 
+                    <!-- КАРГО / СУШКИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Карго / Бутылочница</span>
                         <select class="hardware-select" id="cargoSelect" onchange="syncPriceFromSelect('cargoSelect', 'cargoPrice')"></select>
@@ -437,6 +441,7 @@
                         <input type="number" class="hardware-price-input" id="sushPrice" value="1200" oninput="calculateProject()">
                     </div>
 
+                    <!-- МОЙКИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Мойка кухонная</span>
                         <select class="hardware-select" id="sinkSelect" onchange="syncPriceFromSelect('sinkSelect', 'sinkPrice')"></select>
@@ -444,6 +449,7 @@
                         <input type="number" class="hardware-price-input" id="sinkPrice" value="3500" oninput="calculateProject()">
                     </div>
 
+                    <!-- ОПОРЫ / НОЖКИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Ножки кухонные</span>
                         <select class="hardware-select" id="legsSelect" onchange="syncPriceFromSelect('legsSelect', 'legPrice')"></select>
@@ -451,6 +457,7 @@
                         <input type="number" class="hardware-price-input" id="legPrice" value="30" oninput="calculateProject()">
                     </div>
 
+                    <!-- ПОДЪЁМНИКИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Подъёмные механизмы</span>
                         <select class="hardware-select" id="liftsSelect" onchange="syncPriceFromSelect('liftsSelect', 'liftPrice')"></select>
@@ -458,6 +465,7 @@
                         <input type="number" class="hardware-price-input" id="liftPrice" value="350" oninput="calculateProject()">
                     </div>
 
+                    <!-- РУЧКИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Ручки мебельные</span>
                         <select class="hardware-select" id="handlesSelect" onchange="syncPriceFromSelect('handlesSelect', 'handlePrice')"></select>
@@ -465,6 +473,7 @@
                         <input type="number" class="hardware-price-input" id="handlePrice" value="200" oninput="calculateProject()">
                     </div>
 
+                    <!-- НАВЕСЫ И ПЛАНКИ -->
                     <div class="hardware-row">
                         <span class="hardware-label">Навесы верхних модулей</span>
                         <select class="hardware-select" id="hangersSelect" onchange="syncPriceFromSelect('hangersSelect', 'hangerPrice')"></select>
@@ -479,6 +488,7 @@
                         <input type="number" class="hardware-price-input" id="mountRailPrice" value="200" oninput="calculateProject()">
                     </div>
 
+                    <!-- РАСХОДНИКИ И КРЕПЁЖ -->
                     <div class="hardware-row" style="background: #eff6ff;">
                         <span class="hardware-label">Конфирматы (крепёж)</span>
                         <span style="flex: 2;"></span>
@@ -493,6 +503,7 @@
                         <input type="number" class="hardware-price-input" id="screwPrice" value="0.5" placeholder="руб/шт" oninput="calculateProject()">
                     </div>
 
+                    <!-- УСЛУГИ ПРИСАДКИ И ВЫРЕЗОВ -->
                     <div class="hardware-row" style="background: #fefce8;">
                         <span class="hardware-label">Присадка под петлю d-35</span>
                         <span style="flex: 2;"></span>
@@ -589,6 +600,7 @@
     const ALLOWED_IPS = ["217.19.209.217"];
     const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?output=csv";
 
+    // ИСТОЧНИКИ ПО ВСЕМ ВАШИМ GID Таблицы
     const SOURCES = {
         dsp: BASE_URL + "&gid=0", 
         mdf: BASE_URL + "&gid=96674774",
@@ -657,53 +669,35 @@
         return "";
     }
 
-    // ИСПРАВЛЕННЫЙ ПАРСЕР СТРОК С ЗАПЯТЫМИ И ТОЧКАМИ
     function parseCsvToItems(csvText) {
         const items = [];
         const lines = csvText.split(/\r?\n/);
 
         lines.forEach(line => {
             if (!line.trim()) return;
+            let cols = line.split(/[|,\t]/).map(item => item.replace(/^"|"$/g, '').trim());
 
-            // Разбиваем строку только по табам или по последней запятой, перед которой идут цифры цены
-            let title = "";
-            let priceNum = NaN;
+            if (cols.length >= 1) {
+                let title = cols[0];
+                let priceNum = NaN;
 
-            let lastCommaIndex = line.lastIndexOf(',');
-            let lastTabIndex = line.lastIndexOf('\t');
-            let splitIndex = Math.max(lastCommaIndex, lastTabIndex);
-
-            if (splitIndex !== -1) {
-                let possibleTitle = line.substring(0, splitIndex).replace(/^"|"$/g, '').trim();
-                let possiblePrice = line.substring(splitIndex + 1).replace(/^"|"$/g, '').trim();
-
-                let match = possiblePrice.match(/(\d+[\.,]?\d*)/);
-                if (match) {
-                    let cleanPrice = match[0].replace(',', '.');
-                    let parsed = parseFloat(cleanPrice);
-                    if (!isNaN(parsed) && parsed > 0) {
-                        title = possibleTitle;
-                        priceNum = parsed;
-                    }
-                }
-            }
-
-            // Запасной разбор, если формат колонки стандартный
-            if (isNaN(priceNum)) {
-                let cols = line.split(/[|\t]/).map(item => item.replace(/^"|"$/g, '').trim());
-                if (cols.length >= 2) {
-                    title = cols[0];
-                    let match = cols[1].match(/(\d+[\.,]?\d*)/);
+                for (let i = 1; i < cols.length; i++) {
+                    let match = cols[i].match(/(\d+[\.,]?\d*)/);
                     if (match) {
-                        priceNum = parseFloat(match[0].replace(',', '.'));
+                        let cleanPrice = match[0].replace(',', '.');
+                        let parsed = parseFloat(cleanPrice);
+                        if (!isNaN(parsed) && parsed > 0) {
+                            priceNum = parsed;
+                            break;
+                        }
                     }
                 }
-            }
 
-            const isHeader = title.includes("Фаворит") || title.includes("ДСП, ДВП, МДФ") || title.includes("#N/A") || title.toLowerCase().includes("название");
+                const isHeader = title.includes("Фаворит") || title.includes("ДСП, ДВП, МДФ") || title.includes("#N/A") || title.toLowerCase().includes("название");
 
-            if (title && !isNaN(priceNum) && !isHeader) {
-                items.push({ name: title, price: priceNum });
+                if (title && !isNaN(priceNum) && !isHeader) {
+                    items.push({ name: title, price: priceNum });
+                }
             }
         });
 
@@ -745,10 +739,12 @@
             DATA_STORE.hangersRails = parseCsvToItems(hangersRailsCsv);
             DATA_STORE.services = parseCsvToItems(servicesCsv);
 
+            // Наполнение основных материалов
             fillSelect('bottomBodySelect', DATA_STORE.dsp);
             fillSelect('topBodySelect', DATA_STORE.dsp);
             fillSelect('topMaterialSelect', DATA_STORE.countertops);
 
+            // Наполнение фурнитуры
             fillSelect('hingesSelect', DATA_STORE.hinges, 'hingePrice');
             fillSelect('slidesSelect', DATA_STORE.slides, 'slidePrice');
             fillSelect('cargoSelect', DATA_STORE.cargoSush, 'cargoPrice');
@@ -849,6 +845,7 @@
         return 5;
     }
 
+    // Расчёт конфоррматов, шурупов и отверстий присадки (Трипан)
     function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         const w = widthMm / 1000.0;
         const h = heightMm / 1000.0;
@@ -893,6 +890,7 @@
         if (type.startsWith('top_')) grooveLength = 2 * (w + h);
         if (type.startsWith('bottom_') || type.startsWith('penal_')) legs = 4;
 
+        // Базовый корпус расчёт крепежа (8 конфирматов на базовую коробку)
         confirmats += 8;
 
         if (type.startsWith('bottom_')) {
@@ -911,7 +909,7 @@
                 facadeArea = (h - 0.004) * (w - 0.004);
                 hinges += getHingesForDoor(heightMm) * (type === 'bottom_p1d' ? 1 : 2);
                 handles += (type === 'bottom_p1d' ? 1 : 2);
-                confirmats += 4;
+                confirmats += 4; // полка
             } else if (type === 'bottom_cargo') {
                 facadeArea = (h - 0.004) * (w - 0.004);
                 cargo = 1;
@@ -953,7 +951,7 @@
             parts.push([2, h, d]);
             parts.push([2, w - dspT, d]);
             hangers += 2;
-            screws += 8;
+            screws += 8; // крепление навесов
 
             if (type === 'top_sush_1d' || type === 'top_sush_2d') {
                 sush = 1;
@@ -1013,7 +1011,9 @@
             }
         }
 
+        // Под петли идет 4 шурупа на петлю
         screws += hinges * 4;
+        // Под ручки 2 шурупа/винта
         screws += handles * 2;
 
         let dspArea = 0;
@@ -1167,16 +1167,20 @@
             }
         });
 
+        // Цоколь (100 мм)
         const plinthArea = (bottomTotalWidthMm / 1000.0) * 0.10;
         const plinthEdge = 2 * ((bottomTotalWidthMm / 1000.0) + 0.10);
         bottomFacadeArea += plinthArea;
         totalEdgeLength += plinthEdge;
 
+        // Длина распила
         const totalBoardArea = bottomDspArea + topDspArea + bottomFacadeArea + topFacadeArea + totalDvpArea;
         const totalSawingLength = totalBoardArea * 7.0;
 
+        // Планка монтажная
         const mountRailPcs = Math.ceil(totalMountRailMeters / 2.0);
 
+        // Паз
         let grooveCost = 0;
         let grooveDisplayText = "";
         const grooveUnitPrice = parseFloat(document.getElementById('groovePrice').value) || 30;
@@ -1188,9 +1192,14 @@
             grooveDisplayText = `${totalGrooveLength.toFixed(2)} м`;
         }
 
+        // РАСЧЁТ ПРИСАДКИ:
+        // 1. Присадка под петлю d-35 (1 отверстие на 1 петлю)
         const totalHingesD35Holes = totalHinges;
+
+        // 2. Присадка «Трипан» (1 конфирмат = 1 отв., 1 шуруп = 1 отв.)
         const totalTripanHoles = totalConfirmats + totalScrews;
 
+        // Вывод сводки
         document.getElementById('bottomDspAreaDisplay').innerText = bottomDspArea.toFixed(2) + " м²";
         document.getElementById('topDspAreaDisplay').innerText = topDspArea.toFixed(2) + " м²";
         document.getElementById('bottomFacadeAreaDisplay').innerText = bottomFacadeArea.toFixed(2) + " м²";
@@ -1201,8 +1210,10 @@
         document.getElementById('totalEdgeLength').innerText = totalEdgeLength.toFixed(2) + " пог. м";
         document.getElementById('totalTopLength').innerText = totalTopLength.toFixed(2) + " пог. м";
 
+        // Навесы
         const hangerPairs = Math.ceil(totalHangers / 2.0);
 
+        // Вывод фурнитуры, услуг и крепежа
         document.getElementById('hwHinges').innerText = totalHinges + " шт.";
         document.getElementById('hwSlides').innerText = totalSlides + " компл.";
         document.getElementById('hwCargo').innerText = totalCargo + " шт.";
@@ -1223,6 +1234,7 @@
         document.getElementById('srvCutOven').innerText = totalCutOven + " шт.";
         document.getElementById('srvCutSink').innerText = totalCutSink + " шт.";
 
+        // Цены
         const bottomBodyPrice = parseFloat(document.getElementById('bottomBodySelect').value) || 0;
         const topBodyPrice = parseFloat(document.getElementById('topBodySelect').value) || 0;
         const bottomFacadePrice = parseFloat(document.getElementById('bottomFacadeSelect').value) || 0;
@@ -1256,6 +1268,7 @@
         const hardwareExtra = parseFloat(document.getElementById('hardwareCost').value) || 0;
         const margin = parseFloat(document.getElementById('marginPercent').value) || 0;
 
+        // Расчёт совокупных стоимостей
         const dspCost = (bottomDspArea * bottomBodyPrice) + (topDspArea * topBodyPrice);
         const facadeCost = (bottomFacadeArea * bottomFacadePrice) + (topFacadeArea * topFacadePrice);
         const dvpCost = totalDvpArea * dvpPrice;
@@ -1295,6 +1308,7 @@
         drawKitchen2D();
     }
 
+    // 2D ЭСКИЗ
     function drawKitchen2D() {
         const canvas = document.getElementById('kitchenCanvas');
         const ctx = canvas.getContext('2d');
