@@ -42,6 +42,16 @@
         .status-success { background: #dcfce7; color: #15803d; }
         .status-error { background: #fee2e2; color: #b91c1c; }
 
+        .price-panel-head { font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .price-panel-head button { margin-left: 8px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; padding: 2px 8px; font-size: 0.78rem; cursor: pointer; }
+        .price-chip { display: inline-block; font-size: 0.78rem; padding: 3px 4px 3px 9px; margin: 0 6px 6px 0; border-radius: 14px; border: 1px solid transparent; white-space: nowrap; }
+        .price-chip button { border: none; background: transparent; cursor: pointer; font-size: 0.9rem; margin-left: 2px; padding: 0 5px; color: inherit; border-radius: 10px; }
+        .price-chip button:hover { background: rgba(0,0,0,0.1); }
+        .chip-ok   { background: #dcfce7; color: #15803d; }
+        .chip-warn { background: #fef3c7; color: #b45309; }
+        .chip-err  { background: #fee2e2; color: #b91c1c; }
+        .chip-load { background: #e2e8f0; color: #475569; }
+
         .section-title {
             font-size: 1.05rem;
             font-weight: bold;
@@ -267,6 +277,7 @@
     <div class="container">
         <h2>🏗️ Конструктор Кухни — Фаворит (С автоматическим расчётом присадки)</h2>
         <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка базы данных...</div>
+        <div id="pricePanel" style="margin-bottom:12px;"></div>
         <div id="servicesInfo" style="display:none; font-size:0.82rem; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:12px;"></div>
 
         <!-- 1. РАЗДЕЛЬНЫЙ ВЫБОР МАТЕРИАЛОВ -->
@@ -737,20 +748,25 @@
         return !!text && text.length > 10 && !/^\s*<(!doctype|html)/i.test(text);
     }
 
-    // Возвращает текст CSV или null, если не удалось получить ни одним способом
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // Возвращает текст CSV или null. Два круга по трём адресам (напрямую → два прокси) с паузой между кругами
     async function fetchCsvData(url) {
         const endpoints = [
             url,
             "https://corsproxy.io/?" + encodeURIComponent(url),
             "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
         ];
-        for (const ep of endpoints) {
-            try {
-                const res = await fetchWithTimeout(ep);
-                if (!res.ok) continue;
-                const text = await res.text();
-                if (looksLikeCsv(text)) return text;
-            } catch (e) { /* пробуем следующий адрес */ }
+        for (let round = 0; round < 2; round++) {
+            for (const ep of endpoints) {
+                try {
+                    const res = await fetchWithTimeout(ep);
+                    if (!res.ok) continue;
+                    const text = await res.text();
+                    if (looksLikeCsv(text)) return text;
+                } catch (e) { /* пробуем следующий адрес */ }
+            }
+            if (round === 0) await sleep(1200);
         }
         return null;
     }
@@ -896,68 +912,178 @@
         box.innerText = text;
     }
 
-    async function loadAllData() {
-        const statusBadge = document.getElementById('statusBadge');
-        statusBadge.className = "status-badge status-loading";
-        statusBadge.innerText = "⏳ Загрузка базы данных...";
-        failedSources = [];
+    // ---------- Загрузка прайсов: ограниченная параллельность, повторы, копия в браузере ----------
+    const CACHE_PREFIX = 'kc_prices_v1:';
+    const MAX_PARALLEL = 3;           // одновременно не больше 3 листов (Google отказывает, когда их 14 сразу)
+    const SOURCE_STATE = {};          // k -> { status: 'loading'|'ok'|'cached'|'error', time, note }
+    const DATA_TIME = {};             // k -> когда получены данные, которые сейчас в DATA_STORE
+    const inflight = {};
 
+    // Какие поля формы наполняются из какого листа: [id списка, id поля цены (если список меняет цену)]
+    const SOURCE_UI = {
+        dsp:          { fills: [['bottomBodySelect'], ['topBodySelect']], facades: true },
+        mdf:          { fills: [], facades: true },
+        countertops:  { fills: [['topMaterialSelect']] },
+        hinges:       { fills: [['hingesSelect', 'hingePrice']] },
+        slides:       { fills: [['slidesSelect', 'slidePrice']] },
+        cargoSush:    { fills: [['cargoSelect', 'cargoPrice'], ['sushSelect', 'sushPrice']] },
+        sinks:        { fills: [['sinkSelect', 'sinkPrice']] },
+        legs:         { fills: [['legsSelect', 'legPrice']] },
+        lifts:        { fills: [['liftsSelect', 'liftPrice']] },
+        handles:      { fills: [['handlesSelect', 'handlePrice']] },
+        hangersRails: { fills: [['hangersSelect', 'hangerPrice'], ['mountRailSelect', 'mountRailPrice']] },
+        dvp:          { fills: [['dvpSelect', 'dvpPrice']] },
+        edges:        { fills: [['bottomBodyEdgeSelect'], ['bottomFacadeEdgeSelect'], ['topBodyEdgeSelect'], ['topFacadeEdgeSelect']] },
+        services:     { fills: [], services: true }
+    };
+
+    function cacheGet(k) {
         try {
-            const keys = Object.keys(SOURCES);
-            const texts = await Promise.all(keys.map(k => fetchCsvData(SOURCES[k])));
+            const raw = localStorage.getItem(CACHE_PREFIX + k);
+            const obj = raw ? JSON.parse(raw) : null;
+            return obj && Array.isArray(obj.items) && obj.items.length ? obj : null;
+        } catch (e) { return null; }
+    }
+    function cacheSet(k, items) {
+        try { localStorage.setItem(CACHE_PREFIX + k, JSON.stringify({ t: Date.now(), items })); } catch (e) { /* хранилище недоступно — не страшно */ }
+    }
+    function fmtTime(t) {
+        return t ? new Date(t).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+    }
 
-            keys.forEach((k, i) => {
-                DATA_STORE[k] = parseCsvToItems(texts[i]);
-                if (NON_CRITICAL_SOURCES.includes(k)) return;
-                if (texts[i] === null) {
-                    failedSources.push(`${SOURCE_LABELS[k]} — нет связи с таблицей`);
-                } else if (DATA_STORE[k].length === 0) {
-                    failedSources.push(`${SOURCE_LABELS[k]} — не найдено ни одной цены`);
+    // Подставляет данные листа в поля формы (выбор пользователя сохраняется, если такая позиция осталась в списке)
+    function applySourceToUI(k) {
+        const ui = SOURCE_UI[k];
+        if (!ui) return;
+        ui.fills.forEach(([selectId, priceId]) => fillSelect(selectId, DATA_STORE[k], priceId || null));
+        if (ui.facades) handleFacadeTypeChange();
+        if (ui.services) {
+            const st = SOURCE_STATE[k] || {};
+            applyServicePrices(st.status === 'error');
+            const box = document.getElementById('servicesInfo');
+            if (st.status === 'cached' && box) {
+                box.innerText += ` (данные из сохранённой копии от ${fmtTime(st.time)})`;
+            }
+        }
+    }
+
+    // Загрузка одного листа. При неудаче данные не стираются: остаются прежние (из этой сессии) или копия из браузера
+    function loadSource(k) {
+        if (inflight[k]) return inflight[k];
+        inflight[k] = (async () => {
+            const prev = SOURCE_STATE[k] || {};
+            SOURCE_STATE[k] = { status: 'loading', time: prev.time, note: prev.note };
+            renderPricePanel(); updateStatusBadge();
+
+            const text = await fetchCsvData(SOURCES[k]);
+            const items = parseCsvToItems(text);
+
+            if (text && items.length > 0) {
+                DATA_STORE[k] = items;
+                DATA_TIME[k] = Date.now();
+                cacheSet(k, items);
+                SOURCE_STATE[k] = { status: 'ok', time: DATA_TIME[k] };
+            } else {
+                const note = text ? 'в таблице не найдено цен' : 'нет связи с таблицей';
+                if (!DATA_STORE[k] || DATA_STORE[k].length === 0) {
+                    const c = cacheGet(k);
+                    if (c) { DATA_STORE[k] = c.items; DATA_TIME[k] = c.t; }
                 }
-            });
+                if (DATA_STORE[k] && DATA_STORE[k].length > 0) {
+                    SOURCE_STATE[k] = { status: 'cached', time: DATA_TIME[k], note };
+                } else {
+                    DATA_STORE[k] = [];
+                    SOURCE_STATE[k] = { status: 'error', note };
+                }
+            }
 
-            // Наполнение основных материалов
-            fillSelect('bottomBodySelect', DATA_STORE.dsp);
-            fillSelect('topBodySelect', DATA_STORE.dsp);
-            fillSelect('topMaterialSelect', DATA_STORE.countertops);
+            applySourceToUI(k);
+            renderPricePanel(); updateStatusBadge();
+        })().catch(err => {
+            SOURCE_STATE[k] = { status: 'error', note: 'ошибка: ' + (err && err.message ? err.message : err) };
+            renderPricePanel(); updateStatusBadge();
+        }).finally(() => { delete inflight[k]; });
+        return inflight[k];
+    }
 
-            // Наполнение фурнитуры
-            fillSelect('hingesSelect', DATA_STORE.hinges, 'hingePrice');
-            fillSelect('slidesSelect', DATA_STORE.slides, 'slidePrice');
-            fillSelect('cargoSelect', DATA_STORE.cargoSush, 'cargoPrice');
-            fillSelect('sushSelect', DATA_STORE.cargoSush, 'sushPrice');
-            fillSelect('sinkSelect', DATA_STORE.sinks, 'sinkPrice');
-            fillSelect('legsSelect', DATA_STORE.legs, 'legPrice');
-            fillSelect('liftsSelect', DATA_STORE.lifts, 'liftPrice');
-            fillSelect('handlesSelect', DATA_STORE.handles, 'handlePrice');
-            fillSelect('hangersSelect', DATA_STORE.hangersRails, 'hangerPrice');
-            fillSelect('mountRailSelect', DATA_STORE.hangersRails, 'mountRailPrice');
+    function updateStatusBadge() {
+        const badge = document.getElementById('statusBadge');
+        if (!badge) return;
+        const keys = Object.keys(SOURCES);
+        const st = (k) => SOURCE_STATE[k] || { status: 'loading' };
+        const loading = keys.filter(k => st(k).status === 'loading');
+        const errors  = keys.filter(k => st(k).status === 'error');
+        const cached  = keys.filter(k => st(k).status === 'cached');
 
-            // ДВП и кромка
-            fillSelect('dvpSelect', DATA_STORE.dvp, 'dvpPrice');
-            ['bottomBodyEdgeSelect', 'bottomFacadeEdgeSelect', 'topBodyEdgeSelect', 'topFacadeEdgeSelect']
-                .forEach(id => fillSelect(id, DATA_STORE.edges));
+        // Для предупреждения под итоговой ценой: только листы, влияющие на расчёт (услуги обрабатываются отдельно)
+        failedSources = errors.filter(k => !NON_CRITICAL_SOURCES.includes(k)).map(k => `${SOURCE_LABELS[k]} — ${st(k).note}`);
 
-            // Цены услуг из таблицы «Услуги»
-            applyServicePrices(texts[keys.indexOf('services')] === null);
-
-            handleFacadeTypeChange();
-        } catch (err) {
-            failedSources.push('Непредвиденная ошибка: ' + (err && err.message ? err.message : err));
-        }
-
-        if (failedSources.length === 0) {
-            statusBadge.className = "status-badge status-success";
-            statusBadge.innerText = "✓ Все прайсы и фурнитура успешно загружены";
-        } else {
-            statusBadge.className = "status-badge status-error";
-            statusBadge.innerHTML = "⚠️ Не загружено: " + failedSources.join("; ") +
+        if (loading.length > 0) {
+            badge.className = "status-badge status-loading";
+            badge.innerText = `⏳ Загрузка прайсов… (${keys.length - loading.length} из ${keys.length})`;
+        } else if (errors.length > 0) {
+            badge.className = "status-badge status-error";
+            badge.innerHTML = "⚠️ Не загружено: " + errors.map(k => SOURCE_LABELS[k]).join(', ') +
                 ". Расчёт неполный. " +
-                '<button type="button" class="btn" style="height:28px;padding:2px 10px;margin-left:8px;" onclick="loadAllData()">Повторить</button>';
+                '<button type="button" class="btn" style="height:28px;padding:2px 10px;margin-left:8px;" onclick="loadAllData(true, 0)">Повторить недостающие</button>';
+        } else if (cached.length > 0) {
+            badge.className = "status-badge status-loading";
+            badge.innerHTML = "⚠️ Не удалось обновить: " + cached.map(k => SOURCE_LABELS[k]).join(', ') +
+                ". Используются сохранённые копии (цены могли устареть). " +
+                '<button type="button" class="btn" style="height:28px;padding:2px 10px;margin-left:8px;" onclick="loadAllData(true, 0)">Обновить</button>';
+        } else {
+            badge.className = "status-badge status-success";
+            badge.innerText = "✓ Все прайсы и фурнитура успешно загружены";
         }
+    }
+
+    // Панель «Состояние прайсов»: по кнопке ↻ можно обновить любой лист отдельно
+    function renderPricePanel() {
+        const box = document.getElementById('pricePanel');
+        if (!box) return;
+        const chips = Object.keys(SOURCES).map(k => {
+            const s = SOURCE_STATE[k] || { status: 'loading' };
+            let cls = 'chip-ok', icon = '✓', title = 'Загружено ' + fmtTime(s.time);
+            if (s.status === 'loading') { cls = 'chip-load'; icon = '⏳'; title = 'Загрузка…'; }
+            else if (s.status === 'cached') { cls = 'chip-warn'; icon = '⚠'; title = `Не удалось обновить (${s.note}). Используется копия от ${fmtTime(s.time)}`; }
+            else if (s.status === 'error') { cls = 'chip-err'; icon = '✕'; title = `Не загружено: ${s.note}`; }
+            return `<span class="price-chip ${cls}" title="${title}">${icon} ${SOURCE_LABELS[k]}` +
+                   `<button type="button" onclick="refreshSource('${k}')" title="Обновить: ${SOURCE_LABELS[k]}">↻</button></span>`;
+        }).join('');
+        box.innerHTML = `<div class="price-panel-head">Состояние прайсов ` +
+            `<button type="button" onclick="loadAllData(false, 0)">↻ Обновить всё</button></div><div>${chips}</div>`;
+    }
+
+    async function refreshSource(k) {
+        await loadSource(k);
+        calculateProject();
+    }
+
+    // onlyFailed — перезагрузить только листы, которые не в статусе «ok»; autoRetries — сколько раз повторить автоматически
+    async function loadAllData(onlyFailed = false, autoRetries = 2) {
+        const keys = Object.keys(SOURCES).filter(k => !onlyFailed || (SOURCE_STATE[k] && SOURCE_STATE[k].status !== 'ok') || !SOURCE_STATE[k]);
+
+        keys.forEach(k => { if (!inflight[k]) SOURCE_STATE[k] = { status: 'loading', time: (SOURCE_STATE[k] || {}).time }; });
+        renderPricePanel(); updateStatusBadge();
+
+        let next = 0;
+        const worker = async () => {
+            while (next < keys.length) {
+                const k = keys[next++];
+                await loadSource(k);
+            }
+        };
+        await Promise.all(Array.from({ length: Math.min(MAX_PARALLEL, keys.length) }, worker));
 
         renderModulesTable();
         calculateProject();
+
+        // Автоматически повторяем только то, что не загрузилось (пауза даёт Google «остыть»)
+        const stillBad = Object.keys(SOURCES).some(k => (SOURCE_STATE[k] || {}).status === 'error');
+        if (stillBad && autoRetries > 0) {
+            await sleep(2500);
+            return loadAllData(true, autoRetries - 1);
+        }
     }
 
     function handleFacadeTypeChange() {
@@ -973,6 +1099,10 @@
         const select = document.getElementById(elementId);
         if (!select) return;
 
+        // Запоминаем текущий выбор, чтобы после обновления списка он не сбрасывался на первую позицию
+        const prevOpt = select.options[select.selectedIndex];
+        const prevName = prevOpt && prevOpt.dataset ? prevOpt.dataset.name : undefined;
+
         select.innerHTML = '';
         if (items.length === 0) {
             const opt = document.createElement('option');
@@ -985,15 +1115,20 @@
         items.forEach(item => {
             const opt = document.createElement('option');
             opt.value = item.price;
+            opt.dataset.name = item.name;
             opt.textContent = `${item.name} (${item.price} руб.)`;
             select.appendChild(opt);
         });
+
+        if (prevName !== undefined) {
+            const idx = [...select.options].findIndex(o => o.dataset.name === prevName);
+            if (idx >= 0) select.selectedIndex = idx;
+        }
 
         if (targetPriceInputId && select.options.length > 0) {
             document.getElementById(targetPriceInputId).value = select.value;
         }
     }
-
     function syncPriceFromSelect(selectId, inputId) {
         const select = document.getElementById(selectId);
         const input = document.getElementById(inputId);
