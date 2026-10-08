@@ -560,6 +560,27 @@
                         <input type="number" class="hardware-price-input" id="sawingPrice" value="6.55" oninput="calculateProject()">
                     </div>
 
+                    <div class="hardware-row" style="background: #fefce8;">
+                        <span class="hardware-label">Коэффициент отхода материала, % (ДСП, фасады, ДВП)</span>
+                        <span style="flex: 2;"></span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="wastePercent" value="20" min="0" oninput="calculateProject()">
+                    </div>
+
+                    <div class="hardware-row" style="background: #fefce8;">
+                        <span class="hardware-label">Добавка кромки на каждую сторону детали (мм)</span>
+                        <span style="flex: 2;"></span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="edgeAllowanceMm" value="30" min="0" oninput="calculateProject(); renderModulesTable();">
+                    </div>
+
+                    <div class="hardware-row" style="background: #fefce8;">
+                        <span class="hardware-label">Распил: пог. м на 1 м² плит</span>
+                        <span style="flex: 2;"></span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="sawPerM2" value="7" min="0" step="0.1" oninput="calculateProject()">
+                    </div>
+
                     <div class="hardware-row">
                         <span class="hardware-label">Дополнительные метизы / расходники (руб)</span>
                         <span style="flex: 2;"></span>
@@ -578,6 +599,7 @@
                 <div class="total-box">
                     <div>Предварительный расчёт проекта:</div>
                     <div id="totalPriceDisplay" class="total-price">0 руб.</div>
+                    <div id="priceWarning" style="display:none; margin-top:10px; padding:8px 12px; background:#fee2e2; color:#b91c1c; border-radius:6px; font-size:0.85rem; font-weight:600; text-align:left;"></div>
                 </div>
             </div>
 
@@ -651,93 +673,164 @@
         }
     }
 
+    const SOURCE_LABELS = {
+        dsp: 'ДСП', mdf: 'МДФ', countertops: 'Столешницы', hinges: 'Петли',
+        slides: 'Направляющие', cargoSush: 'Карго/сушки', sinks: 'Мойки', legs: 'Ножки',
+        lifts: 'Подъёмники', handles: 'Ручки', hangersRails: 'Навесы/планки', services: 'Услуги'
+    };
+    // Источники, сбой которых не влияет на цену (данные из них в расчёте не используются)
+    const NON_CRITICAL_SOURCES = ['services'];
+    let failedSources = [];
+
+    async function fetchWithTimeout(url, ms = 10000) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), ms);
+        try {
+            return await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    function looksLikeCsv(text) {
+        // Отсекаем пустые ответы и HTML-страницы (ошибка, вход в аккаунт и т.п.)
+        return !!text && text.length > 10 && !/^\s*<(!doctype|html)/i.test(text);
+    }
+
+    // Возвращает текст CSV или null, если не удалось получить ни одним способом
     async function fetchCsvData(url) {
         const endpoints = [
+            url,
             "https://corsproxy.io/?" + encodeURIComponent(url),
-            "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-            url
+            "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
         ];
         for (const ep of endpoints) {
             try {
-                const res = await fetch(ep);
-                if (res.ok) {
-                    const text = await res.text();
-                    if (text && text.length > 30) return text;
-                }
-            } catch (e) {}
+                const res = await fetchWithTimeout(ep);
+                if (!res.ok) continue;
+                const text = await res.text();
+                if (looksLikeCsv(text)) return text;
+            } catch (e) { /* пробуем следующий адрес */ }
         }
-        return "";
+        return null;
+    }
+
+    // Полноценный разбор CSV: кавычки, запятые внутри кавычек, переносы строк, разделитель определяется сам
+    function parseCsv(text) {
+        text = text.replace(/^\uFEFF/, '');
+
+        const sampleLines = text.split(/\r?\n/).filter(l => l.trim()).slice(0, 10);
+        let delim = ',', best = -1;
+        [',', ';', '\t', '|'].forEach(dl => {
+            let cnt = 0;
+            sampleLines.forEach(line => {
+                let inQ = false;
+                for (const ch of line) {
+                    if (ch === '"') inQ = !inQ;
+                    else if (!inQ && ch === dl) cnt++;
+                }
+            });
+            if (cnt > best) { best = cnt; delim = dl; }
+        });
+
+        const rows = [];
+        let row = [], cell = '', inQ = false;
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            if (inQ) {
+                if (ch === '"') {
+                    if (text[i + 1] === '"') { cell += '"'; i++; }
+                    else inQ = false;
+                } else cell += ch;
+            } else if (ch === '"') {
+                inQ = true;
+            } else if (ch === delim) {
+                row.push(cell); cell = '';
+            } else if (ch === '\n' || ch === '\r') {
+                if (ch === '\r' && text[i + 1] === '\n') i++;
+                row.push(cell); rows.push(row); row = []; cell = '';
+            } else cell += ch;
+        }
+        if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+
+        return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c !== ''));
+    }
+
+    // Строгий разбор цены: ячейка должна быть именно числом (допускаются пробелы, «руб», «₽», запятая как десятичный знак).
+    // Ячейки вроде «18 мм» или «арт. 123» ценой не считаются.
+    function parsePrice(s) {
+        if (!s) return NaN;
+        const c = s.replace(/[\s\u00A0]/g, '').replace(/(₽|руб\.?|р\.?)$/i, '').replace(',', '.');
+        return /^\d+(\.\d+)?$/.test(c) ? parseFloat(c) : NaN;
     }
 
     function parseCsvToItems(csvText) {
+        if (!csvText) return [];
+        const rows = parseCsv(csvText);
+
+        let nameCol = 0, priceCol = -1, start = 0;
+
+        // Ищем строку заголовка с колонкой «Цена» среди первых 10 строк
+        for (let r = 0; r < Math.min(rows.length, 10); r++) {
+            if (rows[r].filter(Boolean).length < 2) continue;
+            const cells = rows[r].map(c => c.toLowerCase());
+            const p = cells.findIndex(c => /цена|стоимость|price|руб/.test(c));
+            if (p !== -1) {
+                priceCol = p;
+                const n = cells.findIndex(c => /назв|наимен|материал|товар|name/.test(c));
+                if (n !== -1) nameCol = n;
+                start = r + 1;
+                break;
+            }
+        }
+
         const items = [];
-        const lines = csvText.split(/\r?\n/);
+        for (let r = start; r < rows.length; r++) {
+            const cols = rows[r];
+            const title = cols[nameCol] || '';
+            if (!title) continue;
 
-        lines.forEach(line => {
-            if (!line.trim()) return;
-            let cols = line.split(/[|,\t]/).map(item => item.replace(/^"|"$/g, '').trim());
-
-            if (cols.length >= 1) {
-                let title = cols[0];
-                let priceNum = NaN;
-
-                for (let i = 1; i < cols.length; i++) {
-                    let match = cols[i].match(/(\d+[\.,]?\d*)/);
-                    if (match) {
-                        let cleanPrice = match[0].replace(',', '.');
-                        let parsed = parseFloat(cleanPrice);
-                        if (!isNaN(parsed) && parsed > 0) {
-                            priceNum = parsed;
-                            break;
-                        }
-                    }
-                }
-
-                const isHeader = title.includes("Фаворит") || title.includes("ДСП, ДВП, МДФ") || title.includes("#N/A") || title.toLowerCase().includes("название");
-
-                if (title && !isNaN(priceNum) && !isHeader) {
-                    items.push({ name: title, price: priceNum });
+            let price = NaN;
+            if (priceCol !== -1) {
+                price = parsePrice(cols[priceCol]);
+            } else {
+                for (let i = nameCol + 1; i < cols.length; i++) {
+                    const p = parsePrice(cols[i]);
+                    if (!isNaN(p) && p > 0) { price = p; break; }
                 }
             }
-        });
 
+            const isHeader = /^#(n\/a|н\/д|ref|value)/i.test(title) ||
+                             title.includes("ДСП, ДВП, МДФ") ||
+                             /^фаворит/i.test(title) ||
+                             title.toLowerCase().includes("название");
+
+            if (!isHeader && !isNaN(price) && price > 0) {
+                items.push({ name: title, price: price });
+            }
+        }
         return items;
     }
 
     async function loadAllData() {
         const statusBadge = document.getElementById('statusBadge');
-        try {
-            const [
-                dspCsv, mdfCsv, countertopsCsv, hingesCsv,
-                slidesCsv, cargoSushCsv, sinksCsv, legsCsv,
-                liftsCsv, handlesCsv, hangersRailsCsv, servicesCsv
-            ] = await Promise.all([
-                fetchCsvData(SOURCES.dsp),
-                fetchCsvData(SOURCES.mdf),
-                fetchCsvData(SOURCES.countertops),
-                fetchCsvData(SOURCES.hinges),
-                fetchCsvData(SOURCES.slides),
-                fetchCsvData(SOURCES.cargoSush),
-                fetchCsvData(SOURCES.sinks),
-                fetchCsvData(SOURCES.legs),
-                fetchCsvData(SOURCES.lifts),
-                fetchCsvData(SOURCES.handles),
-                fetchCsvData(SOURCES.hangersRails),
-                fetchCsvData(SOURCES.services)
-            ]);
+        statusBadge.className = "status-badge status-loading";
+        statusBadge.innerText = "⏳ Загрузка базы данных...";
+        failedSources = [];
 
-            DATA_STORE.dsp = parseCsvToItems(dspCsv);
-            DATA_STORE.mdf = parseCsvToItems(mdfCsv);
-            DATA_STORE.countertops = parseCsvToItems(countertopsCsv);
-            DATA_STORE.hinges = parseCsvToItems(hingesCsv);
-            DATA_STORE.slides = parseCsvToItems(slidesCsv);
-            DATA_STORE.cargoSush = parseCsvToItems(cargoSushCsv);
-            DATA_STORE.sinks = parseCsvToItems(sinksCsv);
-            DATA_STORE.legs = parseCsvToItems(legsCsv);
-            DATA_STORE.lifts = parseCsvToItems(liftsCsv);
-            DATA_STORE.handles = parseCsvToItems(handlesCsv);
-            DATA_STORE.hangersRails = parseCsvToItems(hangersRailsCsv);
-            DATA_STORE.services = parseCsvToItems(servicesCsv);
+        try {
+            const keys = Object.keys(SOURCES);
+            const texts = await Promise.all(keys.map(k => fetchCsvData(SOURCES[k])));
+
+            keys.forEach((k, i) => {
+                DATA_STORE[k] = parseCsvToItems(texts[i]);
+                if (NON_CRITICAL_SOURCES.includes(k)) return;
+                if (texts[i] === null) {
+                    failedSources.push(`${SOURCE_LABELS[k]} — нет связи с таблицей`);
+                } else if (DATA_STORE[k].length === 0) {
+                    failedSources.push(`${SOURCE_LABELS[k]} — не найдено ни одной цены`);
+                }
+            });
 
             // Наполнение основных материалов
             fillSelect('bottomBodySelect', DATA_STORE.dsp);
@@ -757,16 +850,22 @@
             fillSelect('mountRailSelect', DATA_STORE.hangersRails, 'mountRailPrice');
 
             handleFacadeTypeChange();
+        } catch (err) {
+            failedSources.push('Непредвиденная ошибка: ' + (err && err.message ? err.message : err));
+        }
 
+        if (failedSources.length === 0) {
             statusBadge.className = "status-badge status-success";
             statusBadge.innerText = "✓ Все прайсы и фурнитура успешно загружены";
-
-            renderModulesTable();
-            calculateProject();
-        } catch (err) {
+        } else {
             statusBadge.className = "status-badge status-error";
-            statusBadge.innerText = "⚠️ Ошибка загрузки базы прайсов.";
+            statusBadge.innerHTML = "⚠️ Не загружено: " + failedSources.join("; ") +
+                ". Расчёт неполный. " +
+                '<button type="button" class="btn" style="height:28px;padding:2px 10px;margin-left:8px;" onclick="loadAllData()">Повторить</button>';
         }
+
+        renderModulesTable();
+        calculateProject();
     }
 
     function handleFacadeTypeChange() {
@@ -845,7 +944,14 @@
         return 5;
     }
 
-    // Расчёт конфоррматов, шурупов и отверстий присадки (Трипан)
+    // Добавка к кромке на каждую сторону детали (по умолчанию 30 мм: сторона 700 → 730)
+    function getEdgeAllowance() {
+        const el = document.getElementById('edgeAllowanceMm');
+        const v = el ? parseFloat(el.value) : NaN;
+        return (isNaN(v) || v < 0 ? 30 : v) / 1000.0;
+    }
+
+    // Расчёт конфирматов, шурупов, кромки и отверстий присадки (Трипан)
     function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         const w = widthMm / 1000.0;
         const h = heightMm / 1000.0;
@@ -853,9 +959,19 @@
 
         const dspT = 0.036;
         const drawerDspT = 0.072;
+        const gap = 0.004;
+
+        // Кромка детали со сторонами a×b: каждая сторона + добавка k
+        const k = getEdgeAllowance();
+        const edgeOf = (a, b) => 2 * ((a + k) + (b + k));
 
         let parts = [];
-        let facadeArea = 0;
+        let facades = []; // каждый фасад отдельно: [ширина, высота] в метрах
+
+        // n дверей рядом (общая площадь = (w - зазор) × высота)
+        const doors = (n, doorH) => { for (let i = 0; i < n; i++) facades.push([(w - gap) / n, doorH]); };
+        // n фасадов друг над другом (общая площадь = (w - зазор) × (h - зазор))
+        const stacked = (n) => { for (let i = 0; i < n; i++) facades.push([w - gap, (h - gap) / n]); };
 
         let hinges = 0;
         let slides = 0;
@@ -877,9 +993,8 @@
         let cutSink = 0;
 
         if (type === 'bottom_falsh' || type === 'top_falsh') {
-            facadeArea = w * h;
             return {
-                dsp: 0, dvp: 0, groove: 0, edge: 2 * (w + h), facade: facadeArea, partCount: 1,
+                dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), facade: w * h, partCount: 1,
                 hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0,
                 confirmats: 0, screws: 0, cutOven: 0, cutSink: 0,
                 isBottom: type.startsWith('bottom_')
@@ -894,24 +1009,24 @@
         confirmats += 8;
 
         if (type.startsWith('bottom_')) {
-            parts.push([2, h, d]); 
-            parts.push([2, w - dspT, d]); 
-            parts.push([2, w - dspT, 0.10]); 
+            parts.push([2, h, d]);
+            parts.push([2, w - dspT, d]);
+            parts.push([2, w - dspT, 0.10]);
 
             if (type === 'bottom_m1d' || type === 'bottom_m2d') {
-                facadeArea = (h - 0.004) * (w - 0.004);
+                doors(type === 'bottom_m1d' ? 1 : 2, h - gap);
                 hinges += getHingesForDoor(heightMm) * (type === 'bottom_m1d' ? 1 : 2);
                 handles += (type === 'bottom_m1d' ? 1 : 2);
                 sink = 1;
                 cutSink = 1;
             } else if (type === 'bottom_p1d' || type === 'bottom_p2d') {
                 parts.push([1, w - dspT, d - 0.02]);
-                facadeArea = (h - 0.004) * (w - 0.004);
+                doors(type === 'bottom_p1d' ? 1 : 2, h - gap);
                 hinges += getHingesForDoor(heightMm) * (type === 'bottom_p1d' ? 1 : 2);
                 handles += (type === 'bottom_p1d' ? 1 : 2);
                 confirmats += 4; // полка
             } else if (type === 'bottom_cargo') {
-                facadeArea = (h - 0.004) * (w - 0.004);
+                doors(1, h - gap);
                 cargo = 1;
                 handles += 1;
                 screws += 8;
@@ -919,8 +1034,8 @@
                 const drawerH = h / 2 - 0.05;
                 parts.push([4, drawerH, d - 0.05]);
                 parts.push([4, drawerH, w - drawerDspT]);
-                parts.push([2, w - drawerDspT, d - 0.05]); 
-                facadeArea = (h - 0.004) * (w - 0.004);
+                parts.push([2, w - drawerDspT, d - 0.05]);
+                stacked(2);
                 slides += 2;
                 handles += 2;
                 confirmats += 16;
@@ -928,8 +1043,8 @@
             } else if (type === 'bottom_ya3' || type === 'bottom_ya2vn') {
                 parts.push([6, 0.12, d - 0.05]);
                 parts.push([6, 0.12, w - drawerDspT]);
-                parts.push([3, w - drawerDspT, d - 0.05]); 
-                facadeArea = (h - 0.004) * (w - 0.004);
+                parts.push([3, w - drawerDspT, d - 0.05]);
+                stacked(type === 'bottom_ya3' ? 3 : 2);
                 slides += 3;
                 handles += 3;
                 confirmats += 24;
@@ -939,8 +1054,8 @@
                 parts.push([1, w - dspT, d]);
                 parts.push([2, 0.10, d - 0.05]);
                 parts.push([2, 0.10, w - drawerDspT]);
-                parts.push([1, w - drawerDspT, d - 0.05]); 
-                facadeArea = drawerH * (w - 0.004);
+                parts.push([1, w - drawerDspT, d - 0.05]);
+                facades.push([w - gap, drawerH]);
                 slides += 1;
                 handles += 1;
                 cutOven = 1;
@@ -955,31 +1070,31 @@
 
             if (type === 'top_sush_1d' || type === 'top_sush_2d') {
                 sush = 1;
-                facadeArea = (h - 0.004) * (w - 0.004);
+                doors(type === 'top_sush_1d' ? 1 : 2, h - gap);
                 hinges += getHingesForDoor(heightMm) * (type === 'top_sush_1d' ? 1 : 2);
                 handles += (type === 'top_sush_1d' ? 1 : 2);
             } else if (type.includes('1d')) {
                 if (type.includes('p1_')) { parts.push([1, w - dspT, d - 0.02]); confirmats += 4; }
                 if (type.includes('p2_')) { parts.push([2, w - dspT, d - 0.02]); confirmats += 8; }
-                facadeArea = (h - 0.004) * (w - 0.004);
+                doors(1, h - gap);
                 hinges += getHingesForDoor(heightMm);
                 handles += 1;
             } else if (type.includes('2d')) {
                 if (type.includes('p1_')) { parts.push([1, w - dspT, d - 0.02]); confirmats += 4; }
                 if (type.includes('p2_')) { parts.push([2, w - dspT, d - 0.02]); confirmats += 8; }
-                facadeArea = (h - 0.004) * (w - 0.004);
+                doors(2, h - gap);
                 hinges += getHingesForDoor(heightMm) * 2;
                 handles += 2;
             } else if (type === 'top_lift_2') {
-                parts.push([1, w - dspT, d - 0.02]); 
-                facadeArea = (h - 0.004) * (w - 0.004);
+                parts.push([1, w - dspT, d - 0.02]);
+                stacked(2);
                 lifts += 4;
                 handles += 2;
                 confirmats += 4;
                 screws += 16;
             } else if (type === 'top_lift_3') {
-                parts.push([2, w - dspT, d - 0.02]); 
-                facadeArea = (h - 0.004) * (w - 0.004);
+                parts.push([2, w - dspT, d - 0.02]);
+                stacked(3);
                 lifts += 6;
                 handles += 3;
                 confirmats += 8;
@@ -991,20 +1106,20 @@
 
             if (type === 'penal_shelves') {
                 parts.push([4, w - dspT, d - 0.02]);
-                facadeArea = (h - 0.004) * (w - 0.004);
+                stacked(2);
                 hinges += getHingesForDoor(heightMm / 2) * 2;
                 handles += 2;
                 confirmats += 16;
             } else if (type === 'penal_appliances') {
                 parts.push([3, w - dspT, d - 0.02]);
-                facadeArea = Math.max(0, h - 0.900) * (w - 0.004);
+                doors(2, Math.max(0, h - 0.900));
                 hinges += getHingesForDoor(700) * 2;
                 handles += 2;
                 cutOven = 1;
                 confirmats += 12;
             } else if (type === 'penal_fridge') {
                 parts.push([1, w - dspT, d - 0.02]);
-                facadeArea = (h - 0.004) * (w - 0.004);
+                stacked(2);
                 hinges += getHingesForDoor(heightMm / 2) * 2;
                 handles += 2;
                 confirmats += 4;
@@ -1026,15 +1141,18 @@
             const pH = p[2];
 
             dspArea += count * (pW * pH);
-            edgeLength += count * (2 * (pW + pH));
+            edgeLength += count * edgeOf(pW, pH);
             totalPartCount += count;
         });
 
-        if (facadeArea > 0) {
-            edgeLength += Math.sqrt(facadeArea) * 4;
-        }
+        // Фасады: площадь и честный периметр каждого фасада (+ добавка на сторону)
+        let facadeArea = 0;
+        facades.forEach(f => {
+            facadeArea += f[0] * f[1];
+            edgeLength += edgeOf(f[0], f[1]);
+        });
 
-        return { 
+        return {
             dsp: dspArea, dvp: dvpArea, groove: grooveLength, edge: edgeLength, facade: facadeArea,
             partCount: totalPartCount,
             hinges, slides, cargo, sush, sink, legs, lifts, hangers, handles,
@@ -1169,13 +1287,21 @@
 
         // Цоколь (100 мм)
         const plinthArea = (bottomTotalWidthMm / 1000.0) * 0.10;
-        const plinthEdge = 2 * ((bottomTotalWidthMm / 1000.0) + 0.10);
+        const edgeK = getEdgeAllowance();
+        const plinthEdge = 2 * ((bottomTotalWidthMm / 1000.0 + edgeK) + (0.10 + edgeK));
         bottomFacadeArea += plinthArea;
         totalEdgeLength += plinthEdge;
 
         // Длина распила
         const totalBoardArea = bottomDspArea + topDspArea + bottomFacadeArea + topFacadeArea + totalDvpArea;
-        const totalSawingLength = totalBoardArea * 7.0;
+        const sawInput = parseFloat(document.getElementById('sawPerM2').value);
+        const sawPerM2 = isNaN(sawInput) || sawInput < 0 ? 7.0 : sawInput;
+        const totalSawingLength = totalBoardArea * sawPerM2;
+
+        // Коэффициент отхода материала (ДСП, фасады, ДВП): применяется к стоимости плит
+        const wasteInput = parseFloat(document.getElementById('wastePercent').value);
+        const wasteK = 1 + (isNaN(wasteInput) ? 20 : Math.max(0, wasteInput)) / 100.0;
+        const withWaste = (a) => `${a.toFixed(2)} м² (с отходом: ${(a * wasteK).toFixed(2)} м²)`;
 
         // Планка монтажная
         const mountRailPcs = Math.ceil(totalMountRailMeters / 2.0);
@@ -1183,7 +1309,8 @@
         // Паз
         let grooveCost = 0;
         let grooveDisplayText = "";
-        const grooveUnitPrice = parseFloat(document.getElementById('groovePrice').value) || 30;
+        const grooveInput = parseFloat(document.getElementById('groovePrice').value);
+        const grooveUnitPrice = isNaN(grooveInput) ? 30 : grooveInput;
         if (totalGrooveLength > 0 && totalGrooveLength <= 1.0) {
             grooveCost = grooveUnitPrice;
             grooveDisplayText = `${totalGrooveLength.toFixed(2)} м (1 шт)`;
@@ -1200,11 +1327,11 @@
         const totalTripanHoles = totalConfirmats + totalScrews;
 
         // Вывод сводки
-        document.getElementById('bottomDspAreaDisplay').innerText = bottomDspArea.toFixed(2) + " м²";
-        document.getElementById('topDspAreaDisplay').innerText = topDspArea.toFixed(2) + " м²";
-        document.getElementById('bottomFacadeAreaDisplay').innerText = bottomFacadeArea.toFixed(2) + " м²";
-        document.getElementById('topFacadeAreaDisplay').innerText = topFacadeArea.toFixed(2) + " м²";
-        document.getElementById('totalDvpArea').innerText = totalDvpArea.toFixed(2) + " м²";
+        document.getElementById('bottomDspAreaDisplay').innerText = withWaste(bottomDspArea);
+        document.getElementById('topDspAreaDisplay').innerText = withWaste(topDspArea);
+        document.getElementById('bottomFacadeAreaDisplay').innerText = withWaste(bottomFacadeArea);
+        document.getElementById('topFacadeAreaDisplay').innerText = withWaste(topFacadeArea);
+        document.getElementById('totalDvpArea').innerText = withWaste(totalDvpArea);
         document.getElementById('totalGrooveDisplay').innerText = grooveDisplayText;
         document.getElementById('totalSawingLength').innerText = totalSawingLength.toFixed(2) + " пог. м";
         document.getElementById('totalEdgeLength').innerText = totalEdgeLength.toFixed(2) + " пог. м";
@@ -1269,9 +1396,9 @@
         const margin = parseFloat(document.getElementById('marginPercent').value) || 0;
 
         // Расчёт совокупных стоимостей
-        const dspCost = (bottomDspArea * bottomBodyPrice) + (topDspArea * topBodyPrice);
-        const facadeCost = (bottomFacadeArea * bottomFacadePrice) + (topFacadeArea * topFacadePrice);
-        const dvpCost = totalDvpArea * dvpPrice;
+        const dspCost = ((bottomDspArea * bottomBodyPrice) + (topDspArea * topBodyPrice)) * wasteK;
+        const facadeCost = ((bottomFacadeArea * bottomFacadePrice) + (topFacadeArea * topFacadePrice)) * wasteK;
+        const dvpCost = totalDvpArea * dvpPrice * wasteK;
         const sawingCost = totalSawingLength * sawingPrice;
         const edgeCost = totalEdgeLength * edgePrice;
         const topCost = totalTopLength * topPrice;
@@ -1304,6 +1431,40 @@
         const finalPrice = netCost * (1 + margin / 100.0);
 
         document.getElementById('totalPriceDisplay').innerText = Math.round(finalPrice).toLocaleString('ru-RU') + " руб.";
+
+        // Проверка полноты расчёта: не загруженные прайсы и нулевые цены используемых позиций
+        const missing = [];
+        const chk = (label, qty, price) => { if (qty > 0 && !(price > 0)) missing.push(label); };
+        chk('ДСП нижних модулей', bottomDspArea, bottomBodyPrice);
+        chk('ДСП верхних модулей', topDspArea, topBodyPrice);
+        chk('Фасады нижних модулей', bottomFacadeArea, bottomFacadePrice);
+        chk('Фасады верхних модулей', topFacadeArea, topFacadePrice);
+        chk('Столешница', totalTopLength, topPrice);
+        chk('Петли', totalHinges, hingePrice);
+        chk('Направляющие', totalSlides, slidePrice);
+        chk('Карго', totalCargo, cargoPrice);
+        chk('Сушка', totalSush, sushPrice);
+        chk('Мойка', totalSink, sinkPrice);
+        chk('Ножки', totalLegs, legPrice);
+        chk('Подъёмники', totalLifts, liftPrice);
+        chk('Ручки', totalHandles, handlePrice);
+        chk('Навесы', totalHangers, hangerPrice);
+        chk('Монтажная планка', mountRailPcs, mountRailPrice);
+
+        const warnings = [];
+        if (failedSources.length > 0) warnings.push('Не загружены прайсы: ' + failedSources.join('; ') + '.');
+        if (missing.length > 0) warnings.push('Не указана цена: ' + missing.join(', ') + '.');
+
+        const warnBox = document.getElementById('priceWarning');
+        const priceEl = document.getElementById('totalPriceDisplay');
+        if (warnings.length > 0) {
+            warnBox.innerText = '⚠️ Расчёт неполный, итоговая цена занижена. ' + warnings.join(' ');
+            warnBox.style.display = 'block';
+            priceEl.style.color = '#b91c1c';
+        } else {
+            warnBox.style.display = 'none';
+            priceEl.style.color = '';
+        }
 
         drawKitchen2D();
     }
