@@ -539,14 +539,14 @@
                         <span class="hardware-label">Вырез под варочную панель</span>
                         <span style="flex: 2;"></span>
                         <span class="hardware-qty" id="srvCutOven">0 шт.</span>
-                        <input type="number" class="hardware-price-input" id="cutOvenPrice" value="600" oninput="calculateProject()">
+                        <input type="number" class="hardware-price-input" id="cutOvenPrice" value="270" oninput="calculateProject()">
                     </div>
 
                     <div class="hardware-row">
                         <span class="hardware-label">Вырез под мойку</span>
                         <span style="flex: 2;"></span>
                         <span class="hardware-qty" id="srvCutSink">0 шт.</span>
-                        <input type="number" class="hardware-price-input" id="cutSinkPrice" value="600" oninput="calculateProject()">
+                        <input type="number" class="hardware-price-input" id="cutSinkPrice" value="270" oninput="calculateProject()">
                     </div>
 
                     <div class="hardware-row">
@@ -568,6 +568,13 @@
                         <span style="flex: 2;"></span>
                         <span class="hardware-qty">-</span>
                         <input type="number" class="hardware-price-input" id="edgePrice" value="35" oninput="calculateProject()">
+                    </div>
+
+                    <div class="hardware-row">
+                        <span class="hardware-label">Поклейка кромки 22х0,8 (полиуретан), руб/м.п. — по длине всей кромки</span>
+                        <span style="flex: 2;"></span>
+                        <span class="hardware-qty">-</span>
+                        <input type="number" class="hardware-price-input" id="edgeGluePrice" value="0" oninput="calculateProject()">
                     </div>
 
                     <div class="hardware-row">
@@ -835,13 +842,14 @@
 
     // Соответствие строк таблицы «Услуги» полям формы (поиск по ключевым словам в названии строки)
     const SERVICE_RULES = [
-        { inputId: 'hingeD35Price', label: 'Присадка под петлю d-35',    re: /d\s*-?\s*35|ø\s*35|ф\s*35|диаметр\s*35|под\s+петл|присадк\S*\s+петл/i },
-        { inputId: 'tripanPrice',   label: 'Присадка «Трипан»',          re: /трипан/i },
-        { inputId: 'cutOvenPrice',  label: 'Вырез под варочную панель',  re: /варочн/i },
-        { inputId: 'cutSinkPrice',  label: 'Вырез под мойку',            re: /мойк/i },
-        { inputId: 'groovePrice',   label: 'Паз под ДВП',                re: /паз/i },
-        { inputId: 'sawingPrice',   label: 'Распил',                     re: /распил/i }
+        { inputId: 'hingeD35Price', label: 'Отверстие под петлю d-35',          re: /отверсти\S*\s+под\s+петл/i },
+        { inputId: 'tripanPrice',   label: 'Присадка «Трипан»',                 re: /присадк\S*\s+[«"“]?\s*трипан/i },
+        { inputId: 'groovePrice',   label: 'Пропил паза под ДВП (руб/м.п.)',    re: /пропил\s+паза/i },
+        { inputId: 'sawingPrice',   label: 'Распил ДСП (все плитные материалы)', re: /распил\s+дсп/i },
+        { inputId: 'edgeGluePrice', label: 'Поклейка кромки 22х0,8 (полиуретан)', re: /поклейк\S*\s+кромк\S*.*22\s*[xх×]\s*0[,.]8/i }
     ];
+    // Вырезы под варочную панель и мойку в таблице услуг отсутствуют — фиксированная цена 270 руб.
+    // (задаётся значением полей cutOvenPrice / cutSinkPrice в форме)
 
     function applyServicePrices(fetchFailed) {
         const box = document.getElementById('servicesInfo');
@@ -1487,6 +1495,8 @@
             const v = el ? parseFloat(el.value) : NaN;
             return v > 0 ? v : edgePrice;
         };
+        const edgeGluePrice = parseFloat(document.getElementById('edgeGluePrice').value) || 0;
+        const edgeGlueCost = totalEdgeLength * edgeGluePrice; // поклейка = длина всей кромки (включая цоколь)
         const edgeCost = bottomBodyEdge * edgeP('bottomBodyEdgeSelect') +
                          bottomFacadeEdge * edgeP('bottomFacadeEdgeSelect') +
                          topBodyEdge * edgeP('topBodyEdgeSelect') +
@@ -1513,7 +1523,7 @@
         const cutOvenCost = totalCutOven * cutOvenPrice;
         const cutSinkCost = totalCutSink * cutSinkPrice;
 
-        const netCost = dspCost + facadeCost + dvpCost + grooveCost + sawingCost + edgeCost + topCost +
+        const netCost = dspCost + facadeCost + dvpCost + grooveCost + sawingCost + edgeCost + edgeGlueCost + topCost +
                         hingesCost + slidesCost + cargoCost + sushCost + sinkCost + legsCost + liftsCost + 
                         handlesCost + hangersCost + mountRailCost + confirmatsCost + screwsCost +
                         hingeD35Cost + tripanCost + cutOvenCost + cutSinkCost + hardwareExtra;
@@ -1540,6 +1550,7 @@
         chk('Ручки', totalHandles, handlePrice);
         chk('Навесы', totalHangers, hangerPrice);
         chk('Монтажная планка', mountRailPcs, mountRailPrice);
+        chk('Поклейка кромки', totalEdgeLength, edgeGluePrice);
 
         const warnings = [];
         if (failedSources.length > 0) warnings.push('Не загружены прайсы: ' + failedSources.join('; ') + '.');
