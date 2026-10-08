@@ -255,6 +255,7 @@
     <div class="container">
         <h2>🏗️ Конструктор Кухни — Фаворит (С автоматическим расчётом присадки)</h2>
         <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка базы данных...</div>
+        <div id="servicesInfo" style="display:none; font-size:0.82rem; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:12px;"></div>
 
         <!-- 1. РАЗДЕЛЬНЫЙ ВЫБОР МАТЕРИАЛОВ -->
         <div class="section-title">1. Выбор материалов (Корпус и Фасады)</div>
@@ -264,10 +265,14 @@
                 <div style="margin-bottom: 8px;">
                     <label>Корпус (ДСП):</label>
                     <select id="bottomBodySelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка корпуса:</label>
+                    <select id="bottomBodyEdgeSelect" onchange="calculateProject()"></select>
                 </div>
                 <div>
                     <label>Фасады:</label>
                     <select id="bottomFacadeSelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка фасадов:</label>
+                    <select id="bottomFacadeEdgeSelect" onchange="calculateProject()"></select>
                 </div>
             </div>
 
@@ -276,10 +281,22 @@
                 <div style="margin-bottom: 8px;">
                     <label>Корпус (ДСП):</label>
                     <select id="topBodySelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка корпуса:</label>
+                    <select id="topBodyEdgeSelect" onchange="calculateProject()"></select>
                 </div>
                 <div>
                     <label>Фасады:</label>
                     <select id="topFacadeSelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка фасадов:</label>
+                    <select id="topFacadeEdgeSelect" onchange="calculateProject()"></select>
+                </div>
+            </div>
+
+            <div class="mat-card">
+                <div class="mat-card-title">🧱 ДВП / ХДФ (задние стенки)</div>
+                <div>
+                    <label>Материал ДВП:</label>
+                    <select id="dvpSelect" onchange="syncPriceFromSelect('dvpSelect', 'dvpPrice')"></select>
                 </div>
             </div>
 
@@ -547,7 +564,7 @@
                     </div>
 
                     <div class="hardware-row">
-                        <span class="hardware-label">Цена кромки (руб/м)</span>
+                        <span class="hardware-label">Цена кромки по умолчанию (руб/м) — если не выбрана из таблицы</span>
                         <span style="flex: 2;"></span>
                         <span class="hardware-qty">-</span>
                         <input type="number" class="hardware-price-input" id="edgePrice" value="35" oninput="calculateProject()">
@@ -635,14 +652,16 @@
         lifts: BASE_URL + "&gid=701412219",
         handles: BASE_URL + "&gid=1779899106",
         hangersRails: BASE_URL + "&gid=223592342",
-        services: BASE_URL + "&gid=26549823"
+        services: BASE_URL + "&gid=26549823",
+        dvp: BASE_URL + "&gid=1199686527",
+        edges: BASE_URL + "&gid=1007814118"
     };
 
     const DATA_STORE = {
         dsp: [], mdf: [], countertops: [],
         hinges: [], slides: [], cargoSush: [],
         sinks: [], legs: [], lifts: [],
-        handles: [], hangersRails: [], services: []
+        handles: [], hangersRails: [], services: [], dvp: [], edges: []
     };
 
     let projectModules = [
@@ -676,9 +695,10 @@
     const SOURCE_LABELS = {
         dsp: 'ДСП', mdf: 'МДФ', countertops: 'Столешницы', hinges: 'Петли',
         slides: 'Направляющие', cargoSush: 'Карго/сушки', sinks: 'Мойки', legs: 'Ножки',
-        lifts: 'Подъёмники', handles: 'Ручки', hangersRails: 'Навесы/планки', services: 'Услуги'
+        lifts: 'Подъёмники', handles: 'Ручки', hangersRails: 'Навесы/планки', services: 'Услуги',
+        dvp: 'ДВП', edges: 'Кромка'
     };
-    // Источники, сбой которых не влияет на цену (данные из них в расчёте не используются)
+    // Услуги обрабатываются отдельно (при сбое используются цены из полей формы), поэтому в общий список сбоев не входят
     const NON_CRITICAL_SOURCES = ['services'];
     let failedSources = [];
 
@@ -760,8 +780,9 @@
     // Ячейки вроде «18 мм» или «арт. 123» ценой не считаются.
     function parsePrice(s) {
         if (!s) return NaN;
-        const c = s.replace(/[\s\u00A0]/g, '').replace(/(₽|руб\.?|р\.?)$/i, '').replace(',', '.');
-        return /^\d+(\.\d+)?$/.test(c) ? parseFloat(c) : NaN;
+        const c = s.replace(/[\s\u00A0]/g, '').replace(',', '.');
+        const m = c.match(/^(\d+(?:\.\d+)?)(?:₽|р\.?|руб\.?)?(?:\/[^\d]*)?$/i);
+        return m ? parseFloat(m[1]) : NaN;
     }
 
     function parseCsvToItems(csvText) {
@@ -812,6 +833,48 @@
         return items;
     }
 
+    // Соответствие строк таблицы «Услуги» полям формы (поиск по ключевым словам в названии строки)
+    const SERVICE_RULES = [
+        { inputId: 'hingeD35Price', label: 'Присадка под петлю d-35',    re: /d\s*-?\s*35|ø\s*35|ф\s*35|диаметр\s*35|под\s+петл|присадк\S*\s+петл/i },
+        { inputId: 'tripanPrice',   label: 'Присадка «Трипан»',          re: /трипан/i },
+        { inputId: 'cutOvenPrice',  label: 'Вырез под варочную панель',  re: /варочн/i },
+        { inputId: 'cutSinkPrice',  label: 'Вырез под мойку',            re: /мойк/i },
+        { inputId: 'groovePrice',   label: 'Паз под ДВП',                re: /паз/i },
+        { inputId: 'sawingPrice',   label: 'Распил',                     re: /распил/i }
+    ];
+
+    function applyServicePrices(fetchFailed) {
+        const box = document.getElementById('servicesInfo');
+        if (!box) return;
+
+        if (fetchFailed) {
+            box.style.display = 'block';
+            box.style.background = '#fef3c7';
+            box.innerText = '⚠️ Таблица «Услуги» не загружена — используются цены, указанные в полях ниже.';
+            return;
+        }
+
+        const found = [], notFound = [];
+        SERVICE_RULES.forEach(rule => {
+            const item = DATA_STORE.services.find(it => rule.re.test(it.name));
+            const input = document.getElementById(rule.inputId);
+            if (item && input) {
+                input.value = item.price;
+                input.title = `Из таблицы «Услуги»: ${item.name}`;
+                found.push(`${rule.label} = ${item.price} ← «${item.name}»`);
+            } else {
+                notFound.push(rule.label);
+            }
+        });
+
+        box.style.display = 'block';
+        box.style.background = notFound.length ? '#fef3c7' : '#f8fafc';
+        let text = `Услуги из таблицы: подставлено ${found.length} из ${SERVICE_RULES.length}.`;
+        if (found.length) text += ' ' + found.join('; ') + '.';
+        if (notFound.length) text += ` Не найдено в таблице (остались цены из полей): ${notFound.join(', ')}.`;
+        box.innerText = text;
+    }
+
     async function loadAllData() {
         const statusBadge = document.getElementById('statusBadge');
         statusBadge.className = "status-badge status-loading";
@@ -848,6 +911,14 @@
             fillSelect('handlesSelect', DATA_STORE.handles, 'handlePrice');
             fillSelect('hangersSelect', DATA_STORE.hangersRails, 'hangerPrice');
             fillSelect('mountRailSelect', DATA_STORE.hangersRails, 'mountRailPrice');
+
+            // ДВП и кромка
+            fillSelect('dvpSelect', DATA_STORE.dvp, 'dvpPrice');
+            ['bottomBodyEdgeSelect', 'bottomFacadeEdgeSelect', 'topBodyEdgeSelect', 'topFacadeEdgeSelect']
+                .forEach(id => fillSelect(id, DATA_STORE.edges));
+
+            // Цены услуг из таблицы «Услуги»
+            applyServicePrices(texts[keys.indexOf('services')] === null);
 
             handleFacadeTypeChange();
         } catch (err) {
@@ -994,7 +1065,7 @@
 
         if (type === 'bottom_falsh' || type === 'top_falsh') {
             return {
-                dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), facade: w * h, partCount: 1,
+                dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1,
                 hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0,
                 confirmats: 0, screws: 0, cutOven: 0, cutSink: 0,
                 isBottom: type.startsWith('bottom_')
@@ -1132,7 +1203,8 @@
         screws += handles * 2;
 
         let dspArea = 0;
-        let edgeLength = 0;
+        let edgeBody = 0;
+        let edgeFacade = 0;
         let totalPartCount = 0;
 
         parts.forEach(p => {
@@ -1141,7 +1213,7 @@
             const pH = p[2];
 
             dspArea += count * (pW * pH);
-            edgeLength += count * edgeOf(pW, pH);
+            edgeBody += count * edgeOf(pW, pH);
             totalPartCount += count;
         });
 
@@ -1149,11 +1221,11 @@
         let facadeArea = 0;
         facades.forEach(f => {
             facadeArea += f[0] * f[1];
-            edgeLength += edgeOf(f[0], f[1]);
+            edgeFacade += edgeOf(f[0], f[1]);
         });
 
         return {
-            dsp: dspArea, dvp: dvpArea, groove: grooveLength, edge: edgeLength, facade: facadeArea,
+            dsp: dspArea, dvp: dvpArea, groove: grooveLength, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea,
             partCount: totalPartCount,
             hinges, slides, cargo, sush, sink, legs, lifts, hangers, handles,
             confirmats, screws,
@@ -1221,6 +1293,7 @@
         let totalDvpArea = 0;
         let totalGrooveLength = 0;
         let totalEdgeLength = 0;
+        let bottomBodyEdge = 0, bottomFacadeEdge = 0, topBodyEdge = 0, topFacadeEdge = 0;
         let totalTopLength = 0;
 
         let totalHinges = 0;
@@ -1256,6 +1329,13 @@
             totalDvpArea += calc.dvp;
             totalGrooveLength += calc.groove;
             totalEdgeLength += calc.edge;
+            if (calc.isBottom) {
+                bottomBodyEdge += calc.edgeBody;
+                bottomFacadeEdge += calc.edgeFacade;
+            } else {
+                topBodyEdge += calc.edgeBody;
+                topFacadeEdge += calc.edgeFacade;
+            }
 
             totalHinges += calc.hinges;
             totalSlides += calc.slides;
@@ -1291,6 +1371,7 @@
         const plinthEdge = 2 * ((bottomTotalWidthMm / 1000.0 + edgeK) + (0.10 + edgeK));
         bottomFacadeArea += plinthArea;
         totalEdgeLength += plinthEdge;
+        bottomFacadeEdge += plinthEdge; // цоколь идёт в фасады нижних модулей
 
         // Длина распила
         const totalBoardArea = bottomDspArea + topDspArea + bottomFacadeArea + topFacadeArea + totalDvpArea;
@@ -1400,7 +1481,16 @@
         const facadeCost = ((bottomFacadeArea * bottomFacadePrice) + (topFacadeArea * topFacadePrice)) * wasteK;
         const dvpCost = totalDvpArea * dvpPrice * wasteK;
         const sawingCost = totalSawingLength * sawingPrice;
-        const edgeCost = totalEdgeLength * edgePrice;
+        // Кромка: цена по выбранному материалу; если не выбрана (таблица не загружена) — цена по умолчанию из поля
+        const edgeP = (selectId) => {
+            const el = document.getElementById(selectId);
+            const v = el ? parseFloat(el.value) : NaN;
+            return v > 0 ? v : edgePrice;
+        };
+        const edgeCost = bottomBodyEdge * edgeP('bottomBodyEdgeSelect') +
+                         bottomFacadeEdge * edgeP('bottomFacadeEdgeSelect') +
+                         topBodyEdge * edgeP('topBodyEdgeSelect') +
+                         topFacadeEdge * edgeP('topFacadeEdgeSelect');
         const topCost = totalTopLength * topPrice;
 
         const hingesCost = totalHinges * hingePrice;
@@ -1458,7 +1548,7 @@
         const warnBox = document.getElementById('priceWarning');
         const priceEl = document.getElementById('totalPriceDisplay');
         if (warnings.length > 0) {
-            warnBox.innerText = '⚠️ Расчёт неполный, итоговая цена занижена. ' + warnings.join(' ');
+            warnBox.innerText = '⚠️ Расчёт неполный, итоговая цена может быть неточной. ' + warnings.join(' ');
             warnBox.style.display = 'block';
             priceEl.style.color = '#b91c1c';
         } else {
