@@ -40,7 +40,7 @@
     .main-layout { display: flex; gap: 25px; flex-wrap: wrap; }
     .config-side { flex: 1.5; min-width: 320px; }
     .visual-side { flex: 1; min-width: 300px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; text-align: center; }
-    #kitchenCanvas { display: block; width: 100%; max-width: 520px; margin: 0 auto; touch-action: pan-y; user-select: none; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; }
+    #kitchenCanvas { display: block; width: 100%; max-width: 520px; margin: 0 auto; touch-action: none; user-select: none; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; cursor: default; }
     .btn-move { background-color: #64748b; padding: 4px 8px; height: auto; font-size: 0.8rem; }
     .btn-move:hover { background-color: #475569; }
     .btn-move:disabled { opacity: 0.35; cursor: default; }
@@ -364,7 +364,8 @@
         corner_top_v700: 'В угол на 700 (верхний)'
     };
 
-    // Скрытые угловые (когда переключились на прямую кухню)
+    const PENAL_TYPES = ['penal_oven', 'penal_oven_mw', 'penal_door_2drawers', 'penal_2doors'];
+
     let hiddenCornerModules = [];
 
     let projectModules = [
@@ -494,20 +495,14 @@
         return items;
     }
 
-    function getEdgeGlueItems() {
-        return (DATA_STORE.services || []).filter(it => /поклейк/i.test(it.name));
-    }
+    function getEdgeGlueItems() { return (DATA_STORE.services || []).filter(it => /поклейк/i.test(it.name)); }
 
     function updateEdgeGlueSelect() {
         const sel = document.getElementById('edgeGlueSelect');
         if (!sel) return;
         const items = getEdgeGlueItems();
         const curVal = sel.value;
-        if (items.length === 0) {
-            sel.innerHTML = '<option value="">— в прайсе нет позиций «поклейка» —</option>';
-            sel.value = '';
-            return;
-        }
+        if (items.length === 0) { sel.innerHTML = '<option value="">— нет позиций «поклейка» —</option>'; sel.value = ''; return; }
         sel.innerHTML = '<option value="">— выберите позицию —</option>' + items.map((it, idx) => `<option value="${idx}">${escapeHtml(it.name)} (${it.price} ₽/м)</option>`).join('');
         if (curVal !== '' && items[Number(curVal)]) sel.value = curVal;
     }
@@ -548,7 +543,7 @@
         box.innerText = text;
     }
 
-    const CACHE_PREFIX = 'kc_prices_v10:';
+    const CACHE_PREFIX = 'kc_prices_v11:';
     const MAX_PARALLEL = 3;
     const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -708,36 +703,37 @@
     function isCornerType(type) { return CORNER_ALL.includes(type); }
     function isCornerBaseType(type) { return CORNER_TYPES_BASE.includes(type); }
     function isCornerTopType(type) { return CORNER_TYPES_TOP.includes(type); }
-    function isCornerInCorner(type) { return type === 'corner_base_v1050' || type === 'corner_top_v700'; }
     function isBaseType(m) { const t = m.type; if (t.startsWith('top_') || t.startsWith('corner_top')) return false; return true; }
     function isTopType(m) { return m.type.startsWith('top_') || m.type.startsWith('corner_top'); }
+    // Пенал — не тумба: под ним и над ним столешницы нет
+    function isPenalType(type) { return PENAL_TYPES.includes(type); }
+    // Тумба (модуль, над которым идёт столешница): нижний, не фальшпанель, не пенал, высота <= 1000
+    function isCountertopModule(m) {
+        if (isTopType(m)) return false;
+        if (isPenalType(m.type)) return false;
+        if (m.type === 'bottom_falsh') return false;
+        if (isCornerType(m.type) && isCornerTopType(m.type)) return false;
+        return m.height <= 1000;
+    }
 
-    // Переключение компоновки.
-    // ВАЖНО: угловые НЕ удаляются — при переходе на прямую они скрываются (в hiddenCornerModules), при возврате восстанавливаются.
     function changeLayout(newLayout) {
-        const oldLayout = currentLayout();
         document.getElementById('layoutSelect').value = newLayout;
         updateLayoutHint();
         const runs = newLayout === 'straight' ? ['A'] : (newLayout === 'corner' ? ['A','B'] : ['A','B','C']);
         const cornersNeeded = newLayout === 'straight' ? 0 : (newLayout === 'corner' ? 1 : 2);
 
         if (newLayout === 'straight') {
-            // Скрываем угловые и модули в рядах B/C
             hiddenCornerModules = projectModules.filter(m => isCornerType(m.type));
             projectModules = projectModules.filter(m => !isCornerType(m.type) && m.run === 'A');
         } else {
-            // Убираем модули в несуществующих рядах
             projectModules = projectModules.filter(m => runs.includes(m.run));
-            // Возвращаем скрытые угловые
             if (hiddenCornerModules.length > 0) {
                 hiddenCornerModules.forEach(m => {
-                    // Не дублировать, если уже есть в ряду угловой того же уровня
                     const sameLevelExists = projectModules.some(x => x.run === m.run && isCornerType(x.type) && isCornerTopType(x.type) === isCornerTopType(m.type));
-                    if (!sameLevelExists && runs.includes(m.run)) projectModules.unshift({ ...m, id: m.id });
+                    if (!sameLevelExists && runs.includes(m.run)) projectModules.unshift({ ...m });
                 });
                 hiddenCornerModules = [];
             }
-            // Досоздаём недостающие углы (если пользователь удалил)
             const basesInB = projectModules.some(m => m.run === 'B' && isCornerBaseType(m.type));
             const topsInB = projectModules.some(m => m.run === 'B' && isCornerTopType(m.type));
             if (!basesInB) projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-b-'+Date.now()), run: 'B', type: 'corner_base_90', name: CORNER_NAMES.corner_base_90, width: 900, height: 720, depth: 530 });
@@ -774,14 +770,10 @@
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Дно Г-образное (часть B)']);
             parts.push([1, armAM, armBM, 'Верх Г-образный (часть A)']);
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Верх Г-образный (часть B)']);
-            if (isBase) legs = 6;
-            else hangers += 2;
-            const fac1 = armBM - armAM;
-            const fac2 = armAM;
-            facades.push([Math.max(0.05, fac1 - gap), h - gap, 'Фасад (плечо B)']);
-            facades.push([Math.max(0.05, fac2 - gap), h - gap, 'Фасад (плечо A)']);
-            hinges += getHingesForDoor(heightMm) * 2;
-            handles += 2;
+            if (isBase) legs = 6; else hangers += 2;
+            facades.push([Math.max(0.05, (armBM - armAM) - gap), h - gap, 'Фасад (плечо B)']);
+            facades.push([Math.max(0.05, armAM - gap), h - gap, 'Фасад (плечо A)']);
+            hinges += getHingesForDoor(heightMm) * 2; handles += 2;
             extraHardware.push('Угловой 90°: фасады под 90°, Г-образный корпус');
         }
         else if (type === 'corner_base_45' || type === 'corner_top_45') {
@@ -792,13 +784,10 @@
             parts.push([1, armAM, armBM, 'Дно скошенное']);
             parts.push([1, armAM, armBM, 'Верх скошенный']);
             parts.push([1, Math.sqrt(2) * armAM, d, 'Задняя стенка (скос 45°)']);
-            if (isBase) legs = 6;
-            else hangers += 2;
-            const frontW = Math.max(0.3, armBM - armAM);
-            facades.push([frontW - gap, h - gap, 'Фасад скошенный 45°']);
-            hinges += getHingesForDoor(heightMm);
-            handles += 1;
-            extraHardware.push('Угловой 45°: фасад скошенный, корпус со срезом');
+            if (isBase) legs = 6; else hangers += 2;
+            facades.push([Math.max(0.3, armBM - armAM) - gap, h - gap, 'Фасад скошенный 45°']);
+            hinges += getHingesForDoor(heightMm); handles += 1;
+            extraHardware.push('Угловой 45°: фасад скошенный');
         }
         else if (type === 'corner_base_v1050' || type === 'corner_top_v700') {
             const isBase = type === 'corner_base_v1050';
@@ -806,17 +795,14 @@
             const facadeW = facadeWidthMm / 1000;
             parts.push([2, h, d, 'Боковина']);
             parts.push([2, w - dspT, d, 'Дно / верх']);
-            if (isBase) legs = 4;
-            else hangers += 1;
+            if (isBase) legs = 4; else hangers += 1;
             facades.push([facadeW - gap, h - gap, 'Фасад «в угол»']);
-            hinges += getHingesForDoor(heightMm);
-            handles += 1;
+            hinges += getHingesForDoor(heightMm); handles += 1;
             extraHardware.push('«В угол»: корпус в один ряд, фасад до глубины соседних модулей');
         }
         else if (type === 'bottom_falsh' || type === 'top_falsh') {
             parts.push([1, w, h, 'Фальшпанель (ДСП)']);
-            let confirmats = 2;
-            return { dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1, hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0, confirmats, cutOven: 0, cutSink: 0, cutMicrowave: 0, isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades, extraHardware };
+            return { dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1, hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0, confirmats: 2, cutOven: 0, cutSink: 0, cutMicrowave: 0, isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades, extraHardware };
         }
         else if (type.startsWith('penal_')) {
             legs = 4;
@@ -825,15 +811,13 @@
             if (type === 'penal_oven') {
                 parts.push([1, w - dspT, d - 0.02, 'Полка под духовку']);
                 facades.push([w - gap, (h - 0.9) / 2 - gap, 'Фасад верхний']);
-                hinges += getHingesForDoor(heightMm / 2); handles += 1;
-                cutOven = 1;
+                hinges += getHingesForDoor(heightMm / 2); handles += 1; cutOven = 1;
                 extraHardware.push('Пенал под духовку');
             } else if (type === 'penal_oven_mw') {
                 parts.push([1, w - dspT, d - 0.02, 'Полка между техникой']);
                 parts.push([1, w - dspT, d - 0.02, 'Полка под микроволновку']);
                 facades.push([w - gap, (h - 1.2) / 2 - gap, 'Фасад верхний']);
-                hinges += getHingesForDoor(heightMm / 2); handles += 1;
-                cutOven = 1; cutMicrowave = 1;
+                hinges += getHingesForDoor(heightMm / 2); handles += 1; cutOven = 1; cutMicrowave = 1;
                 extraHardware.push('Пенал под духовку и микроволновку');
             } else if (type === 'penal_door_2drawers') {
                 const drawerH = (h - 0.9) / 2;
@@ -851,8 +835,7 @@
                 parts.push([2, w - dspT, d - 0.02, 'Полка']);
                 facades.push([(w - gap) / 2 - gap/2, h - gap, 'Фасад левый']);
                 facades.push([(w - gap) / 2 - gap/2, h - gap, 'Фасад правый']);
-                hinges += getHingesForDoor(heightMm) * 2;
-                handles += 2;
+                hinges += getHingesForDoor(heightMm) * 2; handles += 2;
                 extraHardware.push('Пенал: 2 двери');
             }
         }
@@ -934,7 +917,6 @@
         const depth = parseInt(document.getElementById('moduleDepthInput').value) || 530;
         const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('m-' + Date.now() + '-' + Math.random().toString(36).slice(2));
         if (isCornerType(type)) {
-            // Один угловой одного уровня в ряду — заменяем
             projectModules = projectModules.filter(m => !(m.run === run && isCornerType(m.type) && (isCornerTopType(m.type) === isCornerTopType(type))));
             projectModules.unshift({ id, run, type, name, width, height, depth });
         } else {
@@ -946,8 +928,7 @@
     function removeModule(id) { projectModules = projectModules.filter(m => m.id !== id); renderModulesTable(); calculateProject(); renderHelp(); }
     function updateCornerType(id, newType) {
         const m = projectModules.find(x => x.id === id); if (!m) return;
-        m.type = newType;
-        m.name = CORNER_NAMES[newType] || m.name;
+        m.type = newType; m.name = CORNER_NAMES[newType] || m.name;
         if (newType === 'corner_base_90') { m.width = 900; m.depth = 530; }
         else if (newType === 'corner_base_45') { m.width = 900; m.depth = 530; }
         else if (newType === 'corner_base_v1050') { m.width = 1050; m.depth = 530; }
@@ -1246,7 +1227,8 @@
             if ((m.type === 'corner_base_90' || m.type === 'corner_base_45') && calc.isBottom) {
                 cornerDepth[m.run] = m.depth / 1000.0;
             }
-            if (m.type.startsWith('bottom_') && m.type !== 'bottom_falsh') {
+            // Длина столешницы: только тумбы (не пенал, не фальш, высота <= 1000)
+            if (isCountertopModule(m)) {
                 if (runTopLength[m.run] !== undefined) runTopLength[m.run] += m.width / 1000.0;
             }
             if (m.type.startsWith('top_') && m.type !== 'top_falsh') totalMountRailMeters += (m.width / 1000.0);
@@ -1258,7 +1240,7 @@
         const edgeK = getEdgeAllowance();
         let plinthArea = 0, plinthEdgeTotal = 0;
         ['A','B','C'].forEach(r => {
-            const w = projectModules.filter(m => m.run === r && (m.type.startsWith('bottom_') || m.type.startsWith('corner_base')) && m.type !== 'bottom_falsh').reduce((s, m) => s + m.width, 0);
+            const w = projectModules.filter(m => m.run === r && isCountertopModule(m)).reduce((s, m) => s + m.width, 0);
             if (w > 0) { plinthArea += (w / 1000.0) * 0.10; plinthEdgeTotal += 2 * ((w / 1000.0 + edgeK) + (0.10 + edgeK)); }
         });
         bottomFacadeArea += plinthArea; totalEdgeLength += plinthEdgeTotal; bottomFacadeEdge += plinthEdgeTotal;
@@ -1400,7 +1382,7 @@
         const warnings = [];
         if (failedSources.length > 0) warnings.push('Не загружены прайсы: ' + failedSources.join('; ') + '.');
         if (missing.length > 0) warnings.push('Не указана цена: ' + missing.join(', ') + '.');
-        if (!isFinite(finalPrice)) warnings.push('Итоговая цена не является числом — проверьте цены и количества.');
+        if (!isFinite(finalPrice)) warnings.push('Итоговая цена не является числом.');
         const warnBox = document.getElementById('priceWarning');
         const priceEl = document.getElementById('totalPriceDisplay');
         if (warnings.length > 0) { warnBox.innerText = '⚠️ Расчёт неполный. ' + warnings.join(' '); warnBox.style.display = 'block'; priceEl.style.color = '#b91c1c'; }
@@ -1488,8 +1470,11 @@
         box.innerHTML = html;
     }
 
-    // ================= 2D =================
+    // ================= 2D (с плавным перетаскиванием) =================
     let sketchRaf = null, sketchHits = [], sketchDrag = null;
+    let dragRaf = null;
+    let dragState = null;
+
     function scheduleSketch() { if (sketchRaf !== null) return; sketchRaf = requestAnimationFrame(() => { sketchRaf = null; drawKitchen2D(); }); }
 
     function roundRectPath(ctx, x, y, w, h, r) {
@@ -1543,7 +1528,6 @@
         const facadeFill = isTop ? '#e2e8f0' : '#cbd5e1';
         const facadeStroke = '#94a3b8';
         const drawRect = (rx, ry, rw, rh) => { ctx.fillStyle = facadeFill; ctx.fillRect(rx, ry, rw, rh); ctx.strokeStyle = facadeStroke; ctx.lineWidth = 1; ctx.strokeRect(rx, ry, rw, rh); };
-
         if (m.type === 'bottom_ya2' || m.type === 'bottom_ya2vn') {
             const h2 = (innerH - 2) / 2;
             drawRect(innerX, innerY, innerW, h2); drawRect(innerX, innerY + h2 + 2, innerW, h2);
@@ -1652,13 +1636,19 @@
             [...L.bottom, ...L.top].forEach(m => {
                 const r = L.rects.find(x => x.id === m.id);
                 if (!r) return;
-                drawModuleFace(ctx, m, r.x, r.y, r.w, r.h);
+                let rx = r.x, ry = r.y, rw = r.w, rh = r.h;
+                // Перетаскиваемый модуль двигаем за курсором
+                if (dragState && dragState.id === m.id) {
+                    rx = dragState.currentX - r.w / 2;
+                    ry = dragState.currentY - r.h / 2;
+                }
+                drawModuleFace(ctx, m, rx, ry, rw, rh);
                 const globalIdx = projectModules.findIndex(p => p.id === m.id) + 1;
-                drawLabel(ctx, r.x, r.y, r.w, r.h, globalIdx, m.width, m.height);
-                sketchHits.push(r);
-                if (sketchDrag && sketchDrag.id === m.id) {
+                drawLabel(ctx, rx, ry, rw, rh, globalIdx, m.width, m.height);
+                sketchHits.push({ ...r, x: rx, y: ry });
+                if (dragState && dragState.id === m.id) {
                     ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
-                    ctx.strokeRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2); ctx.restore();
+                    ctx.strokeRect(rx - 1, ry - 1, rw + 2, rh + 2); ctx.restore();
                 }
             });
             ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
@@ -1674,6 +1664,8 @@
         });
     }
 
+    // Плавное перетаскивание: модуль следует за курсором, а перестановка происходит
+    // только когда курсор пересекает центр соседнего модуля.
     function initSketchDrag() {
         const canvas = document.getElementById('kitchenCanvas'); if (!canvas) return;
         const toLocal = (e) => {
@@ -1682,33 +1674,52 @@
             return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k };
         };
         const hitAt = (p) => sketchHits.find(h => p.x >= h.x && p.x <= h.x + h.w && p.y >= h.y && p.y <= h.y + h.h);
-        let startX = 0, startY = 0, moved = false;
+
+        let dragLastMove = { x: 0, y: 0 };
+
         canvas.addEventListener('pointerdown', (e) => {
             const p = toLocal(e);
             const hit = hitAt(p);
             if (!hit) return;
-            sketchDrag = { id: hit.id, run: hit.run, isTop: hit.isTop };
-            startX = e.clientX; startY = e.clientY; moved = false;
+            dragState = { id: hit.id, run: hit.run, isTop: hit.isTop, currentX: p.x, currentY: p.y };
+            dragLastMove = { x: p.x, y: p.y };
             try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
             canvas.style.cursor = 'grabbing';
-            drawKitchen2D();
+            scheduleSketch();
+            e.preventDefault();
         });
         canvas.addEventListener('pointermove', (e) => {
             const p = toLocal(e);
-            if (!sketchDrag) { canvas.style.cursor = hitAt(p) ? 'grab' : 'default'; return; }
-            const dx = e.clientX - startX, dy = e.clientY - startY;
-            if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
-            if (!moved) return;
-            const hit = hitAt(p);
-            if (!hit || hit.id === sketchDrag.id) return;
-            if (hit.run !== sketchDrag.run || hit.isTop !== sketchDrag.isTop) return;
-            swapModules(sketchDrag.id, hit.id);
-            sketchDrag.id = hit.id;
-            drawKitchen2D();
+            if (!dragState) { canvas.style.cursor = hitAt(p) ? 'grab' : 'default'; return; }
+            dragState.currentX = p.x;
+            dragState.currentY = p.y;
+            // Проверка свапа только когда курсор сдвинулся достаточно
+            const dx = p.x - dragLastMove.x, dy = p.y - dragLastMove.y;
+            if (Math.abs(dx) + Math.abs(dy) > 4) {
+                dragLastMove = { x: p.x, y: p.y };
+                // Ищем соседа под курсором
+                const hit = hitAt(p);
+                if (hit && hit.id !== dragState.id && hit.run === dragState.run && hit.isTop === dragState.isTop) {
+                    swapModules(dragState.id, hit.id);
+                    dragState.id = hit.id;
+                }
+            }
+            if (dragRaf === null) {
+                dragRaf = requestAnimationFrame(() => { dragRaf = null; drawKitchen2D(); });
+            }
         });
-        const end = () => { if (!sketchDrag) return; sketchDrag = null; canvas.style.cursor = 'default'; drawKitchen2D(); };
+        const end = () => {
+            if (!dragState) return;
+            dragState = null;
+            if (dragRaf !== null) { cancelAnimationFrame(dragRaf); dragRaf = null; }
+            canvas.style.cursor = 'default';
+            drawKitchen2D();
+        };
         canvas.addEventListener('pointerup', end);
         canvas.addEventListener('pointercancel', end);
+        canvas.addEventListener('pointerleave', (e) => {
+            // Не завершаем drag при выходе за холст — продолжаем по capture
+        });
     }
 
     function swapModules(idA, idB) {
@@ -1836,25 +1847,51 @@
             threeGroup.add(line);
         };
 
+        // Для «45°» дорисовываем скошенный фасад: к передней части корпуса
+        // приставляем повёрнутый на 45° блок, создающий визуальный скос.
+        const addBevel = (w, h, d, x, y, z, color, rotY, dirSign) => {
+            const bevelD = Math.min(d * 0.6, 0.35);
+            const bevelW = Math.min(w * 0.7, 0.5);
+            const geo = new THREE.BoxGeometry(bevelW, h * 0.98, bevelD);
+            const mat = new THREE.MeshLambertMaterial({ color });
+            const mesh = new THREE.Mesh(geo, mat);
+            // Смещаем вперёд и вбок, поворачиваем на 45°
+            const localOffsetX = dirSign * (w / 2 - bevelW / 2 + 0.02);
+            const localOffsetZ = d / 2 - bevelD / 2 + 0.02;
+            // Поворот локальных координат на rotY
+            const cosR = Math.cos(rotY), sinR = Math.sin(rotY);
+            const offXworld = localOffsetX * cosR + localOffsetZ * sinR;
+            const offZworld = -localOffsetX * sinR + localOffsetZ * cosR;
+            mesh.position.set(x + offXworld, y, z + offZworld);
+            mesh.rotation.y = rotY + Math.PI / 4 * dirSign;
+            threeGroup.add(mesh);
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x334155 }));
+            line.position.copy(mesh.position); line.rotation.copy(mesh.rotation);
+            threeGroup.add(line);
+        };
+
         const drawBaseBox = (m, x, y, z, rotY) => {
             const w = wOf(m), h = hOf(m), d = dOf(m);
             const isCorner = isCornerType(m.type);
             let color = 0xcbd5e1;
             if (isCorner) color = 0xfde68a;
-            if (isCorner && m.type === 'corner_base_45') color = 0xfcd34d;
-            if (isCorner && m.type === 'corner_base_v1050') color = 0xfbbf24;
             if (m.run === 'B' || m.run === 'C') color = isCorner ? 0xfde68a : 0xbfdbfe;
             addBox(w, h, d, x, y, z, color, rotY);
+            if (m.type === 'corner_base_45') {
+                addBevel(w, h, d, x, y, z, 0xb45309, rotY, 1);
+            }
         };
         const drawTopBox = (m, x, y, z, rotY) => {
             const w = wOf(m), h = hOf(m), d = dOf(m);
             const isCorner = isCornerType(m.type);
             let color = 0xe2e8f0;
             if (isCorner) color = 0xfde68a;
-            if (isCorner && m.type === 'corner_top_45') color = 0xfcd34d;
-            if (isCorner && m.type === 'corner_top_v700') color = 0xfbbf24;
             if (m.run === 'B' || m.run === 'C') color = isCorner ? 0xfde68a : 0xdbeafe;
             addBox(w, h, d, x, y, z, color, rotY);
+            if (m.type === 'corner_top_45') {
+                addBevel(w, h, d, x, y, z, 0xb45309, rotY, 1);
+            }
         };
 
         // Ряд A
@@ -1866,8 +1903,18 @@
             drawBaseBox(m, cursor + wOf(m) / 2, PLINTH_H + h / 2, -depthA + dOf(m) / 2, 0);
             cursor += wOf(m);
         });
-        const baseLenA = basesA.reduce((s, m) => s + wOf(m), 0);
-        if (basesA.length > 0) addBox(baseLenA, TABLE_T, depthA, -lenA / 2 + baseLenA / 2, tableTopY + TABLE_T / 2, -depthA / 2, 0x94a3b8);
+        // Столешница A — только над тумбами (пропускаем пеналы)
+        const counterA = basesA.filter(m => isCountertopModule(m));
+        counterA.forEach(m => {
+            const w = wOf(m);
+            // Находим позицию этой тумбы в ряду
+            let cx = -lenA / 2;
+            for (const mm of basesA) {
+                if (mm.id === m.id) break;
+                cx += wOf(mm);
+            }
+            addBox(w, TABLE_T, depthA, cx + w / 2, tableTopY + TABLE_T / 2, -depthA / 2, 0x94a3b8);
+        });
         cursor = -lenA / 2;
         topsA.forEach(m => {
             const h = hOf(m);
@@ -1875,7 +1922,7 @@
             cursor += wOf(m);
         });
 
-        // Ряд B
+        // Ряд B — примыкает к задней стенке ряда A, угловой в углу
         const basesB = modsB.filter(m => isBaseType(m));
         const topsB = modsB.filter(m => isTopType(m));
         cursor = 0;
@@ -1884,8 +1931,15 @@
             drawBaseBox(m, -lenA / 2 - d / 2, PLINTH_H + h / 2, -depthA + cursor + w / 2, Math.PI / 2);
             cursor += w;
         });
-        const baseLenB = basesB.reduce((s, m) => s + wOf(m), 0);
-        if (basesB.length > 0) addBox(depthB, TABLE_T, baseLenB, -lenA / 2 - depthB / 2, tableTopY + TABLE_T / 2, -depthA + baseLenB / 2, 0x94a3b8);
+        const counterB = basesB.filter(m => isCountertopModule(m));
+        cursor = 0;
+        basesB.forEach(m => {
+            const w = wOf(m);
+            if (counterB.includes(m)) {
+                addBox(depthB, TABLE_T, w, -lenA / 2 - depthB / 2, tableTopY + TABLE_T / 2, -depthA + cursor + w / 2, 0x94a3b8);
+            }
+            cursor += w;
+        });
         cursor = 0;
         topsB.forEach(m => {
             const w = wOf(m), d = dOf(m), h = hOf(m);
@@ -1893,7 +1947,7 @@
             cursor += w;
         });
 
-        // Ряд C
+        // Ряд C — примыкает к задней стенке A справа, угловой в углу
         const basesC = modsC.filter(m => isBaseType(m));
         const topsC = modsC.filter(m => isTopType(m));
         cursor = 0;
@@ -1902,8 +1956,15 @@
             drawBaseBox(m, lenA / 2 + d / 2, PLINTH_H + h / 2, -depthA + cursor + w / 2, Math.PI / 2);
             cursor += w;
         });
-        const baseLenC = basesC.reduce((s, m) => s + wOf(m), 0);
-        if (basesC.length > 0) addBox(depthC, TABLE_T, baseLenC, lenA / 2 + depthC / 2, tableTopY + TABLE_T / 2, -depthA + baseLenC / 2, 0x94a3b8);
+        const counterC = basesC.filter(m => isCountertopModule(m));
+        cursor = 0;
+        basesC.forEach(m => {
+            const w = wOf(m);
+            if (counterC.includes(m)) {
+                addBox(depthC, TABLE_T, w, lenA / 2 + depthC / 2, tableTopY + TABLE_T / 2, -depthA + cursor + w / 2, 0x94a3b8);
+            }
+            cursor += w;
+        });
         cursor = 0;
         topsC.forEach(m => {
             const w = wOf(m), d = dOf(m), h = hOf(m);
@@ -2024,7 +2085,7 @@
 
     function exportProject() {
         const data = {
-            version: 10, savedAt: new Date().toISOString(),
+            version: 11, savedAt: new Date().toISOString(),
             layout: currentLayout(),
             modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
             hiddenCorners: hiddenCornerModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
