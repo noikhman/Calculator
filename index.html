@@ -352,7 +352,6 @@
 
     const DATA_STORE = { dsp: [], mdf: [], countertops: [], hinges: [], slides: [], cargoSush: [], sinks: [], legs: [], lifts: [], handles: [], hangersRails: [], services: [], dvp: [], edges: [] };
 
-    // Угловые конфигурации: список для валидации и для селекта в таблице
     const CORNER_TYPES_BASE = ['corner_base_90', 'corner_base_45', 'corner_base_v1050'];
     const CORNER_TYPES_TOP = ['corner_top_90', 'corner_top_45', 'corner_top_v700'];
     const CORNER_ALL = [...CORNER_TYPES_BASE, ...CORNER_TYPES_TOP];
@@ -364,6 +363,9 @@
         corner_top_45: 'Угловой верхний 600×600 (45°)',
         corner_top_v700: 'В угол на 700 (верхний)'
     };
+
+    // Скрытые угловые (когда переключились на прямую кухню)
+    let hiddenCornerModules = [];
 
     let projectModules = [
         { id: 's1', run: 'B', type: 'corner_base_90', name: CORNER_NAMES.corner_base_90, width: 900, height: 720, depth: 530 },
@@ -492,12 +494,10 @@
         return items;
     }
 
-    // Список позиций «поклейка кромки» для селектора
     function getEdgeGlueItems() {
         return (DATA_STORE.services || []).filter(it => /поклейк/i.test(it.name));
     }
 
-    // Обновляет селектор поклейки кромки в блоке коэффициентов
     function updateEdgeGlueSelect() {
         const sel = document.getElementById('edgeGlueSelect');
         if (!sel) return;
@@ -509,7 +509,6 @@
             return;
         }
         sel.innerHTML = '<option value="">— выберите позицию —</option>' + items.map((it, idx) => `<option value="${idx}">${escapeHtml(it.name)} (${it.price} ₽/м)</option>`).join('');
-        // Восстановить выбор, если был
         if (curVal !== '' && items[Number(curVal)]) sel.value = curVal;
     }
 
@@ -517,9 +516,7 @@
         const sel = document.getElementById('edgeGlueSelect');
         const inp = document.getElementById('edgeGluePrice');
         const items = getEdgeGlueItems();
-        if (sel.value !== '' && items[Number(sel.value)]) {
-            inp.value = items[Number(sel.value)].price;
-        }
+        if (sel.value !== '' && items[Number(sel.value)]) inp.value = items[Number(sel.value)].price;
         calculateProject();
     }
 
@@ -551,7 +548,7 @@
         box.innerText = text;
     }
 
-    const CACHE_PREFIX = 'kc_prices_v9:';
+    const CACHE_PREFIX = 'kc_prices_v10:';
     const MAX_PARALLEL = 3;
     const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -675,7 +672,7 @@
         const widthInput = document.getElementById('moduleWidthInput');
         const heightInput = document.getElementById('moduleHeightInput');
         const depthInput = document.getElementById('moduleDepthInput');
-        if (type.startsWith('corner_base_90')) { widthInput.value = 900; heightInput.value = 720; depthInput.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
+        if (type === 'corner_base_90') { widthInput.value = 900; heightInput.value = 720; depthInput.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
         else if (type === 'corner_base_45') { widthInput.value = 900; heightInput.value = 720; depthInput.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
         else if (type === 'corner_base_v1050') { widthInput.value = 1050; heightInput.value = 720; depthInput.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
         else if (type === 'corner_top_90') { widthInput.value = 600; heightInput.value = 720; depthInput.value = 320; document.getElementById('moduleRunInput').value = 'B'; }
@@ -711,25 +708,46 @@
     function isCornerType(type) { return CORNER_ALL.includes(type); }
     function isCornerBaseType(type) { return CORNER_TYPES_BASE.includes(type); }
     function isCornerTopType(type) { return CORNER_TYPES_TOP.includes(type); }
-    // Угол «в угол» — не выходит на второй ряд, не вычитает глубину из столешницы
     function isCornerInCorner(type) { return type === 'corner_base_v1050' || type === 'corner_top_v700'; }
     function isBaseType(m) { const t = m.type; if (t.startsWith('top_') || t.startsWith('corner_top')) return false; return true; }
     function isTopType(m) { return m.type.startsWith('top_') || m.type.startsWith('corner_top'); }
 
+    // Переключение компоновки.
+    // ВАЖНО: угловые НЕ удаляются — при переходе на прямую они скрываются (в hiddenCornerModules), при возврате восстанавливаются.
     function changeLayout(newLayout) {
+        const oldLayout = currentLayout();
         document.getElementById('layoutSelect').value = newLayout;
         updateLayoutHint();
         const runs = newLayout === 'straight' ? ['A'] : (newLayout === 'corner' ? ['A','B'] : ['A','B','C']);
-        projectModules = projectModules.filter(m => runs.includes(m.run));
-        projectModules = projectModules.filter(m => !isCornerType(m.type));
         const cornersNeeded = newLayout === 'straight' ? 0 : (newLayout === 'corner' ? 1 : 2);
-        if (cornersNeeded >= 1) {
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-1'), run: 'B', type: 'corner_base_90', name: CORNER_NAMES.corner_base_90, width: 900, height: 720, depth: 530 });
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-2'), run: 'B', type: 'corner_top_90', name: CORNER_NAMES.corner_top_90, width: 600, height: 720, depth: 320 });
-        }
-        if (cornersNeeded >= 2) {
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-3'), run: 'C', type: 'corner_base_90', name: CORNER_NAMES.corner_base_90, width: 900, height: 720, depth: 530 });
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-4'), run: 'C', type: 'corner_top_90', name: CORNER_NAMES.corner_top_90, width: 600, height: 720, depth: 320 });
+
+        if (newLayout === 'straight') {
+            // Скрываем угловые и модули в рядах B/C
+            hiddenCornerModules = projectModules.filter(m => isCornerType(m.type));
+            projectModules = projectModules.filter(m => !isCornerType(m.type) && m.run === 'A');
+        } else {
+            // Убираем модули в несуществующих рядах
+            projectModules = projectModules.filter(m => runs.includes(m.run));
+            // Возвращаем скрытые угловые
+            if (hiddenCornerModules.length > 0) {
+                hiddenCornerModules.forEach(m => {
+                    // Не дублировать, если уже есть в ряду угловой того же уровня
+                    const sameLevelExists = projectModules.some(x => x.run === m.run && isCornerType(x.type) && isCornerTopType(x.type) === isCornerTopType(m.type));
+                    if (!sameLevelExists && runs.includes(m.run)) projectModules.unshift({ ...m, id: m.id });
+                });
+                hiddenCornerModules = [];
+            }
+            // Досоздаём недостающие углы (если пользователь удалил)
+            const basesInB = projectModules.some(m => m.run === 'B' && isCornerBaseType(m.type));
+            const topsInB = projectModules.some(m => m.run === 'B' && isCornerTopType(m.type));
+            if (!basesInB) projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-b-'+Date.now()), run: 'B', type: 'corner_base_90', name: CORNER_NAMES.corner_base_90, width: 900, height: 720, depth: 530 });
+            if (!topsInB) projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-t-'+Date.now()), run: 'B', type: 'corner_top_90', name: CORNER_NAMES.corner_top_90, width: 600, height: 720, depth: 320 });
+            if (cornersNeeded >= 2) {
+                const basesInC = projectModules.some(m => m.run === 'C' && isCornerBaseType(m.type));
+                const topsInC = projectModules.some(m => m.run === 'C' && isCornerTopType(m.type));
+                if (!basesInC) projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-cb-'+Date.now()), run: 'C', type: 'corner_base_90', name: CORNER_NAMES.corner_base_90, width: 900, height: 720, depth: 530 });
+                if (!topsInC) projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-ct-'+Date.now()), run: 'C', type: 'corner_top_90', name: CORNER_NAMES.corner_top_90, width: 600, height: 720, depth: 320 });
+            }
         }
         renderModulesTable(); calculateProject(); renderHelp();
     }
@@ -746,7 +764,6 @@
         let hinges = 0, slides = 0, cargo = 0, sush = 0, sink = 0, legs = 0, lifts = 0, hangers = 0, handles = 0;
         let dvpArea = 0, grooveLength = 0, cutOven = 0, cutSink = 0, cutMicrowave = 0;
 
-        // ===== УГЛОВЫЕ =====
         if (type === 'corner_base_90' || type === 'corner_top_90') {
             const isBase = type === 'corner_base_90';
             const armA = depthMm, armB = widthMm;
@@ -759,7 +776,6 @@
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Верх Г-образный (часть B)']);
             if (isBase) legs = 6;
             else hangers += 2;
-            // Фасады под 90° — два фасада (по одному на плечо)
             const fac1 = armBM - armAM;
             const fac2 = armAM;
             facades.push([Math.max(0.05, fac1 - gap), h - gap, 'Фасад (плечо B)']);
@@ -772,14 +788,12 @@
             const isBase = type === 'corner_base_45';
             const armA = depthMm, armB = widthMm;
             const armAM = armA / 1000, armBM = armB / 1000;
-            // Скошенный корпус: боковины вдоль B, задняя стенка скошена под 45°
             parts.push([2, armBM, d, 'Боковина (ряд B)']);
             parts.push([1, armAM, armBM, 'Дно скошенное']);
             parts.push([1, armAM, armBM, 'Верх скошенный']);
             parts.push([1, Math.sqrt(2) * armAM, d, 'Задняя стенка (скос 45°)']);
             if (isBase) legs = 6;
             else hangers += 2;
-            // Фасад — один, скошенный, по фронту (armB - armA)
             const frontW = Math.max(0.3, armBM - armAM);
             facades.push([frontW - gap, h - gap, 'Фасад скошенный 45°']);
             hinges += getHingesForDoor(heightMm);
@@ -788,11 +802,8 @@
         }
         else if (type === 'corner_base_v1050' || type === 'corner_top_v700') {
             const isBase = type === 'corner_base_v1050';
-            // Корпус только по одной стороне (не выходит на второй ряд)
-            // «В угол» — фасад равен (глубина ряда - 10 мм), корпус — прямоугольный
             const facadeWidthMm = isBase ? Math.max(100, depthMm - 10) : Math.max(100, depthMm + 60);
             const facadeW = facadeWidthMm / 1000;
-            // Корпус: боковины, дно, верх (прямоугольный, в один ряд)
             parts.push([2, h, d, 'Боковина']);
             parts.push([2, w - dspT, d, 'Дно / верх']);
             if (isBase) legs = 4;
@@ -808,7 +819,6 @@
             return { dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1, hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0, confirmats, cutOven: 0, cutSink: 0, cutMicrowave: 0, isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades, extraHardware };
         }
         else if (type.startsWith('penal_')) {
-            // Пеналы: новые 4 конфигурации
             legs = 4;
             parts.push([2, h, d, 'Боковина']);
             parts.push([2, w - dspT, d, 'Дно / верх']);
@@ -899,7 +909,6 @@
             else if (type === 'top_lift_3') { parts.push([2, w - dspT, d - 0.02, 'Полка']); stacked(3); lifts += 6; handles += 3; }
         }
 
-        // Конфирматы — 2 на деталь корпуса
         let confirmats = 0;
         parts.forEach(p => { confirmats += 2 * p[0]; });
 
@@ -925,7 +934,7 @@
         const depth = parseInt(document.getElementById('moduleDepthInput').value) || 530;
         const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('m-' + Date.now() + '-' + Math.random().toString(36).slice(2));
         if (isCornerType(type)) {
-            // Один угловой одного уровня в ряду
+            // Один угловой одного уровня в ряду — заменяем
             projectModules = projectModules.filter(m => !(m.run === run && isCornerType(m.type) && (isCornerTopType(m.type) === isCornerTopType(type))));
             projectModules.unshift({ id, run, type, name, width, height, depth });
         } else {
@@ -939,7 +948,6 @@
         const m = projectModules.find(x => x.id === id); if (!m) return;
         m.type = newType;
         m.name = CORNER_NAMES[newType] || m.name;
-        // Обновить типовые размеры
         if (newType === 'corner_base_90') { m.width = 900; m.depth = 530; }
         else if (newType === 'corner_base_45') { m.width = 900; m.depth = 530; }
         else if (newType === 'corner_base_v1050') { m.width = 1050; m.depth = 530; }
@@ -950,7 +958,8 @@
     }
 
     function renderModulesTable() {
-        const tbody = document.getElementById('modulesTableBody'); tbody.innerHTML = '';
+        const tbody = document.getElementById('modulesTableBody'); if (!tbody) return;
+        tbody.innerHTML = '';
         const rowIds = { A: [], B: [], C: [] };
         projectModules.forEach(x => { if (rowIds[x.run]) rowIds[x.run].push(x.id); });
         projectModules.forEach((m, idx) => {
@@ -978,7 +987,6 @@
                     <button class="btn btn-move" title="Правее/ниже" onclick="moveModule('${m.id}', 1)" ${isCorner || pos === ids.length - 1 ? 'disabled' : ''}>→</button>
                     <button class="btn btn-danger" onclick="removeModule('${m.id}')">✕</button>
                 </td>`;
-            tbody.appendChild(row);
             tbody.appendChild(tr);
         });
     }
@@ -1108,7 +1116,6 @@
             { label: 'Доп. метизы / расходники (руб)', id: 'hardwareCost', def: 1000 },
             { label: 'Наценка (%)', id: 'marginPercent', def: 30 }
         ];
-        // Селектор поклейки кромки — отдельно, до остальных полей
         const glueRow = document.createElement('div'); glueRow.className = 'hardware-row';
         const glueLbl = document.createElement('span'); glueLbl.className = 'hardware-label';
         glueLbl.textContent = 'Поклейка кромки (из прайса)';
@@ -1220,7 +1227,7 @@
 
         const runLength = { A: 0, B: 0, C: 0 };
         const runTopLength = { A: 0, B: 0, C: 0 };
-        const cornerDepth = { B: 0, C: 0 }; // только для углов 90/45, не для «в угол»
+        const cornerDepth = { B: 0, C: 0 };
 
         projectModules.forEach(m => {
             const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
@@ -1236,7 +1243,6 @@
             totalCutOven += calc.cutOven; totalCutSink += calc.cutSink;
 
             if (runLength[m.run] !== undefined) runLength[m.run] += m.width;
-            // Углы 90/45 вычитают глубину из столешницы; «в угол» — нет
             if ((m.type === 'corner_base_90' || m.type === 'corner_base_45') && calc.isBottom) {
                 cornerDepth[m.run] = m.depth / 1000.0;
             }
@@ -1830,8 +1836,6 @@
             threeGroup.add(line);
         };
 
-        // Угловые 45° — визуально срезанные (используем уменьшенную глубину и скос через rotation)
-        // Угловые «в угол» — обычная коробка в один ряд, без выхода на второй ряд
         const drawBaseBox = (m, x, y, z, rotY) => {
             const w = wOf(m), h = hOf(m), d = dOf(m);
             const isCorner = isCornerType(m.type);
@@ -1840,8 +1844,6 @@
             if (isCorner && m.type === 'corner_base_45') color = 0xfcd34d;
             if (isCorner && m.type === 'corner_base_v1050') color = 0xfbbf24;
             if (m.run === 'B' || m.run === 'C') color = isCorner ? 0xfde68a : 0xbfdbfe;
-            if (isCorner && m.type === 'corner_top_45') color = 0xfcd34d;
-            if (isCorner && m.type === 'corner_top_v700') color = 0xfbbf24;
             addBox(w, h, d, x, y, z, color, rotY);
         };
         const drawTopBox = (m, x, y, z, rotY) => {
@@ -1861,8 +1863,7 @@
         let cursor = -lenA / 2;
         basesA.forEach(m => {
             const h = hOf(m);
-            const z = -depthA + dOf(m) / 2;
-            drawBaseBox(m, cursor + wOf(m) / 2, PLINTH_H + h / 2, z, 0);
+            drawBaseBox(m, cursor + wOf(m) / 2, PLINTH_H + h / 2, -depthA + dOf(m) / 2, 0);
             cursor += wOf(m);
         });
         const baseLenA = basesA.reduce((s, m) => s + wOf(m), 0);
@@ -1880,9 +1881,7 @@
         cursor = 0;
         basesB.forEach(m => {
             const w = wOf(m), d = dOf(m), h = hOf(m);
-            const x = -lenA / 2 - d / 2;
-            const z = -depthA + cursor + w / 2;
-            drawBaseBox(m, x, PLINTH_H + h / 2, z, Math.PI / 2);
+            drawBaseBox(m, -lenA / 2 - d / 2, PLINTH_H + h / 2, -depthA + cursor + w / 2, Math.PI / 2);
             cursor += w;
         });
         const baseLenB = basesB.reduce((s, m) => s + wOf(m), 0);
@@ -1890,9 +1889,7 @@
         cursor = 0;
         topsB.forEach(m => {
             const w = wOf(m), d = dOf(m), h = hOf(m);
-            const x = -lenA / 2 - d / 2;
-            const z = -depthA + cursor + w / 2;
-            drawTopBox(m, x, topModulesBottomY + h / 2, z, Math.PI / 2);
+            drawTopBox(m, -lenA / 2 - d / 2, topModulesBottomY + h / 2, -depthA + cursor + w / 2, Math.PI / 2);
             cursor += w;
         });
 
@@ -1902,9 +1899,7 @@
         cursor = 0;
         basesC.forEach(m => {
             const w = wOf(m), d = dOf(m), h = hOf(m);
-            const x = lenA / 2 + d / 2;
-            const z = -depthA + cursor + w / 2;
-            drawBaseBox(m, x, PLINTH_H + h / 2, z, Math.PI / 2);
+            drawBaseBox(m, lenA / 2 + d / 2, PLINTH_H + h / 2, -depthA + cursor + w / 2, Math.PI / 2);
             cursor += w;
         });
         const baseLenC = basesC.reduce((s, m) => s + wOf(m), 0);
@@ -1912,9 +1907,7 @@
         cursor = 0;
         topsC.forEach(m => {
             const w = wOf(m), d = dOf(m), h = hOf(m);
-            const x = lenA / 2 + d / 2;
-            const z = -depthA + cursor + w / 2;
-            drawTopBox(m, x, topModulesBottomY + h / 2, z, Math.PI / 2);
+            drawTopBox(m, lenA / 2 + d / 2, topModulesBottomY + h / 2, -depthA + cursor + w / 2, Math.PI / 2);
             cursor += w;
         });
 
@@ -2031,9 +2024,10 @@
 
     function exportProject() {
         const data = {
-            version: 9, savedAt: new Date().toISOString(),
+            version: 10, savedAt: new Date().toISOString(),
             layout: currentLayout(),
             modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
+            hiddenCorners: hiddenCornerModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
             prices: collectPrices(),
             hardware: JSON.parse(JSON.stringify(HW_STATE))
         };
@@ -2072,6 +2066,7 @@
                     type: m.type, name: m.name || m.type,
                     width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530
                 }));
+                hiddenCornerModules = (data.hiddenCorners || []).map(m => ({ ...m, id: (crypto.randomUUID ? crypto.randomUUID() : 'h-'+Date.now()) }));
                 if (data.prices) restorePrices(data.prices);
                 if (data.hardware) Object.keys(data.hardware).forEach(k => { if (HW_STATE[k]) HW_STATE[k] = data.hardware[k]; });
                 hardwareRendered = false;
@@ -2098,6 +2093,7 @@
     function resetProject() {
         if (!confirm('Сбросить проект: удалить все модули, сбросить разбиения и цены?')) return;
         projectModules = [];
+        hiddenCornerModules = [];
         HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] }; });
         hardwareRendered = false;
         renderModulesTable(); renderHardware(true); calculateProject(); renderHelp(); drawKitchen2D(); forceRebuildThree();
