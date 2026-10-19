@@ -99,6 +99,11 @@
     .three-hint { font-size: 0.78rem; color: #64748b; margin-top: 6px; }
     .three-actions { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
     .corner-type-select { font-size: 0.78rem; padding: 3px 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px; }
+    .services-summary { margin-top: 12px; padding: 10px 12px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; }
+    .services-summary h4 { margin: 0 0 6px; font-size: 0.9rem; color: #0c4a6e; }
+    .services-summary .srv-line { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 2px 0; color: #334155; }
+    .services-summary .srv-line strong { color: #0c4a6e; }
+    .services-summary .srv-total { margin-top: 6px; padding-top: 6px; border-top: 1px solid #bae6fd; font-weight: 700; display: flex; justify-content: space-between; color: #0c4a6e; }
 </style>
 </head>
 <body>
@@ -280,7 +285,7 @@
                 <div class="visual-side">
                     <div class="section-title" style="margin-top: 0;">2D-эскиз (фронт + доп. проекции)</div>
                     <canvas id="kitchenCanvas" width="440" height="480"></canvas>
-                    <div style="font-size:0.8rem; color:#64748b; margin-top:8px;">Угловые модули в 2D не показываются — только в 3D и таблице.</div>
+                    <div style="font-size:0.8rem; color:#64748b; margin-top:8px;">Верхние модули выше нижних на 600 мм. Угловые модули в 2D не показываются. Модули можно перетаскивать внутри ряда.</div>
 
                     <div class="section-title" style="margin-top: 20px;">3D-просмотр (только визуал)</div>
                     <div id="threeWrap">
@@ -369,7 +374,6 @@
         { id: 's9', run: 'A', type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
     ];
 
-    // ================= КАТЕГОРИИ ФУРНИТУРЫ С РАЗБИЕНИЕМ =================
     const HW_CATEGORIES = [
         { id: 'hinges',     label: 'Петли мебельные',           priceField: 'hingePrice',      unit: 'шт.',   source: 'hinges' },
         { id: 'slides',     label: 'Направляющие',              priceField: 'slidePrice',      unit: 'компл.', source: 'slides' },
@@ -388,7 +392,6 @@
         HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] };
     });
 
-    // ================= ДОСТУП =================
     async function checkIpAndInit() {
         const denied = document.getElementById('deniedContainer');
         const actions = document.getElementById('deniedActions');
@@ -486,7 +489,7 @@
         { inputId: 'tripanPrice', label: 'Присадка «Трипан»', re: /присадк\S*\s+[«"“]?\s*трипан/i },
         { inputId: 'groovePrice', label: 'Пропил паза под ДВП', re: /пропил\s+паза/i },
         { inputId: 'sawingPrice', label: 'Распил ДСП', re: /распил\s+дсп/i },
-        { inputId: 'edgeGluePrice', label: 'Поклейка кромки 22х0,8', re: /поклейк\S*\s+кромк\S*.*22\s*[xх×]\s*0[,.]8/i }
+        { inputId: 'edgeGluePrice', label: 'Поклейка кромки 22х0,8 (полиуретан)', re: /поклейк\S*\s+кромк\S*.*22\s*[xх×]\s*0[,.]8/i }
     ];
 
     function applyServicePrices(fetchFailed) {
@@ -506,7 +509,7 @@
         box.innerText = text;
     }
 
-    const CACHE_PREFIX = 'kc_prices_v6:';
+    const CACHE_PREFIX = 'kc_prices_v7:';
     const MAX_PARALLEL = 3;
     const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -691,7 +694,7 @@
         const doors = (n, doorH) => { for (let i = 0; i < n; i++) facades.push([(w - gap) / n, doorH, `Фасад (${n} шт.)`]); };
         const stacked = (n) => { for (let i = 0; i < n; i++) facades.push([w - gap, (h - gap) / n, `Фасад ящика (${n} шт.)`]); };
         let hinges = 0, slides = 0, cargo = 0, sush = 0, sink = 0, legs = 0, lifts = 0, hangers = 0, handles = 0;
-        let confirmats = 0, screws = 0, dvpArea = 0, grooveLength = 0, cutOven = 0, cutSink = 0;
+        let dvpArea = 0, grooveLength = 0, cutOven = 0, cutSink = 0;
 
         if (isCornerType(type)) {
             const isBase = !isCornerTop(type);
@@ -703,8 +706,8 @@
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Дно Г-образное (часть B)']);
             parts.push([1, armAM, armBM, 'Верх Г-образный (часть A)']);
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Верх Г-образный (часть B)']);
-            if (isBase) { legs = 6; confirmats += 16; screws += 12; }
-            else { hangers += 2; screws += 12; confirmats += 12; }
+            if (isBase) { legs = 6; }
+            else { hangers += 2; }
             if (type === 'corner_base_door') {
                 const doorW = Math.max(0.3, armBM - armAM);
                 facades.push([doorW - gap, h - gap, 'Фасад углового модуля']);
@@ -715,7 +718,7 @@
                 facades.push([doorW - gap, h - gap, 'Фасад под мойку']);
                 hinges += getHingesForDoor(heightMm); handles += 1;
             } else if (type === 'corner_base_cargo') {
-                cargo = 1; screws += 8;
+                cargo = 1;
                 const doorW = Math.max(0.3, armBM - armAM);
                 facades.push([doorW - gap, h - gap, 'Фасад углового с карго']);
                 hinges += getHingesForDoor(heightMm); handles += 1;
@@ -729,23 +732,21 @@
                 facades.push([doorW - gap, h - gap, 'Фасад углового с сушкой']);
                 hinges += getHingesForDoor(heightMm); handles += 1;
             }
-            screws += hinges * 4 + handles * 2;
             let dspArea = 0, edgeBody = 0, edgeFacade = 0, totalPartCount = 0;
             parts.forEach(p => { dspArea += p[0] * (p[1] * p[2]); edgeBody += p[0] * edgeOf(p[1], p[2]); totalPartCount += p[0]; });
             let facadeArea = 0;
             facades.forEach(f => { facadeArea += f[0] * f[1]; edgeFacade += edgeOf(f[0], f[1]); });
-            return { dsp: dspArea, dvp: 0, groove: 0, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea, partCount: totalPartCount, hinges, slides: 0, cargo, sush, sink, legs, lifts: 0, hangers, handles, confirmats, screws, cutOven: 0, cutSink, isBottom: isBase, isCorner: true, parts, facades, extraHardware };
+            return { dsp: dspArea, dvp: 0, groove: 0, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea, partCount: totalPartCount, hinges, slides: 0, cargo, sush, sink, legs, lifts: 0, hangers, handles, cutOven: 0, cutSink, isBottom: isBase, isCorner: true, parts, facades, extraHardware };
         }
 
         if (type === 'bottom_falsh' || type === 'top_falsh') {
             parts.push([1, w, h, 'Фальшпанель (ДСП)']);
-            return { dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1, hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0, confirmats: 0, screws: 0, cutOven: 0, cutSink: 0, isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades, extraHardware };
+            return { dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1, hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0, cutOven: 0, cutSink: 0, isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades, extraHardware };
         }
 
         dvpArea = w * h;
         if (type.startsWith('top_')) grooveLength = 2 * (w + h);
         if (type.startsWith('bottom_') || type.startsWith('penal_')) legs = 4;
-        confirmats += 8;
         parts.push([2, h, d, 'Боковина']);
         parts.push([2, w - dspT, d, 'Дно / верх']);
 
@@ -757,54 +758,57 @@
             } else if (type === 'bottom_p1d' || type === 'bottom_p2d') {
                 parts.push([1, w - dspT, d - 0.02, 'Полка']);
                 const n = type === 'bottom_p1d' ? 1 : 2;
-                doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n; confirmats += 4;
+                doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n;
             } else if (type === 'bottom_cargo') {
-                doors(1, h - gap); cargo = 1; handles += 1; screws += 8;
+                doors(1, h - gap); cargo = 1; handles += 1;
             } else if (type === 'bottom_ya2') {
                 const drawerH = h / 2 - 0.05;
                 parts.push([4, drawerH, d - 0.05, 'Боковина ящика']); parts.push([4, drawerH, w - drawerDspT, 'Стенка ящика']); parts.push([2, w - drawerDspT, d - 0.05, 'Дно ящика']);
-                stacked(2); slides += 2; handles += 2; confirmats += 16; screws += 16;
+                stacked(2); slides += 2; handles += 2;
             } else if (type === 'bottom_ya3') {
                 parts.push([6, 0.12, d - 0.05, 'Боковина ящика']); parts.push([6, 0.12, w - drawerDspT, 'Стенка ящика']); parts.push([3, w - drawerDspT, d - 0.05, 'Дно ящика']);
-                stacked(3); slides += 3; handles += 3; confirmats += 24; screws += 24;
+                stacked(3); slides += 3; handles += 3;
             } else if (type === 'bottom_ya2vn') {
                 const drawerH = h / 2 - 0.05;
                 parts.push([2, drawerH, d - 0.05, 'Боковина ящика']); parts.push([2, drawerH, w - drawerDspT, 'Стенка ящика']); parts.push([1, w - drawerDspT, d - 0.05, 'Дно ящика']);
-                doors(2, h - gap); hinges += getHingesForDoor(heightMm) * 2; handles += 2; slides += 1; confirmats += 8; screws += 8;
+                doors(2, h - gap); hinges += getHingesForDoor(heightMm) * 2; handles += 2; slides += 1;
             } else if (type === 'bottom_oven_drawer') {
                 const drawerH = Math.max(0.10, h - 0.600 - 0.004);
                 parts.push([1, w - dspT, d, 'Полка под духовку']); parts.push([2, 0.10, d - 0.05, 'Боковина ящика']); parts.push([2, 0.10, w - drawerDspT, 'Стенка ящика']); parts.push([1, w - drawerDspT, d - 0.05, 'Дно ящика']);
-                facades.push([w - gap, drawerH, 'Фасад ящика под духовкой']); slides += 1; handles += 1; cutOven = 1; confirmats += 12; screws += 8;
+                facades.push([w - gap, drawerH, 'Фасад ящика под духовкой']); slides += 1; handles += 1; cutOven = 1;
             }
         } else if (type.startsWith('top_')) {
-            hangers += 1; screws += 8;
+            hangers += 1;
             if (type === 'top_sush_1d' || type === 'top_sush_2d') {
                 sush = 1;
                 const n = type === 'top_sush_1d' ? 1 : 2;
                 doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n;
             } else if (type.includes('1d')) {
-                if (type.includes('p1_')) { parts.push([1, w - dspT, d - 0.02, 'Полка']); confirmats += 4; }
-                if (type.includes('p2_')) { parts.push([2, w - dspT, d - 0.02, 'Полка']); confirmats += 8; }
+                if (type.includes('p1_')) { parts.push([1, w - dspT, d - 0.02, 'Полка']); }
+                if (type.includes('p2_')) { parts.push([2, w - dspT, d - 0.02, 'Полка']); }
                 doors(1, h - gap); hinges += getHingesForDoor(heightMm); handles += 1;
             } else if (type.includes('2d')) {
-                if (type.includes('p1_')) { parts.push([1, w - dspT, d - 0.02, 'Полка']); confirmats += 4; }
-                if (type.includes('p2_')) { parts.push([2, w - dspT, d - 0.02, 'Полка']); confirmats += 8; }
+                if (type.includes('p1_')) { parts.push([1, w - dspT, d - 0.02, 'Полка']); }
+                if (type.includes('p2_')) { parts.push([2, w - dspT, d - 0.02, 'Полка']); }
                 doors(2, h - gap); hinges += getHingesForDoor(heightMm) * 2; handles += 2;
-            } else if (type === 'top_lift_2') { parts.push([1, w - dspT, d - 0.02, 'Полка']); stacked(2); lifts += 4; handles += 2; confirmats += 4; screws += 16; }
-            else if (type === 'top_lift_3') { parts.push([2, w - dspT, d - 0.02, 'Полка']); stacked(3); lifts += 6; handles += 3; confirmats += 8; screws += 24; }
+            } else if (type === 'top_lift_2') { parts.push([1, w - dspT, d - 0.02, 'Полка']); stacked(2); lifts += 4; handles += 2; }
+            else if (type === 'top_lift_3') { parts.push([2, w - dspT, d - 0.02, 'Полка']); stacked(3); lifts += 6; handles += 3; }
         } else if (type.startsWith('penal_')) {
-            if (type === 'penal_shelves') { parts.push([4, w - dspT, d - 0.02, 'Полка']); stacked(2); hinges += getHingesForDoor(heightMm / 2) * 2; handles += 2; confirmats += 16; }
-            else if (type === 'penal_appliances') { parts.push([3, w - dspT, d - 0.02, 'Полка']); doors(2, Math.max(0, h - 0.900)); hinges += getHingesForDoor(700) * 2; handles += 2; cutOven = 1; confirmats += 12; }
-            else if (type === 'penal_fridge') { parts.push([1, w - dspT, d - 0.02, 'Полка']); stacked(2); hinges += getHingesForDoor(heightMm / 2) * 2; handles += 2; confirmats += 4; }
+            if (type === 'penal_shelves') { parts.push([4, w - dspT, d - 0.02, 'Полка']); stacked(2); hinges += getHingesForDoor(heightMm / 2) * 2; handles += 2; }
+            else if (type === 'penal_appliances') { parts.push([3, w - dspT, d - 0.02, 'Полка']); doors(2, Math.max(0, h - 0.900)); hinges += getHingesForDoor(700) * 2; handles += 2; cutOven = 1; }
+            else if (type === 'penal_fridge') { parts.push([1, w - dspT, d - 0.02, 'Полка']); stacked(2); hinges += getHingesForDoor(heightMm / 2) * 2; handles += 2; }
         }
 
-        screws += hinges * 4 + handles * 2;
+        // Конфирматы — 2 шт на каждую деталь корпуса
+        let confirmats = 0;
+        parts.forEach(p => { confirmats += 2 * p[0]; });
+
         let dspArea = 0, edgeBody = 0, edgeFacade = 0, totalPartCount = 0;
         parts.forEach(p => { dspArea += p[0] * (p[1] * p[2]); edgeBody += p[0] * edgeOf(p[1], p[2]); totalPartCount += p[0]; });
         let facadeArea = 0;
         facades.forEach(f => { facadeArea += f[0] * f[1]; edgeFacade += edgeOf(f[0], f[1]); });
 
-        return { dsp: dspArea, dvp: dvpArea, groove: grooveLength, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea, partCount: totalPartCount, hinges, slides, cargo, sush, sink, legs, lifts, hangers, handles, confirmats, screws, cutOven, cutSink, isBottom: type.startsWith('bottom_') || type.startsWith('penal_'), isCorner: false, parts, facades, extraHardware };
+        return { dsp: dspArea, dvp: dvpArea, groove: grooveLength, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea, partCount: totalPartCount, hinges, slides, cargo, sush, sink, legs, lifts, hangers, handles, confirmats, cutOven, cutSink, isBottom: type.startsWith('bottom_') || type.startsWith('penal_'), isCorner: false, parts, facades, extraHardware };
     }
 
     function addModule() {
@@ -870,17 +874,13 @@
         });
     }
 
-    // ================= ФУРНИТУРА С РАЗБИЕНИЕМ (рендер ОДИН раз) =================
-    let lastRecommended = {}; // рекомендованные количества по категориям
+    // ================= ФУРНИТУРА =================
+    let lastRecommended = {};
     let hardwareRendered = false;
 
     function renderHardware(force = false) {
         const box = document.getElementById('hardwareContainer'); if (!box) return;
-        // Пересоздаём только если ещё не создавали (или принудительно)
-        if (hardwareRendered && !force) {
-            updateHardwareLabels();
-            return;
-        }
+        if (hardwareRendered && !force) { updateHardwareLabels(); return; }
         hardwareRendered = true;
         box.innerHTML = '';
         HW_CATEGORIES.forEach(cat => {
@@ -915,7 +915,6 @@
             row.appendChild(head);
 
             if (!state.split) {
-                // Одна позиция — пересоздаём только при force (иначе поля сохраняются)
                 if (force) {
                     const priceInp = document.createElement('input');
                     priceInp.type = 'number'; priceInp.className = 'hardware-price-input'; priceInp.placeholder = 'цена';
@@ -939,7 +938,6 @@
                     row.appendChild(sel);
                 }
             } else {
-                // Разбиение — блок строк
                 const block = document.createElement('div'); block.className = 'split-block';
                 block.id = 'hwsplit-' + cat.id;
                 state.rows.forEach((r, ri) => {
@@ -991,20 +989,19 @@
             box.appendChild(row);
         });
 
-        // Крепёж и коэффициенты — фиксированные поля, рендер один раз
         const extraBox = document.createElement('div');
         extraBox.style.cssText = 'margin-top:12px; padding-top:12px; border-top:2px dashed #cbd5e1;';
         extraBox.innerHTML = '<div style="font-weight:700;color:#475569;margin-bottom:8px;">Крепёж, присадка и коэффициенты</div>';
         const extraFields = [
             { label: 'Цена конфирматов (руб/шт)', id: 'confirmatPrice', def: 1.5 },
             { label: 'Цена шурупов (руб/шт)', id: 'screwPrice', def: 0.5 },
+            { label: 'Цена дюбелей (руб/шт)', id: 'dowelPrice', def: 2 },
             { label: 'Присадка d-35 (руб/отв)', id: 'hingeD35Price', def: 15 },
             { label: 'Присадка «Трипан» (руб/отв)', id: 'tripanPrice', def: 5.04 },
             { label: 'Вырез под технику (руб/шт)', id: 'cutOvenPrice', def: 270 },
             { label: 'Вырез под мойку (руб/шт)', id: 'cutSinkPrice', def: 270 },
             { label: 'Цена ДВП (руб/м²)', id: 'dvpPrice', def: 250 },
             { label: 'Паз под ДВП (руб/м)', id: 'groovePrice', def: 30 },
-            { label: 'Цена кромки по умолчанию (руб/м)', id: 'edgePrice', def: 35 },
             { label: 'Поклейка кромки (руб/м)', id: 'edgeGluePrice', def: 0 },
             { label: 'Цена распила (руб/м)', id: 'sawingPrice', def: 6.55 },
             { label: 'Отход материала, %', id: 'wastePercent', def: 20 },
@@ -1021,29 +1018,28 @@
             inp.oninput = () => calculateProject();
             r.appendChild(lbl); r.appendChild(inp); extraBox.appendChild(r);
         });
+        const srvBox = document.createElement('div');
+        srvBox.className = 'services-summary';
+        srvBox.id = 'servicesSummary';
+        extraBox.appendChild(srvBox);
         box.appendChild(extraBox);
-
         updateHardwareLabels();
     }
 
     function updateSplitRowPrice(catId, ri) {
-        const cat = HW_CATEGORIES.find(c => c.id === catId);
         const state = HW_STATE[catId];
         const r = state.rows[ri];
         const priceInp = document.getElementById(`hwsplit-price-${catId}-${ri}`);
         if (priceInp) priceInp.value = r.price;
     }
 
-    // Обновляет только подписи «рекомендуется» и «итого» — DOM полей НЕ трогает
     function updateHardwareLabels() {
         HW_CATEGORIES.forEach(cat => {
             const rec = lastRecommended[cat.id] != null ? lastRecommended[cat.id] : 0;
             const state = HW_STATE[cat.id];
             const recLabel = document.getElementById('hwrec-' + cat.id);
             if (recLabel) recLabel.textContent = `Рекомендуется: ${rec} ${cat.unit}`;
-            if (!state.split) {
-                // одна позиция — ничего не делаем с полями, только подпись
-            } else {
+            if (state.split) {
                 state.rows.forEach((r, ri) => {
                     const recSpan = document.getElementById(`hwsplit-rec-${cat.id}-${ri}`);
                     if (recSpan) recSpan.textContent = `реком. ${rec}`;
@@ -1055,9 +1051,9 @@
                 }
             }
         });
+        updateServicesSummary();
     }
 
-    // Обновление выпадающих списков после загрузки прайсов
     function updateSplitSelects() {
         HW_CATEGORIES.forEach(cat => {
             const state = HW_STATE[cat.id];
@@ -1081,7 +1077,6 @@
         });
     }
 
-    // Считает фактическое количество и сумму по категории (с учётом ручного разбиения)
     function computeCategoryTotal(catId) {
         const cat = HW_CATEGORIES.find(c => c.id === catId);
         if (!cat) return { qty: 0, sum: 0 };
@@ -1103,13 +1098,9 @@
         return { qty, sum };
     }
 
-    // Сумма фактических петель (для присадки d-35)
-    function getActualHinges() {
-        return computeCategoryTotal('hinges').qty;
-    }
-
     // ================= РАСЧЁТ ПРОЕКТА =================
     let lastCalc = null;
+    let lastServices = null;
 
     function calculateProject() {
         let bottomDspArea = 0, topDspArea = 0, bottomFacadeArea = 0, topFacadeArea = 0;
@@ -1117,7 +1108,7 @@
         let bottomBodyEdge = 0, bottomFacadeEdge = 0, topBodyEdge = 0, topFacadeEdge = 0;
         let totalHinges = 0, totalSlides = 0, totalCargo = 0, totalSush = 0, totalSink = 0;
         let totalLegs = 0, totalLifts = 0, totalHangers = 0, totalHandles = 0;
-        let totalConfirmats = 0, totalScrews = 0;
+        let totalConfirmats = 0;
         let totalMountRailMeters = 0, totalCutOven = 0, totalCutSink = 0;
 
         const runLength = { A: 0, B: 0, C: 0 };
@@ -1134,7 +1125,7 @@
             totalHinges += calc.hinges; totalSlides += calc.slides; totalCargo += calc.cargo;
             totalSush += calc.sush; totalSink += calc.sink; totalLegs += calc.legs;
             totalLifts += calc.lifts; totalHangers += calc.hangers; totalHandles += calc.handles;
-            totalConfirmats += calc.confirmats; totalScrews += calc.screws;
+            totalConfirmats += calc.confirmats;
             totalCutOven += calc.cutOven; totalCutSink += calc.cutSink;
 
             if (runLength[m.run] !== undefined) runLength[m.run] += m.width;
@@ -1164,6 +1155,7 @@
         const wasteK = 1 + (isNaN(wasteInput) ? 20 : Math.max(0, wasteInput)) / 100.0;
         const withWaste = (a) => `${a.toFixed(2)} м² (с отходом: ${(a * wasteK).toFixed(2)} м²)`;
         const mountRailPcs = Math.ceil(totalMountRailMeters / 2.0);
+        const dowelsCount = mountRailPcs * 5;
 
         let grooveCost = 0, grooveDisplayText = "";
         const grooveInput = parseFloat((document.getElementById('groovePrice')||{}).value);
@@ -1171,12 +1163,6 @@
         if (totalGrooveLength > 0 && totalGrooveLength <= 1.0) { grooveCost = grooveUnitPrice; grooveDisplayText = `${totalGrooveLength.toFixed(2)} м (1 шт)`; }
         else { grooveCost = totalGrooveLength * grooveUnitPrice; grooveDisplayText = `${totalGrooveLength.toFixed(2)} м`; }
 
-        // Присадка d-35 — по фактическому количеству петель (с учётом ручного разбиения)
-        const actualHingesForD35 = getActualHinges();
-        // Трипан — по конфирматам + шурупам (автоматически по модулям)
-        const totalTripanHoles = totalConfirmats + totalScrews;
-
-        // Обновляем рекомендации
         lastRecommended = {
             hinges: totalHinges, slides: totalSlides, cargo: totalCargo, sush: totalSush,
             sink: totalSink, legs: totalLegs, lifts: totalLifts, handles: totalHandles,
@@ -1201,14 +1187,15 @@
         const topFacadePrice = parseFloat((document.getElementById('topFacadeSelect')||{}).value) || 0;
         const topPrice = parseFloat((document.getElementById('topMaterialSelect')||{}).value) || 0;
         const dvpPrice = parseFloat((document.getElementById('dvpPrice')||{}).value) || 0;
-        const edgePrice = parseFloat((document.getElementById('edgePrice')||{}).value) || 0;
         const sawingPrice = parseFloat((document.getElementById('sawingPrice')||{}).value) || 0;
         const confirmatPrice = parseFloat((document.getElementById('confirmatPrice')||{}).value) || 0;
         const screwPrice = parseFloat((document.getElementById('screwPrice')||{}).value) || 0;
+        const dowelPrice = parseFloat((document.getElementById('dowelPrice')||{}).value) || 0;
         const hingeD35Price = parseFloat((document.getElementById('hingeD35Price')||{}).value) || 0;
         const tripanPrice = parseFloat((document.getElementById('tripanPrice')||{}).value) || 0;
         const cutOvenPrice = parseFloat((document.getElementById('cutOvenPrice')||{}).value) || 0;
         const cutSinkPrice = parseFloat((document.getElementById('cutSinkPrice')||{}).value) || 0;
+        const edgeGluePrice = parseFloat((document.getElementById('edgeGluePrice')||{}).value) || 0;
         const hardwareExtra = parseFloat((document.getElementById('hardwareCost')||{}).value) || 0;
         const margin = parseFloat((document.getElementById('marginPercent')||{}).value) || 0;
 
@@ -1216,8 +1203,8 @@
         const facadeCost = ((bottomFacadeArea * bottomFacadePrice) + (topFacadeArea * topFacadePrice)) * wasteK;
         const dvpCost = totalDvpArea * dvpPrice * wasteK;
         const sawingCost = totalSawingLength * sawingPrice;
-        const edgeP = (selectId) => { const el = document.getElementById(selectId); const v = el ? parseFloat(el.value) : NaN; return v > 0 ? v : edgePrice; };
-        const edgeGluePrice = parseFloat((document.getElementById('edgeGluePrice')||{}).value) || 0;
+        // Кромка ТОЛЬКО из прайса (селекты). Если не выбрано — цена 0.
+        const edgeP = (selectId) => { const el = document.getElementById(selectId); if (!el) return 0; const v = parseFloat(el.value); return isNaN(v) ? 0 : v; };
         const edgeGlueCost = totalEdgeLength * edgeGluePrice;
         const edgeCost = bottomBodyEdge * edgeP('bottomBodyEdgeSelect') + bottomFacadeEdge * edgeP('bottomFacadeEdgeSelect') + topBodyEdge * edgeP('topBodyEdgeSelect') + topFacadeEdge * edgeP('topFacadeEdgeSelect');
         const topCost = Math.max(0, totalTopLength) * topPrice;
@@ -1235,8 +1222,24 @@
         const hangersCost = hwTotals.hangers.sum;
         const mountRailCost = hwTotals.mountRail.sum;
 
+        // Шурупы: 4 шт на механизм (петли, направляющие, подъёмники, карго, ножки, навесы)
+        const actualHinges = hwTotals.hinges.qty;
+        const actualSlides = hwTotals.slides.qty;
+        const actualCargo = hwTotals.cargo.qty;
+        const actualLegs = hwTotals.legs.qty;
+        const actualLifts = hwTotals.lifts.qty;
+        const actualHangers = hwTotals.hangers.qty;
+        const totalScrews = 4 * (actualHinges + actualSlides + actualLifts + actualCargo + actualLegs + actualHangers);
+
+        // Трипан: шурупы 1:1 + 2 × конфирматы
+        const totalTripanHoles = totalScrews + 2 * totalConfirmats;
+
+        // Присадка d-35 = фактическое количество петель
+        const actualHingesForD35 = actualHinges;
+
         const confirmatsCost = totalConfirmats * confirmatPrice;
         const screwsCost = totalScrews * screwPrice;
+        const dowelsCost = dowelsCount * dowelPrice;
         const hingeD35Cost = actualHingesForD35 * hingeD35Price;
         const tripanCost = totalTripanHoles * tripanPrice;
         const cutOvenCost = totalCutOven * cutOvenPrice;
@@ -1244,26 +1247,39 @@
 
         const netCost = dspCost + facadeCost + dvpCost + grooveCost + sawingCost + edgeCost + edgeGlueCost + topCost +
                         hingesCost + slidesCost + cargoCost + sushCost + sinkCost + legsCost + liftsCost +
-                        handlesCost + hangersCost + mountRailCost + confirmatsCost + screwsCost +
+                        handlesCost + hangersCost + mountRailCost + confirmatsCost + screwsCost + dowelsCost +
                         hingeD35Cost + tripanCost + cutOvenCost + cutSinkCost + hardwareExtra;
         const finalPrice = netCost * (1 + margin / 100.0);
         document.getElementById('totalPriceDisplay').innerText = Math.round(finalPrice).toLocaleString('ru-RU') + " руб.";
+
+        // Услуги — сохраняем для отображения
+        lastServices = [
+            { name: 'Распил плитных материалов', qty: totalSawingLength, unit: 'пог. м', price: sawingPrice, sum: sawingCost },
+            { name: 'Паз под ДВП', qty: totalGrooveLength, unit: 'пог. м', price: grooveUnitPrice, sum: grooveCost },
+            { name: 'Поклейка кромки', qty: totalEdgeLength, unit: 'пог. м', price: edgeGluePrice, sum: edgeGlueCost },
+            { name: 'Присадка d-35', qty: actualHingesForD35, unit: 'отв.', price: hingeD35Price, sum: hingeD35Cost },
+            { name: 'Присадка «Трипан»', qty: totalTripanHoles, unit: 'отв.', price: tripanPrice, sum: tripanCost },
+            { name: 'Вырез под технику', qty: totalCutOven, unit: 'шт.', price: cutOvenPrice, sum: cutOvenCost },
+            { name: 'Вырез под мойку', qty: totalCutSink, unit: 'шт.', price: cutSinkPrice, sum: cutSinkCost }
+        ].filter(s => s.qty > 0);
+
+        updateServicesSummary();
 
         const missing = [];
         const chk = (label, qty, price) => { if (qty > 0 && !(price > 0)) missing.push(label); };
         chk('ДСП нижних', bottomDspArea, bottomBodyPrice); chk('ДСП верхних', topDspArea, topBodyPrice);
         chk('Фасады нижних', bottomFacadeArea, bottomFacadePrice); chk('Фасады верхних', topFacadeArea, topFacadePrice);
         chk('Столешница', totalTopLength, topPrice);
+        chk('Кромка корпуса нижних', bottomBodyEdge, edgeP('bottomBodyEdgeSelect'));
+        chk('Кромка фасадов нижних', bottomFacadeEdge, edgeP('bottomFacadeEdgeSelect'));
+        chk('Кромка корпуса верхних', topBodyEdge, edgeP('topBodyEdgeSelect'));
+        chk('Кромка фасадов верхних', topFacadeEdge, edgeP('topFacadeEdgeSelect'));
         const hwPrice = (catId) => {
             const st = HW_STATE[catId];
             if (!st.split) return parseFloat((st.rows[0]||{}).price) || 0;
-            // для разбитых — если хоть в одной строке цена 0 и кол-во > 0
             return st.rows.some(r => (parseFloat(r.qtyManual) || 0) > 0 && !(parseFloat(r.price) > 0)) ? 0 : 1;
         };
-        HW_CATEGORIES.forEach(cat => {
-            const t = hwTotals[cat.id];
-            chk(cat.label, t.qty, hwPrice(cat.id));
-        });
+        HW_CATEGORIES.forEach(cat => { const t = hwTotals[cat.id]; chk(cat.label, t.qty, hwPrice(cat.id)); });
         chk('Поклейка кромки', totalEdgeLength, edgeGluePrice);
 
         const warnings = [];
@@ -1274,7 +1290,6 @@
         if (warnings.length > 0) { warnBox.innerText = '⚠️ Расчёт неполный. ' + warnings.join(' '); warnBox.style.display = 'block'; priceEl.style.color = '#b91c1c'; }
         else { warnBox.style.display = 'none'; priceEl.style.color = ''; }
 
-        // Спецификация
         const nameOf = (selectId) => {
             const el = document.getElementById(selectId); if (!el) return '';
             if (el.tagName === 'SELECT') { const opt = el.options[el.selectedIndex]; return opt ? (opt.dataset && opt.dataset.name ? opt.dataset.name : opt.textContent) : ''; }
@@ -1314,8 +1329,9 @@
                 });
             }
         });
-        specHardware.push({ name: 'Конфирматы', detail: '', qty: totalConfirmats, unit: 'шт.', price: confirmatPrice, sum: confirmatsCost });
-        specHardware.push({ name: 'Шурупы', detail: '', qty: totalScrews, unit: 'шт.', price: screwPrice, sum: screwsCost });
+        specHardware.push({ name: 'Конфирматы', detail: '2 шт. на каждую деталь корпуса', qty: totalConfirmats, unit: 'шт.', price: confirmatPrice, sum: confirmatsCost });
+        specHardware.push({ name: 'Шурупы', detail: '4 шт. на механизм (петли, направляющие, подъёмники, карго, ножки, навесы)', qty: totalScrews, unit: 'шт.', price: screwPrice, sum: screwsCost });
+        specHardware.push({ name: 'Дюбеля', detail: '5 шт. на монтажную планку', qty: dowelsCount, unit: 'шт.', price: dowelPrice, sum: dowelsCost });
         specHardware.push({ name: 'Доп. метизы / расходники', detail: '', qty: 1, unit: 'компл.', price: hardwareExtra, sum: hardwareExtra });
 
         const specWorks = [
@@ -1323,7 +1339,7 @@
             { name: 'Паз под ДВП', detail: '', qty: totalGrooveLength, unit: 'пог. м', price: grooveUnitPrice, sum: grooveCost },
             { name: 'Поклейка кромки', detail: '22×0,8 полиуретан', qty: totalEdgeLength, unit: 'пог. м', price: edgeGluePrice, sum: edgeGlueCost },
             { name: 'Присадка под петлю d-35', detail: '', qty: actualHingesForD35, unit: 'отв.', price: hingeD35Price, sum: hingeD35Cost },
-            { name: 'Присадка «Трипан»', detail: '', qty: totalTripanHoles, unit: 'отв.', price: tripanPrice, sum: tripanCost },
+            { name: 'Присадка «Трипан»', detail: 'шурупы 1:1 + 2 × конфирматы', qty: totalTripanHoles, unit: 'отв.', price: tripanPrice, sum: tripanCost },
             { name: 'Вырез под технику', detail: '', qty: totalCutOven, unit: 'шт.', price: cutOvenPrice, sum: cutOvenCost },
             { name: 'Вырез под мойку', detail: '', qty: totalCutSink, unit: 'шт.', price: cutSinkPrice, sum: cutSinkCost }
         ].filter(x => x.qty > 0);
@@ -1340,12 +1356,27 @@
         };
 
         scheduleSketch();
-        // ВАЖНО: при любом изменении проекта пересобираем 3D
         if (threeRenderer) rebuildThree();
+    }
+
+    function updateServicesSummary() {
+        const box = document.getElementById('servicesSummary'); if (!box) return;
+        if (!lastServices || lastServices.length === 0) { box.innerHTML = '<h4>Услуги</h4><div style="font-size:0.82rem;color:#94a3b8;">— нет —</div>'; return; }
+        let html = '<h4>Услуги (количество и сумма)</h4>';
+        let total = 0;
+        lastServices.forEach(s => {
+            total += s.sum;
+            html += `<div class="srv-line"><span>${escapeHtml(s.name)}: <strong>${s.qty.toFixed(2)} ${s.unit}</strong></span><span>${Math.round(s.sum).toLocaleString('ru-RU')} руб.</span></div>`;
+        });
+        html += `<div class="srv-total"><span>Итого услуги:</span><span>${Math.round(total).toLocaleString('ru-RU')} руб.</span></div>`;
+        box.innerHTML = html;
     }
 
     // ================= 2D ЭСКИЗ =================
     let sketchRaf = null;
+    let sketchHits = [];
+    let sketchDrag = null;
+
     function scheduleSketch() { if (sketchRaf !== null) return; sketchRaf = requestAnimationFrame(() => { sketchRaf = null; drawKitchen2D(); }); }
 
     function roundRectPath(ctx, x, y, w, h, r) {
@@ -1446,12 +1477,53 @@
         }
     }
 
+    // Расчёт масштаба и позиций для одного ряда с учётом двух уровней (низ/верх)
+    function computeRunLayout(runKey, x0, y0, wMax, hMax) {
+        const mods = projectModules.filter(m => m.run === runKey && !isCornerType(m.type));
+        const bottom = mods.filter(m => !m.type.startsWith('top_'));
+        const top = mods.filter(m => m.type.startsWith('top_'));
+
+        const GAP_MM = 600; // 600 мм между верхом нижних и низом верхних
+        const maxBottomH = bottom.length ? Math.max(...bottom.map(m => m.height)) : 0;
+        const maxTopH = top.length ? Math.max(...top.map(m => m.height)) : 0;
+        const bottomLen = bottom.reduce((s, m) => s + m.width, 0);
+        const topLen = top.reduce((s, m) => s + m.width, 0);
+        const totalLen = Math.max(bottomLen, topLen, 1);
+        const sceneHeight = maxBottomH + GAP_MM + maxTopH;
+
+        const scale = Math.min(wMax / totalLen, hMax / Math.max(sceneHeight, 1)) * 0.9;
+        const offsetX = x0 + (wMax - totalLen * scale) / 2;
+        const baseY = y0 + hMax - 8;
+
+        const result = { mods, bottom, top, scale, offsetX, baseY, maxBottomH, maxTopH, GAP_MM };
+        // Прямоугольники модулей для hit-test
+        result.rects = [];
+        let cursor = 0;
+        bottom.forEach(m => {
+            const wPx = m.width * scale, hPx = m.height * scale;
+            const x = offsetX + cursor * scale;
+            const y = baseY - hPx;
+            result.rects.push({ id: m.id, x, y, w: wPx, h: hPx, run: runKey, isTop: false, module: m });
+            cursor += m.width;
+        });
+        cursor = 0;
+        top.forEach(m => {
+            const wPx = m.width * scale, hPx = m.height * scale;
+            const x = offsetX + cursor * scale;
+            const bottomOfTopY = baseY - maxBottomH * scale - GAP_MM * scale;
+            const y = bottomOfTopY - hPx;
+            result.rects.push({ id: m.id, x, y, w: wPx, h: hPx, run: runKey, isTop: true, module: m });
+            cursor += m.width;
+        });
+        return result;
+    }
+
     function drawKitchen2D() {
         const canvas = document.getElementById('kitchenCanvas'); if (!canvas) return;
         const runs = layoutRuns();
         const extraViews = runs.length - 1;
         const cssW = canvas.clientWidth || 440;
-        const baseH = 300, extraH = 170;
+        const baseH = 340, extraH = 200;
         const cssH = baseH + extraViews * extraH;
         const dpr = window.devicePixelRatio || 1;
         const pxW = Math.round(cssW * dpr), pxH = Math.round(cssH * dpr);
@@ -1460,39 +1532,108 @@
         const ctx = canvas.getContext('2d');
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, cssW, cssH);
+        sketchHits = [];
 
-        const drawRunFront = (runKey, x0, y0, wMax, hMax, title) => {
-            const mods = projectModules.filter(m => m.run === runKey && !isCornerType(m.type));
-            if (mods.length === 0) {
+        const drawRun = (runKey, x0, y0, wMax, hMax, title) => {
+            const L = computeRunLayout(runKey, x0, y0, wMax, hMax);
+            if (L.mods.length === 0) {
                 ctx.fillStyle = '#94a3b8'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
                 ctx.fillText(`${title}: пусто (угловые модули здесь не отображаются)`, x0 + wMax / 2, y0 + hMax / 2);
                 return;
             }
-            const totalW = mods.reduce((s, m) => s + m.width, 0);
-            const maxH = Math.max(...mods.map(m => m.height));
-            const scale = Math.min(wMax / totalW, hMax / maxH) * 0.9;
-            const offsetX = x0 + (wMax - totalW * scale) / 2;
-            const baseY = y0 + hMax - 8;
-            let cursor = 0;
-            mods.forEach(m => {
-                const wPx = m.width * scale, hPx = m.height * scale;
-                const x = offsetX + cursor * scale, y = baseY - hPx;
-                drawModuleFace(ctx, m, x, y, wPx, hPx);
+            // Нижние
+            L.bottom.forEach(m => {
+                const r = L.rects.find(x => x.id === m.id);
+                if (!r) return;
+                drawModuleFace(ctx, m, r.x, r.y, r.w, r.h);
                 const globalIdx = projectModules.findIndex(p => p.id === m.id) + 1;
-                drawLabel(ctx, x, y, wPx, hPx, globalIdx, m.width, m.height);
-                cursor += m.width;
+                drawLabel(ctx, r.x, r.y, r.w, r.h, globalIdx, m.width, m.height);
+                sketchHits.push(r);
+                if (sketchDrag && sketchDrag.id === m.id) {
+                    ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+                    ctx.strokeRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2); ctx.restore();
+                }
+            });
+            // Верхние
+            L.top.forEach(m => {
+                const r = L.rects.find(x => x.id === m.id);
+                if (!r) return;
+                drawModuleFace(ctx, m, r.x, r.y, r.w, r.h);
+                const globalIdx = projectModules.findIndex(p => p.id === m.id) + 1;
+                drawLabel(ctx, r.x, r.y, r.w, r.h, globalIdx, m.width, m.height);
+                sketchHits.push(r);
+                if (sketchDrag && sketchDrag.id === m.id) {
+                    ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+                    ctx.strokeRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2); ctx.restore();
+                }
             });
             ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
             ctx.fillText(title, x0 + 4, y0 + 12);
         };
 
-        drawRunFront('A', 8, 8, cssW - 16, baseH - 16, runs.includes('A') ? 'Ряд A' + (extraViews > 0 ? ' (основной фронт)' : '') : 'Ряд A');
+        drawRun('A', 8, 8, cssW - 16, baseH - 16, runs.includes('A') ? 'Ряд A' + (extraViews > 0 ? ' (основной фронт)' : '') : 'Ряд A');
         const extraRuns = runs.slice(1);
         extraRuns.forEach((r, idx) => {
             const y0 = baseH + idx * extraH;
             ctx.strokeStyle = '#cbd5e1'; ctx.beginPath(); ctx.moveTo(8, y0); ctx.lineTo(cssW - 8, y0); ctx.stroke();
-            drawRunFront(r, 8, y0 + 6, cssW - 16, extraH - 12, `Ряд ${r} (доп. проекция)`);
+            drawRun(r, 8, y0 + 6, cssW - 16, extraH - 12, `Ряд ${r} (доп. проекция)`);
         });
+    }
+
+    function initSketchDrag() {
+        const canvas = document.getElementById('kitchenCanvas'); if (!canvas) return;
+        const toLocal = (e) => {
+            const r = canvas.getBoundingClientRect();
+            const k = r.width ? (canvas.clientWidth || 440) / r.width : 1;
+            return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k };
+        };
+        const hitAt = (p) => sketchHits.find(h => p.x >= h.x && p.x <= h.x + h.w && p.y >= h.y && p.y <= h.y + h.h);
+
+        let startX = 0, startY = 0, moved = false;
+        canvas.addEventListener('pointerdown', (e) => {
+            const p = toLocal(e);
+            const hit = hitAt(p);
+            if (!hit) return;
+            sketchDrag = { id: hit.id, run: hit.run, isTop: hit.isTop };
+            startX = e.clientX; startY = e.clientY; moved = false;
+            try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+            canvas.style.cursor = 'grabbing';
+            drawKitchen2D();
+        });
+        canvas.addEventListener('pointermove', (e) => {
+            const p = toLocal(e);
+            if (!sketchDrag) { canvas.style.cursor = hitAt(p) ? 'grab' : 'default'; return; }
+            const dx = e.clientX - startX, dy = e.clientY - startY;
+            if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+            if (!moved) return;
+            const hit = hitAt(p);
+            if (!hit || hit.id === sketchDrag.id) return;
+            // Перетаскивание только внутри того же ряда и того же уровня (низ/верх)
+            if (hit.run !== sketchDrag.run || hit.isTop !== sketchDrag.isTop) return;
+            swapModules(sketchDrag.id, hit.id);
+            sketchDrag.id = hit.id;
+            drawKitchen2D();
+        });
+        const end = () => {
+            if (!sketchDrag) return;
+            sketchDrag = null;
+            canvas.style.cursor = 'default';
+            drawKitchen2D();
+        };
+        canvas.addEventListener('pointerup', end);
+        canvas.addEventListener('pointercancel', end);
+    }
+
+    // Поменять местами два модуля (в массиве projectModules)
+    function swapModules(idA, idB) {
+        const ia = projectModules.findIndex(m => m.id === idA);
+        const ib = projectModules.findIndex(m => m.id === idB);
+        if (ia < 0 || ib < 0) return;
+        const tmp = projectModules[ia];
+        projectModules[ia] = projectModules[ib];
+        projectModules[ib] = tmp;
+        renderModulesTable();
+        calculateProject();
     }
 
     function placeModuleInRun(id, newIdx, otherIds) {
@@ -1507,7 +1648,8 @@
     function moveModule(id, dir) {
         const mod = projectModules.find(m => m.id === id); if (!mod) return;
         if (isCornerType(mod.type)) return;
-        const runIds = projectModules.filter(m => m.run === mod.run && !isCornerType(m.type)).map(m => m.id);
+        const isTop = mod.type.startsWith('top_');
+        const runIds = projectModules.filter(m => m.run === mod.run && !isCornerType(m.type) && (m.type.startsWith('top_') === isTop)).map(m => m.id);
         const idx = runIds.indexOf(id); const newIdx = idx + dir;
         if (newIdx < 0 || newIdx >= runIds.length) return;
         placeModuleInRun(id, newIdx, runIds.filter(x => x !== id));
@@ -1562,7 +1704,8 @@
             if (!isDown) return;
             const dx = e.clientX - lastX, dy = e.clientY - lastY;
             lastX = e.clientX; lastY = e.clientY;
-            orbit.theta -= dx * 0.008; orbit.phi -= dy * 0.008;
+            // Инверсия исправлена: += вместо -=
+            orbit.theta += dx * 0.008; orbit.phi += dy * 0.008;
             orbit.phi = Math.max(0.15, Math.min(Math.PI / 2 - 0.05, orbit.phi));
             scheduleThree();
         });
@@ -1578,11 +1721,7 @@
     }
 
     function forceRebuildThree() {
-        if (!threeRenderer) {
-            // 3D ещё не инициализирован — попробуем инициализировать
-            initThree();
-            return;
-        }
+        if (!threeRenderer) { initThree(); return; }
         rebuildThree();
     }
 
@@ -1611,7 +1750,6 @@
         const heightOf = (m) => m.height / 1000;
         const widthOf = (m) => m.width / 1000;
         const depthOf = (m) => m.depth / 1000;
-
         const isBaseType = (m) => !m.type.startsWith('top_');
 
         const maxBaseH = projectModules.filter(isBaseType).reduce((mx, m) => Math.max(mx, heightOf(m)), 0.72);
@@ -1625,21 +1763,22 @@
         const lenB = modsB.reduce((s, m) => s + widthOf(m), 0);
         const lenC = modsC.reduce((s, m) => s + widthOf(m), 0);
 
-        const addBox = (w, h, d, x, y, z, color, outline = true) => {
+        // addBox с опциональным поворотом вокруг Y
+        const addBox = (w, h, d, x, y, z, color, rotY = 0) => {
             const geo = new THREE.BoxGeometry(w, h, d);
             const mat = new THREE.MeshLambertMaterial({ color });
             const mesh = new THREE.Mesh(geo, mat);
             mesh.position.set(x, y, z);
+            mesh.rotation.y = rotY;
             threeGroup.add(mesh);
-            if (outline) {
-                const edges = new THREE.EdgesGeometry(geo);
-                const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x334155 }));
-                line.position.set(x, y, z);
-                threeGroup.add(line);
-            }
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x334155 }));
+            line.position.set(x, y, z);
+            line.rotation.y = rotY;
+            threeGroup.add(line);
         };
 
-        // Ряд A
+        // Ряд A — вдоль оси X, задняя стенка на z = -depthA
         let cursorA = -lenA / 2;
         modsA.forEach(m => {
             const w = widthOf(m), d = depthOf(m), h = heightOf(m);
@@ -1656,17 +1795,22 @@
             addBox(baseLenA, TABLE_T, depthA, -lenA / 2 + baseLenA / 2, tableTopY + TABLE_T / 2, -depthA / 2, 0x94a3b8);
         }
 
-        // Ряд B
+        // Ряд B — вдоль оси Z, слева от A. ПОВОРОТ на 90° вокруг Y.
+        // Модуль имеет локальные размеры (w, h, d), но вдоль мировой оси Z он должен занимать w, а вдоль X — d.
+        // Ставим mesh.rotation.y = PI/2, тогда локальная X-ось направлена в мировую -Z (или +Z). position — центр.
         let cursorB = 0;
         modsB.forEach(m => {
             const w = widthOf(m), d = depthOf(m), h = heightOf(m);
             const isBase = isBaseType(m);
             const isCorner = isCornerType(m.type);
             const y = isBase ? PLINTH_H + h / 2 : topModulesBottomY + h / 2;
+            // Ряд B идёт от z = -depthA вглубь по +Z, ширина модуля — вдоль Z, глубина — вдоль X (слева от A)
             const x = -lenA / 2 - d / 2;
             const z = -depthA + cursorB + w / 2;
             const color = isCorner ? 0xfde68a : (isBase ? 0xbfdbfe : 0xdbeafe);
-            addBox(w, h, d, x, y, z, color);
+            // rotation.y = PI/2: локальная X → мировая -Z, локальная Z → мировая X
+            // Значит BoxGeometry(w, h, d) займёт по мировой Z размер w, по мировой X — d. То, что нужно.
+            addBox(w, h, d, x, y, z, color, Math.PI / 2);
             cursorB += w;
         });
         const baseLenB = modsB.filter(isBaseType).reduce((s, m) => s + widthOf(m), 0);
@@ -1674,7 +1818,7 @@
             addBox(depthB, TABLE_T, baseLenB, -lenA / 2 - depthB / 2, tableTopY + TABLE_T / 2, -depthA + baseLenB / 2, 0x94a3b8);
         }
 
-        // Ряд C
+        // Ряд C — вдоль оси Z, справа от A. ПОВОРОТ на 90°.
         let cursorC = 0;
         modsC.forEach(m => {
             const w = widthOf(m), d = depthOf(m), h = heightOf(m);
@@ -1684,7 +1828,7 @@
             const x = lenA / 2 + d / 2;
             const z = -depthA + cursorC + w / 2;
             const color = isCorner ? 0xfde68a : (isBase ? 0xbfdbfe : 0xdbeafe);
-            addBox(w, h, d, x, y, z, color);
+            addBox(w, h, d, x, y, z, color, Math.PI / 2);
             cursorC += w;
         });
         const baseLenC = modsC.filter(isBaseType).reduce((s, m) => s + widthOf(m), 0);
@@ -1717,7 +1861,6 @@
         threeRenderer.render(threeScene, threeCamera);
     }
 
-    // ================= ВКЛАДКИ =================
     function switchTab(id) {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === id));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
@@ -1725,7 +1868,6 @@
         if (id === 'tabConstructor') { scheduleSketch(); scheduleThree(); }
     }
 
-    // ================= СПРАВКА =================
     const MODULE_TYPES = [
         { type: 'corner_base', name: 'Угловой нижний 90° (глухой)' },
         { type: 'corner_base_door', name: 'Угловой нижний 90° с дверью' },
@@ -1780,10 +1922,12 @@
             if (!hw.length) hw.push('— нет —');
             addHelpList(card, 'Фурнитура', hw);
             const fix = [];
-            if (calc.confirmats) fix.push(`Конфирматы — ${calc.confirmats} шт.`);
-            if (calc.screws) fix.push(`Шурупы — ${calc.screws} шт.`);
+            if (calc.confirmats) fix.push(`Конфирматы — ${calc.confirmats} шт. (2 × деталей)`);
+            const mechs = (calc.hinges||0) + (calc.slides||0) + (calc.lifts||0) + (calc.cargo||0) + (calc.legs||0) + (calc.hangers||0);
+            if (mechs) fix.push(`Шурупы — ${mechs * 4} шт. (4 × механизмов)`);
             if (calc.hinges) fix.push(`Присадка d-35 — ${calc.hinges} отв.`);
-            if (calc.confirmats || calc.screws) fix.push(`Присадка «Трипан» — ${calc.confirmats + calc.screws} отв.`);
+            const tripanM = mechs * 4 + 2 * (calc.confirmats || 0);
+            if (tripanM) fix.push(`Присадка «Трипан» — ${tripanM} отв.`);
             if (calc.cutOven) fix.push(`Вырез под технику — ${calc.cutOven} шт.`);
             if (calc.cutSink) fix.push(`Вырез под мойку — ${calc.cutSink} шт.`);
             if (!fix.length) fix.push('— нет —');
@@ -1802,10 +1946,9 @@
         card.appendChild(ul);
     }
 
-    // ================= ЭКСПОРТ / ИМПОРТ / ПЕЧАТЬ =================
     function exportProject() {
         const data = {
-            version: 6, savedAt: new Date().toISOString(),
+            version: 7, savedAt: new Date().toISOString(),
             layout: currentLayout(),
             modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
             prices: collectPrices(),
@@ -1818,7 +1961,7 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }
 
-    const PRICE_FIELDS = ['confirmatPrice','screwPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent'];
+    const PRICE_FIELDS = ['confirmatPrice','screwPrice','dowelPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent'];
     const MATERIAL_FIELDS = ['bottomBodySelect','bottomBodyEdgeSelect','bottomFacadeSelect','topBodySelect','topBodyEdgeSelect','topFacadeSelect','topMaterialSelect','dvpSelect','defaultFacadeType'];
 
     function collectPrices() {
@@ -1910,10 +2053,10 @@
         w.document.open(); w.document.write(html); w.document.close();
     }
 
-    // ================= СТАРТ =================
     window.addEventListener('DOMContentLoaded', () => {
         updateLayoutHint();
         renderHardware(true);
+        initSketchDrag();
         checkIpAndInit();
         setTimeout(() => { initThree(); }, 2000);
     });
