@@ -97,6 +97,7 @@
     #threeCanvas { display: block; width: 100%; height: 100%; }
     #threeMsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #64748b; text-align: center; padding: 20px; pointer-events: none; }
     .three-hint { font-size: 0.78rem; color: #64748b; margin-top: 6px; }
+    .three-actions { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
     .corner-type-select { font-size: 0.78rem; padding: 3px 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px; }
 </style>
 </head>
@@ -287,6 +288,9 @@
                         <div id="threeMsg">Загрузка 3D…</div>
                     </div>
                     <div class="three-hint">Вращение — левая кнопка мыши / палец. Зум — колесо / щипок.</div>
+                    <div class="three-actions no-print">
+                        <button type="button" class="btn btn-secondary" onclick="forceRebuildThree()">🔄 Обновить 3D</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,8 +370,6 @@
     ];
 
     // ================= КАТЕГОРИИ ФУРНИТУРЫ С РАЗБИЕНИЕМ =================
-    // Каждая категория: id, label, priceField, unit, source (ключ прайса), split (false = одна позиция, true = разбито)
-    // splitRows: [{ selectValue, customName, qtyManual, price }]
     const HW_CATEGORIES = [
         { id: 'hinges',     label: 'Петли мебельные',           priceField: 'hingePrice',      unit: 'шт.',   source: 'hinges' },
         { id: 'slides',     label: 'Направляющие',              priceField: 'slidePrice',      unit: 'компл.', source: 'slides' },
@@ -381,10 +383,9 @@
         { id: 'mountRail',  label: 'Монтажная планка',          priceField: 'mountRailPrice',  unit: 'шт.',   source: 'hangersRails' }
     ];
 
-    // Состояние категорий: split и rows
     const HW_STATE = {};
     HW_CATEGORIES.forEach(c => {
-        HW_STATE[c.id] = { split: false, rows: [{ selectValue: '', customName: '', qtyManual: '', price: '' }] };
+        HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] };
     });
 
     // ================= ДОСТУП =================
@@ -505,7 +506,7 @@
         box.innerText = text;
     }
 
-    const CACHE_PREFIX = 'kc_prices_v5:';
+    const CACHE_PREFIX = 'kc_prices_v6:';
     const MAX_PARALLEL = 3;
     const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -534,8 +535,7 @@
             const box = document.getElementById('servicesInfo');
             if (st.status === 'cached' && box) box.innerText += ` (копия от ${fmtTime(st.time)})`;
         }
-        // Обновить выпадающие списки в разбиениях
-        renderHardware();
+        updateSplitSelects();
     }
 
     function loadSource(k) {
@@ -641,7 +641,7 @@
     }
 
     function getHingesForDoor(heightMm) { if (heightMm <= 900) return 2; if (heightMm <= 1600) return 3; if (heightMm <= 2000) return 4; return 5; }
-    function getEdgeAllowance() { const el = document.getElementById('edgeAllowanceMm'); const v = el ? parseFloat(el.value) : NaN; return (isNaN(v) || v < 0 ? 30 : v) / 1000.0; }
+    function getEdgeAllowance() { const el = document.getElementById('edgeAllowanceMm'); const v = el ? parseFloat(el.value) : NaN; return (isNaN(v) || v < 0 ? 60 : v) / 1000.0; }
 
     function currentLayout() { const el = document.getElementById('layoutSelect'); return el ? el.value : 'corner'; }
     function layoutRuns() {
@@ -678,7 +678,7 @@
             projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-3'), run: 'C', type: 'corner_base', name: 'Угловой нижний 90° (глухой)', width: 900, height: 720, depth: 530 });
             projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-4'), run: 'C', type: 'corner_top', name: 'Угловой верхний 90° (глухой)', width: 900, height: 720, depth: 320 });
         }
-        renderModulesTable(); renderHardware(); calculateProject(); renderHelp();
+        renderModulesTable(); calculateProject(); renderHelp();
     }
 
     // ================= РАСЧЁТ МОДУЛЯ =================
@@ -703,10 +703,8 @@
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Дно Г-образное (часть B)']);
             parts.push([1, armAM, armBM, 'Верх Г-образный (часть A)']);
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Верх Г-образный (часть B)']);
-
             if (isBase) { legs = 6; confirmats += 16; screws += 12; }
-            else { hangers += 2; screws += 12; confirmats += 12; } // навесы в ПАРАХ: 2 пары для углового верхнего
-
+            else { hangers += 2; screws += 12; confirmats += 12; }
             if (type === 'corner_base_door') {
                 const doorW = Math.max(0.3, armBM - armAM);
                 facades.push([doorW - gap, h - gap, 'Фасад углового модуля']);
@@ -731,7 +729,6 @@
                 facades.push([doorW - gap, h - gap, 'Фасад углового с сушкой']);
                 hinges += getHingesForDoor(heightMm); handles += 1;
             }
-
             screws += hinges * 4 + handles * 2;
             let dspArea = 0, edgeBody = 0, edgeFacade = 0, totalPartCount = 0;
             parts.forEach(p => { dspArea += p[0] * (p[1] * p[2]); edgeBody += p[0] * edgeOf(p[1], p[2]); totalPartCount += p[0]; });
@@ -780,7 +777,7 @@
                 facades.push([w - gap, drawerH, 'Фасад ящика под духовкой']); slides += 1; handles += 1; cutOven = 1; confirmats += 12; screws += 8;
             }
         } else if (type.startsWith('top_')) {
-            hangers += 1; screws += 8; // навесы в ПАРАХ: 1 пара на верхний модуль
+            hangers += 1; screws += 8;
             if (type === 'top_sush_1d' || type === 'top_sush_2d') {
                 sush = 1;
                 const n = type === 'top_sush_1d' ? 1 : 2;
@@ -828,16 +825,16 @@
         } else {
             projectModules.push({ id, run, type, name, width, height, depth });
         }
-        renderModulesTable(); renderHardware(); calculateProject(); renderHelp();
+        renderModulesTable(); calculateProject(); renderHelp();
     }
 
-    function removeModule(id) { projectModules = projectModules.filter(m => m.id !== id); renderModulesTable(); renderHardware(); calculateProject(); renderHelp(); }
+    function removeModule(id) { projectModules = projectModules.filter(m => m.id !== id); renderModulesTable(); calculateProject(); renderHelp(); }
     function updateCornerType(id, newType) {
         const m = projectModules.find(x => x.id === id); if (!m) return;
         const map = {};
         [...CORNER_OPTIONS.corner_base, ...CORNER_OPTIONS.corner_top].forEach(o => { map[o.id] = o.name; });
         m.type = newType; m.name = map[newType] || m.name;
-        renderModulesTable(); renderHardware(); calculateProject();
+        renderModulesTable(); calculateProject();
     }
 
     function renderModulesTable() {
@@ -873,24 +870,35 @@
         });
     }
 
-    // ================= БЛОК ФУРНИТУРЫ С РАЗБИЕНИЕМ =================
-    let lastRecommended = {}; // рекомендованные количества по категориям (для подсказки)
+    // ================= ФУРНИТУРА С РАЗБИЕНИЕМ (рендер ОДИН раз) =================
+    let lastRecommended = {}; // рекомендованные количества по категориям
+    let hardwareRendered = false;
 
-    function renderHardware() {
+    function renderHardware(force = false) {
         const box = document.getElementById('hardwareContainer'); if (!box) return;
+        // Пересоздаём только если ещё не создавали (или принудительно)
+        if (hardwareRendered && !force) {
+            updateHardwareLabels();
+            return;
+        }
+        hardwareRendered = true;
         box.innerHTML = '';
         HW_CATEGORIES.forEach(cat => {
             const state = HW_STATE[cat.id];
-            const rec = lastRecommended[cat.id] != null ? lastRecommended[cat.id] : 0;
             const row = document.createElement('div');
             row.className = 'hardware-row';
-            // Заголовок и кнопка разбиения
+            row.id = 'hwrow-' + cat.id;
+
             const head = document.createElement('div');
             head.style.cssText = 'display:flex; align-items:center; gap:10px; flex:1 1 100%; flex-wrap:wrap;';
-            head.innerHTML = `<span class="hardware-label">${escapeHtml(cat.label)}</span>`;
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'hardware-label';
+            labelSpan.textContent = cat.label;
+            head.appendChild(labelSpan);
             const recLabel = document.createElement('span');
+            recLabel.id = 'hwrec-' + cat.id;
             recLabel.style.cssText = 'font-size:0.78rem; color:#64748b;';
-            recLabel.textContent = `Рекомендуется: ${rec} ${cat.unit}`;
+            recLabel.textContent = 'Рекомендуется: —';
             head.appendChild(recLabel);
             const toggle = document.createElement('button');
             toggle.type = 'button';
@@ -898,131 +906,182 @@
             toggle.textContent = state.split ? 'Свернуть в одну позицию' : 'Разбить на позиции';
             toggle.onclick = () => {
                 state.split = !state.split;
-                if (!state.split) state.rows = [{ selectValue: '', customName: '', qtyManual: '', price: '' }];
-                else if (state.rows.length === 0) state.rows = [{ selectValue: '', customName: '', qtyManual: '', price: '' }];
-                renderHardware();
+                if (!state.split) state.rows = [{ selectIdx: '', customName: '', qtyManual: '', price: '' }];
+                else if (state.rows.length === 0) state.rows = [{ selectIdx: '', customName: '', qtyManual: '', price: '' }];
+                renderHardware(true);
                 calculateProject();
             };
             head.appendChild(toggle);
             row.appendChild(head);
 
             if (!state.split) {
-                // Одна позиция: рекомендация + цена
-                const qtySpan = document.createElement('span');
-                qtySpan.className = 'hardware-qty';
-                qtySpan.textContent = `${rec} ${cat.unit}`;
-                row.appendChild(qtySpan);
-                const priceInp = document.createElement('input');
-                priceInp.type = 'number'; priceInp.className = 'hardware-price-input'; priceInp.placeholder = 'цена';
-                priceInp.value = state.rows[0].price || '';
-                priceInp.oninput = () => { state.rows[0].price = priceInp.value; calculateProject(); };
-                row.appendChild(priceInp);
-                // Если у категории есть прайс — показываем выпадающий выбор
-                if (DATA_STORE[cat.source] && DATA_STORE[cat.source].length > 0) {
+                // Одна позиция — пересоздаём только при force (иначе поля сохраняются)
+                if (force) {
+                    const priceInp = document.createElement('input');
+                    priceInp.type = 'number'; priceInp.className = 'hardware-price-input'; priceInp.placeholder = 'цена';
+                    priceInp.id = 'hwprice-' + cat.id;
+                    priceInp.value = state.rows[0].price || '';
+                    priceInp.oninput = () => { state.rows[0].price = priceInp.value; calculateProject(); };
+                    row.appendChild(priceInp);
                     const sel = document.createElement('select');
                     sel.className = 'hardware-select';
-                    sel.innerHTML = '<option value="">— выбрать из прайса —</option>' + DATA_STORE[cat.source].map(it => `<option value="${it.price}" ${state.rows[0].selectValue == it.price ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
-                    sel.onchange = () => { state.rows[0].selectValue = sel.value; state.rows[0].price = sel.value; renderHardware(); calculateProject(); };
+                    sel.id = 'hwsel-' + cat.id;
+                    sel.innerHTML = '<option value="">— выбрать из прайса —</option>' + (DATA_STORE[cat.source] || []).map((it, idx) => `<option value="${idx}" ${state.rows[0].selectIdx == idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                    sel.onchange = () => {
+                        state.rows[0].selectIdx = sel.value;
+                        const items = DATA_STORE[cat.source] || [];
+                        if (sel.value !== '' && items[sel.value]) {
+                            state.rows[0].price = items[sel.value].price;
+                            priceInp.value = items[sel.value].price;
+                        }
+                        calculateProject();
+                    };
                     row.appendChild(sel);
                 }
             } else {
-                // Разбито на строки
+                // Разбиение — блок строк
                 const block = document.createElement('div'); block.className = 'split-block';
+                block.id = 'hwsplit-' + cat.id;
                 state.rows.forEach((r, ri) => {
                     const srow = document.createElement('div'); srow.className = 'split-row';
-                    // select из прайса
                     const sel = document.createElement('select'); sel.className = 'split-select';
+                    sel.id = `hwsplit-sel-${cat.id}-${ri}`;
                     const items = DATA_STORE[cat.source] || [];
-                    sel.innerHTML = '<option value="">— своя подпись —</option>' + items.map(it => `<option value="${it.price}" ${r.selectValue == it.price ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
-                    sel.onchange = () => { r.selectValue = sel.value; if (sel.value) r.price = sel.value; renderHardware(); calculateProject(); };
+                    sel.innerHTML = '<option value="">— своя подпись —</option>' + items.map((it, idx) => `<option value="${idx}" ${r.selectIdx !== '' && Number(r.selectIdx) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                    sel.onchange = () => {
+                        r.selectIdx = sel.value;
+                        const items2 = DATA_STORE[cat.source] || [];
+                        if (sel.value !== '' && items2[sel.value]) { r.price = items2[sel.value].price; }
+                        updateSplitRowPrice(cat.id, ri);
+                        calculateProject();
+                    };
                     srow.appendChild(sel);
-                    // своя подпись (если не выбрано из прайса)
-                    if (!r.selectValue) {
-                        const nameInp = document.createElement('input'); nameInp.type = 'text'; nameInp.placeholder = 'название';
-                        nameInp.style.cssText = 'flex:2; min-width:120px;'; nameInp.value = r.customName;
-                        nameInp.oninput = () => { r.customName = nameInp.value; };
-                        srow.appendChild(nameInp);
-                    }
-                    // рекомендация
+                    const nameInp = document.createElement('input'); nameInp.type = 'text'; nameInp.placeholder = 'название';
+                    nameInp.style.cssText = 'flex:2; min-width:120px;'; nameInp.value = r.customName;
+                    nameInp.id = `hwsplit-name-${cat.id}-${ri}`;
+                    nameInp.oninput = () => { r.customName = nameInp.value; };
+                    srow.appendChild(nameInp);
                     const recSpan = document.createElement('span'); recSpan.className = 'split-rec';
-                    recSpan.textContent = `реком. ${rec}`;
+                    recSpan.id = `hwsplit-rec-${cat.id}-${ri}`;
+                    recSpan.textContent = `реком. —`;
                     srow.appendChild(recSpan);
-                    // количество
                     const qtyInp = document.createElement('input'); qtyInp.type = 'number'; qtyInp.className = 'split-qty'; qtyInp.placeholder = 'кол-во'; qtyInp.min = 0;
                     qtyInp.value = r.qtyManual;
+                    qtyInp.id = `hwsplit-qty-${cat.id}-${ri}`;
                     qtyInp.oninput = () => { r.qtyManual = qtyInp.value; calculateProject(); };
                     srow.appendChild(qtyInp);
-                    // цена
                     const priceInp = document.createElement('input'); priceInp.type = 'number'; priceInp.className = 'split-price'; priceInp.placeholder = 'цена';
                     priceInp.value = r.price;
+                    priceInp.id = `hwsplit-price-${cat.id}-${ri}`;
                     priceInp.oninput = () => { r.price = priceInp.value; calculateProject(); };
                     srow.appendChild(priceInp);
-                    // удалить
                     const delBtn = document.createElement('button'); delBtn.type = 'button'; delBtn.className = 'btn btn-danger btn-mini'; delBtn.textContent = '✕';
-                    delBtn.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectValue: '', customName: '', qtyManual: '', price: '' }); renderHardware(); calculateProject(); };
+                    delBtn.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); calculateProject(); };
                     srow.appendChild(delBtn);
                     block.appendChild(srow);
                 });
                 const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.className = 'btn btn-secondary btn-mini'; addBtn.textContent = '+ строка';
-                addBtn.onclick = () => { state.rows.push({ selectValue: '', customName: '', qtyManual: '', price: '' }); renderHardware(); };
+                addBtn.onclick = () => { state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); };
                 block.appendChild(addBtn);
-                // итог по категории
-                const total = computeCategoryTotal(cat.id);
                 const totDiv = document.createElement('div'); totDiv.className = 'split-total';
-                totDiv.innerHTML = `<span>Итого по категории:</span><strong>${total.qty} ${cat.unit} / ${Math.round(total.sum).toLocaleString('ru-RU')} руб.</strong>`;
+                totDiv.id = 'hwsplit-total-' + cat.id;
                 block.appendChild(totDiv);
                 row.appendChild(block);
             }
             box.appendChild(row);
         });
 
-        // Добавим фиксированные (не разбиваемые) поля — присадки, расходники, коэффициенты
-        const extraFields = [
-            { label: 'Конфирматы (шт.)', field: 'confirmatPrice', price: true },
-            { label: 'Шурупы (шт.)', field: 'screwPrice', price: true },
-            { label: 'Присадка d-35 (руб/отв)', field: 'hingeD35Price', price: true },
-            { label: 'Присадка «Трипан» (руб/отв)', field: 'tripanPrice', price: true },
-            { label: 'Вырез под технику (шт.)', field: 'cutOvenPrice', price: true },
-            { label: 'Вырез под мойку (шт.)', field: 'cutSinkPrice', price: true },
-            { label: 'Цена ДВП (руб/м²)', field: 'dvpPrice', price: true },
-            { label: 'Паз под ДВП (руб/м)', field: 'groovePrice', price: true },
-            { label: 'Цена кромки по умолчанию (руб/м)', field: 'edgePrice', price: true },
-            { label: 'Поклейка кромки (руб/м)', field: 'edgeGluePrice', price: true },
-            { label: 'Цена распила (руб/м)', field: 'sawingPrice', price: true },
-            { label: 'Отход материала, %', field: 'wastePercent', price: true },
-            { label: 'Добавка кромки на сторону (мм)', field: 'edgeAllowanceMm', price: true, onchange: 'calculateProject(); renderModulesTable();' },
-            { label: 'Распил: пог. м на 1 м² плит', field: 'sawPerM2', price: true },
-            { label: 'Доп. метизы / расходники (руб)', field: 'hardwareCost', price: true },
-            { label: 'Наценка (%)', field: 'marginPercent', price: true }
-        ];
+        // Крепёж и коэффициенты — фиксированные поля, рендер один раз
         const extraBox = document.createElement('div');
         extraBox.style.cssText = 'margin-top:12px; padding-top:12px; border-top:2px dashed #cbd5e1;';
         extraBox.innerHTML = '<div style="font-weight:700;color:#475569;margin-bottom:8px;">Крепёж, присадка и коэффициенты</div>';
+        const extraFields = [
+            { label: 'Цена конфирматов (руб/шт)', id: 'confirmatPrice', def: 1.5 },
+            { label: 'Цена шурупов (руб/шт)', id: 'screwPrice', def: 0.5 },
+            { label: 'Присадка d-35 (руб/отв)', id: 'hingeD35Price', def: 15 },
+            { label: 'Присадка «Трипан» (руб/отв)', id: 'tripanPrice', def: 5.04 },
+            { label: 'Вырез под технику (руб/шт)', id: 'cutOvenPrice', def: 270 },
+            { label: 'Вырез под мойку (руб/шт)', id: 'cutSinkPrice', def: 270 },
+            { label: 'Цена ДВП (руб/м²)', id: 'dvpPrice', def: 250 },
+            { label: 'Паз под ДВП (руб/м)', id: 'groovePrice', def: 30 },
+            { label: 'Цена кромки по умолчанию (руб/м)', id: 'edgePrice', def: 35 },
+            { label: 'Поклейка кромки (руб/м)', id: 'edgeGluePrice', def: 0 },
+            { label: 'Цена распила (руб/м)', id: 'sawingPrice', def: 6.55 },
+            { label: 'Отход материала, %', id: 'wastePercent', def: 20 },
+            { label: 'Добавка кромки на сторону (мм)', id: 'edgeAllowanceMm', def: 60 },
+            { label: 'Распил: пог. м на 1 м² плит', id: 'sawPerM2', def: 7 },
+            { label: 'Доп. метизы / расходники (руб)', id: 'hardwareCost', def: 1000 },
+            { label: 'Наценка (%)', id: 'marginPercent', def: 30 }
+        ];
         extraFields.forEach(f => {
             const r = document.createElement('div'); r.className = 'hardware-row';
             const lbl = document.createElement('span'); lbl.className = 'hardware-label'; lbl.textContent = f.label;
-            const inp = document.createElement('input'); inp.type = 'number'; inp.className = 'hardware-price-input'; inp.id = f.field;
+            const inp = document.createElement('input'); inp.type = 'number'; inp.className = 'hardware-price-input'; inp.id = f.id;
+            inp.value = f.def;
             inp.oninput = () => calculateProject();
-            if (f.onchange) inp.setAttribute('oninput', f.onchange);
             r.appendChild(lbl); r.appendChild(inp); extraBox.appendChild(r);
         });
         box.appendChild(extraBox);
-        // Восстановить значения полей из прошлого состояния (если были)
-        restoreExtraFieldValues();
+
+        updateHardwareLabels();
     }
 
-    function restoreExtraFieldValues() {
-        // Ничего не делаем: значения остаются из HTML-шаблона при первой отрисовке,
-        // а после ввода — сохраняются в DOM. Однако при перерисовке блока (renderHardware)
-        // значения теряются. Чтобы этого избежать, сохраняем текущие значения и возвращаем.
-        // Реализовано через глобальный кэш.
-        const cache = restoreExtraFieldValues.cache || {};
-        Object.keys(cache).forEach(id => {
-            const el = document.getElementById(id);
-            if (el && cache[id] !== undefined) el.value = cache[id];
+    function updateSplitRowPrice(catId, ri) {
+        const cat = HW_CATEGORIES.find(c => c.id === catId);
+        const state = HW_STATE[catId];
+        const r = state.rows[ri];
+        const priceInp = document.getElementById(`hwsplit-price-${catId}-${ri}`);
+        if (priceInp) priceInp.value = r.price;
+    }
+
+    // Обновляет только подписи «рекомендуется» и «итого» — DOM полей НЕ трогает
+    function updateHardwareLabels() {
+        HW_CATEGORIES.forEach(cat => {
+            const rec = lastRecommended[cat.id] != null ? lastRecommended[cat.id] : 0;
+            const state = HW_STATE[cat.id];
+            const recLabel = document.getElementById('hwrec-' + cat.id);
+            if (recLabel) recLabel.textContent = `Рекомендуется: ${rec} ${cat.unit}`;
+            if (!state.split) {
+                // одна позиция — ничего не делаем с полями, только подпись
+            } else {
+                state.rows.forEach((r, ri) => {
+                    const recSpan = document.getElementById(`hwsplit-rec-${cat.id}-${ri}`);
+                    if (recSpan) recSpan.textContent = `реком. ${rec}`;
+                });
+                const totDiv = document.getElementById('hwsplit-total-' + cat.id);
+                if (totDiv) {
+                    const t = computeCategoryTotal(cat.id);
+                    totDiv.innerHTML = `<span>Итого по категории:</span><strong>${t.qty} ${cat.unit} / ${Math.round(t.sum).toLocaleString('ru-RU')} руб.</strong>`;
+                }
+            }
         });
     }
 
+    // Обновление выпадающих списков после загрузки прайсов
+    function updateSplitSelects() {
+        HW_CATEGORIES.forEach(cat => {
+            const state = HW_STATE[cat.id];
+            if (!state.split) {
+                const sel = document.getElementById('hwsel-' + cat.id);
+                if (sel) {
+                    const items = DATA_STORE[cat.source] || [];
+                    const cur = state.rows[0].selectIdx;
+                    sel.innerHTML = '<option value="">— выбрать из прайса —</option>' + items.map((it, idx) => `<option value="${idx}" ${cur !== '' && Number(cur) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                }
+            } else {
+                state.rows.forEach((r, ri) => {
+                    const sel = document.getElementById(`hwsplit-sel-${cat.id}-${ri}`);
+                    if (sel) {
+                        const items = DATA_STORE[cat.source] || [];
+                        const cur = r.selectIdx;
+                        sel.innerHTML = '<option value="">— своя подпись —</option>' + items.map((it, idx) => `<option value="${idx}" ${cur !== '' && Number(cur) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                    }
+                });
+            }
+        });
+    }
+
+    // Считает фактическое количество и сумму по категории (с учётом ручного разбиения)
     function computeCategoryTotal(catId) {
         const cat = HW_CATEGORIES.find(c => c.id === catId);
         if (!cat) return { qty: 0, sum: 0 };
@@ -1042,6 +1101,11 @@
             });
         }
         return { qty, sum };
+    }
+
+    // Сумма фактических петель (для присадки d-35)
+    function getActualHinges() {
+        return computeCategoryTotal('hinges').qty;
     }
 
     // ================= РАСЧЁТ ПРОЕКТА =================
@@ -1107,16 +1171,18 @@
         if (totalGrooveLength > 0 && totalGrooveLength <= 1.0) { grooveCost = grooveUnitPrice; grooveDisplayText = `${totalGrooveLength.toFixed(2)} м (1 шт)`; }
         else { grooveCost = totalGrooveLength * grooveUnitPrice; grooveDisplayText = `${totalGrooveLength.toFixed(2)} м`; }
 
-        const totalHingesD35Holes = totalHinges;
+        // Присадка d-35 — по фактическому количеству петель (с учётом ручного разбиения)
+        const actualHingesForD35 = getActualHinges();
+        // Трипан — по конфирматам + шурупам (автоматически по модулям)
         const totalTripanHoles = totalConfirmats + totalScrews;
 
-        // Обновляем рекомендации для блока фурнитуры
+        // Обновляем рекомендации
         lastRecommended = {
             hinges: totalHinges, slides: totalSlides, cargo: totalCargo, sush: totalSush,
             sink: totalSink, legs: totalLegs, lifts: totalLifts, handles: totalHandles,
             hangers: totalHangers, mountRail: mountRailPcs
         };
-        renderHardware();
+        updateHardwareLabels();
 
         document.getElementById('bottomDspAreaDisplay').innerText = withWaste(bottomDspArea);
         document.getElementById('topDspAreaDisplay').innerText = withWaste(topDspArea);
@@ -1156,7 +1222,6 @@
         const edgeCost = bottomBodyEdge * edgeP('bottomBodyEdgeSelect') + bottomFacadeEdge * edgeP('bottomFacadeEdgeSelect') + topBodyEdge * edgeP('topBodyEdgeSelect') + topFacadeEdge * edgeP('topFacadeEdgeSelect');
         const topCost = Math.max(0, totalTopLength) * topPrice;
 
-        // Фурнитура — через computeCategoryTotal (учитывает разбиение)
         const hwTotals = {};
         HW_CATEGORIES.forEach(cat => { hwTotals[cat.id] = computeCategoryTotal(cat.id); });
         const hingesCost = hwTotals.hinges.sum;
@@ -1172,7 +1237,7 @@
 
         const confirmatsCost = totalConfirmats * confirmatPrice;
         const screwsCost = totalScrews * screwPrice;
-        const hingeD35Cost = totalHingesD35Holes * hingeD35Price;
+        const hingeD35Cost = actualHingesForD35 * hingeD35Price;
         const tripanCost = totalTripanHoles * tripanPrice;
         const cutOvenCost = totalCutOven * cutOvenPrice;
         const cutSinkCost = totalCutSink * cutSinkPrice;
@@ -1189,15 +1254,16 @@
         chk('ДСП нижних', bottomDspArea, bottomBodyPrice); chk('ДСП верхних', topDspArea, topBodyPrice);
         chk('Фасады нижних', bottomFacadeArea, bottomFacadePrice); chk('Фасады верхних', topFacadeArea, topFacadePrice);
         chk('Столешница', totalTopLength, topPrice);
-        chk('Петли', hwTotals.hinges.qty, parseFloat((HW_STATE.hinges.rows[0]||{}).price) || 0);
-        chk('Направляющие', hwTotals.slides.qty, parseFloat((HW_STATE.slides.rows[0]||{}).price) || 0);
-        chk('Карго', hwTotals.cargo.qty, parseFloat((HW_STATE.cargo.rows[0]||{}).price) || 0);
-        chk('Сушка', hwTotals.sush.qty, parseFloat((HW_STATE.sush.rows[0]||{}).price) || 0);
-        chk('Мойка', hwTotals.sink.qty, parseFloat((HW_STATE.sink.rows[0]||{}).price) || 0);
-        chk('Ножки', hwTotals.legs.qty, parseFloat((HW_STATE.legs.rows[0]||{}).price) || 0);
-        chk('Подъёмники', hwTotals.lifts.qty, parseFloat((HW_STATE.lifts.rows[0]||{}).price) || 0);
-        chk('Ручки', hwTotals.handles.qty, parseFloat((HW_STATE.handles.rows[0]||{}).price) || 0);
-        chk('Навесы', hwTotals.hangers.qty, parseFloat((HW_STATE.hangers.rows[0]||{}).price) || 0);
+        const hwPrice = (catId) => {
+            const st = HW_STATE[catId];
+            if (!st.split) return parseFloat((st.rows[0]||{}).price) || 0;
+            // для разбитых — если хоть в одной строке цена 0 и кол-во > 0
+            return st.rows.some(r => (parseFloat(r.qtyManual) || 0) > 0 && !(parseFloat(r.price) > 0)) ? 0 : 1;
+        };
+        HW_CATEGORIES.forEach(cat => {
+            const t = hwTotals[cat.id];
+            chk(cat.label, t.qty, hwPrice(cat.id));
+        });
         chk('Поклейка кромки', totalEdgeLength, edgeGluePrice);
 
         const warnings = [];
@@ -1208,7 +1274,7 @@
         if (warnings.length > 0) { warnBox.innerText = '⚠️ Расчёт неполный. ' + warnings.join(' '); warnBox.style.display = 'block'; priceEl.style.color = '#b91c1c'; }
         else { warnBox.style.display = 'none'; priceEl.style.color = ''; }
 
-        // Спецификация для КП
+        // Спецификация
         const nameOf = (selectId) => {
             const el = document.getElementById(selectId); if (!el) return '';
             if (el.tagName === 'SELECT') { const opt = el.options[el.selectedIndex]; return opt ? (opt.dataset && opt.dataset.name ? opt.dataset.name : opt.textContent) : ''; }
@@ -1227,7 +1293,6 @@
             { name: 'Кромка фасадов верхних', detail: nameOf('topFacadeEdgeSelect'), qty: topFacadeEdge, unit: 'пог. м', price: edgeP('topFacadeEdgeSelect'), sum: topFacadeEdge * edgeP('topFacadeEdgeSelect') }
         ].filter(x => x.qty > 0);
 
-        // Фурнитура — по строкам разбиения
         const specHardware = [];
         HW_CATEGORIES.forEach(cat => {
             const state = HW_STATE[cat.id];
@@ -1241,8 +1306,9 @@
                     const p = parseFloat(r.price) || 0;
                     const q = r.qtyManual !== '' ? (parseFloat(r.qtyManual) || 0) : rec;
                     if (q > 0) {
-                        const opt = [...(DATA_STORE[cat.source]||[])].find(it => it.price == r.selectValue);
-                        const detail = opt ? opt.name : r.customName || '';
+                        const items = DATA_STORE[cat.source] || [];
+                        const it = r.selectIdx !== '' ? items[Number(r.selectIdx)] : null;
+                        const detail = it ? it.name : (r.customName || '');
                         specHardware.push({ name: cat.label, detail, qty: q, unit: cat.unit, price: p, sum: q * p });
                     }
                 });
@@ -1256,7 +1322,7 @@
             { name: 'Распил плитных материалов', detail: '', qty: totalSawingLength, unit: 'пог. м', price: sawingPrice, sum: sawingCost },
             { name: 'Паз под ДВП', detail: '', qty: totalGrooveLength, unit: 'пог. м', price: grooveUnitPrice, sum: grooveCost },
             { name: 'Поклейка кромки', detail: '22×0,8 полиуретан', qty: totalEdgeLength, unit: 'пог. м', price: edgeGluePrice, sum: edgeGlueCost },
-            { name: 'Присадка под петлю d-35', detail: '', qty: totalHingesD35Holes, unit: 'отв.', price: hingeD35Price, sum: hingeD35Cost },
+            { name: 'Присадка под петлю d-35', detail: '', qty: actualHingesForD35, unit: 'отв.', price: hingeD35Price, sum: hingeD35Cost },
             { name: 'Присадка «Трипан»', detail: '', qty: totalTripanHoles, unit: 'отв.', price: tripanPrice, sum: tripanCost },
             { name: 'Вырез под технику', detail: '', qty: totalCutOven, unit: 'шт.', price: cutOvenPrice, sum: cutOvenCost },
             { name: 'Вырез под мойку', detail: '', qty: totalCutSink, unit: 'шт.', price: cutSinkPrice, sum: cutSinkCost }
@@ -1274,7 +1340,8 @@
         };
 
         scheduleSketch();
-        scheduleThree();
+        // ВАЖНО: при любом изменении проекта пересобираем 3D
+        if (threeRenderer) rebuildThree();
     }
 
     // ================= 2D ЭСКИЗ =================
@@ -1470,7 +1537,7 @@
     async function initThree() {
         const ok = await loadThree();
         const msg = document.getElementById('threeMsg');
-        if (!ok) { if (msg) msg.textContent = 'Не удалось загрузить Three.js (CDN недоступен). 3D отключён.'; return; }
+        if (!ok) { if (msg) { msg.style.display = 'flex'; msg.textContent = 'Не удалось загрузить Three.js (CDN недоступен). 3D отключён.'; } return; }
         const canvas = document.getElementById('threeCanvas');
         if (!canvas) return;
         if (msg) msg.style.display = 'none';
@@ -1507,6 +1574,15 @@
         }, { passive: false });
 
         window.addEventListener('resize', () => scheduleThree());
+        forceRebuildThree();
+    }
+
+    function forceRebuildThree() {
+        if (!threeRenderer) {
+            // 3D ещё не инициализирован — попробуем инициализировать
+            initThree();
+            return;
+        }
         rebuildThree();
     }
 
@@ -1526,24 +1602,20 @@
 
         const PLINTH_H = 0.10;
         const TABLE_T = 0.038;
-        const BACKSPLASH_GAP = 0.50; // фартук между столешницей и верхними модулями
+        const BACKSPLASH_GAP = 0.50;
 
         const modsA = projectModules.filter(m => m.run === 'A');
         const modsB = projectModules.filter(m => m.run === 'B');
         const modsC = projectModules.filter(m => m.run === 'C');
 
-        // Реальные габариты
         const heightOf = (m) => m.height / 1000;
         const widthOf = (m) => m.width / 1000;
         const depthOf = (m) => m.depth / 1000;
 
-        // Группируем по «уровню»: база (bottom_, penal_) и верх (top_)
         const isBaseType = (m) => !m.type.startsWith('top_');
-        const isTopType = (m) => m.type.startsWith('top_');
 
-        // Вычисляем максимальную высоту базы (для позиционирования столешницы и верхних модулей)
         const maxBaseH = projectModules.filter(isBaseType).reduce((mx, m) => Math.max(mx, heightOf(m)), 0.72);
-        const tableTopY = PLINTH_H + maxBaseH; // верх столешницы
+        const tableTopY = PLINTH_H + maxBaseH;
         const topModulesBottomY = tableTopY + TABLE_T + BACKSPLASH_GAP;
 
         const depthA = Math.max(...modsA.filter(isBaseType).map(depthOf), 0.53);
@@ -1567,7 +1639,7 @@
             }
         };
 
-        // Ряд A — вдоль оси X, задняя стенка на z = -depthA
+        // Ряд A
         let cursorA = -lenA / 2;
         modsA.forEach(m => {
             const w = widthOf(m), d = depthOf(m), h = heightOf(m);
@@ -1579,33 +1651,30 @@
             addBox(w, h, d, cursorA + w / 2, y, z, color);
             cursorA += w;
         });
-        // Столешница над рядом A
         if (modsA.some(m => isBaseType(m) && m.type !== 'bottom_falsh')) {
             const baseLenA = modsA.filter(isBaseType).reduce((s, m) => s + widthOf(m), 0);
             addBox(baseLenA, TABLE_T, depthA, -lenA / 2 + baseLenA / 2, tableTopY + TABLE_T / 2, -depthA / 2, 0x94a3b8);
         }
 
-        // Ряд B — вдоль оси Z, слева от A. Ряд B начинается с угла (пересечение с рядом A)
+        // Ряд B
         let cursorB = 0;
         modsB.forEach(m => {
             const w = widthOf(m), d = depthOf(m), h = heightOf(m);
             const isBase = isBaseType(m);
             const isCorner = isCornerType(m.type);
             const y = isBase ? PLINTH_H + h / 2 : topModulesBottomY + h / 2;
-            // Ряд B идёт от z = -depthA к z = -depthA + lenB, по X — слева от A
             const x = -lenA / 2 - d / 2;
             const z = -depthA + cursorB + w / 2;
             const color = isCorner ? 0xfde68a : (isBase ? 0xbfdbfe : 0xdbeafe);
             addBox(w, h, d, x, y, z, color);
             cursorB += w;
         });
-        // Столешница над рядом B (идёт вдоль Z)
         const baseLenB = modsB.filter(isBaseType).reduce((s, m) => s + widthOf(m), 0);
         if (baseLenB > 0) {
             addBox(depthB, TABLE_T, baseLenB, -lenA / 2 - depthB / 2, tableTopY + TABLE_T / 2, -depthA + baseLenB / 2, 0x94a3b8);
         }
 
-        // Ряд C — вдоль оси Z, справа от A
+        // Ряд C
         let cursorC = 0;
         modsC.forEach(m => {
             const w = widthOf(m), d = depthOf(m), h = heightOf(m);
@@ -1623,7 +1692,6 @@
             addBox(depthC, TABLE_T, baseLenC, lenA / 2 + depthC / 2, tableTopY + TABLE_T / 2, -depthA + baseLenC / 2, 0x94a3b8);
         }
 
-        // Подгонка орбиты
         const span = Math.max(lenA + depthB + depthC, depthA + Math.max(lenB, lenC), 1.5);
         orbit.radius = Math.max(3, span * 2.2);
         orbit.target = { x: 0, y: 1.0, z: -depthA / 2 };
@@ -1737,7 +1805,7 @@
     // ================= ЭКСПОРТ / ИМПОРТ / ПЕЧАТЬ =================
     function exportProject() {
         const data = {
-            version: 5, savedAt: new Date().toISOString(),
+            version: 6, savedAt: new Date().toISOString(),
             layout: currentLayout(),
             modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
             prices: collectPrices(),
@@ -1782,7 +1850,8 @@
                 if (data.hardware) {
                     Object.keys(data.hardware).forEach(k => { if (HW_STATE[k]) HW_STATE[k] = data.hardware[k]; });
                 }
-                renderModulesTable(); renderHardware(); calculateProject(); renderHelp(); drawKitchen2D(); rebuildThree();
+                hardwareRendered = false;
+                renderModulesTable(); renderHardware(true); calculateProject(); renderHelp(); drawKitchen2D(); forceRebuildThree();
             } catch (e) { alert('Не удалось загрузить проект: ' + e.message); }
             finally { input.value = ''; }
         };
@@ -1805,10 +1874,9 @@
     function resetProject() {
         if (!confirm('Сбросить проект: удалить все модули, сбросить разбиения и цены?')) return;
         projectModules = [];
-        HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectValue: '', customName: '', qtyManual: '', price: '' }] }; });
-        const defaults = { wastePercent: 20, edgeAllowanceMm: 30, sawPerM2: 7, marginPercent: 30, hardwareCost: 1000 };
-        PRICE_FIELDS.forEach(id => { if (defaults[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = defaults[id]; });
-        renderModulesTable(); renderHardware(); calculateProject(); renderHelp(); drawKitchen2D(); rebuildThree();
+        HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] }; });
+        hardwareRendered = false;
+        renderModulesTable(); renderHardware(true); calculateProject(); renderHelp(); drawKitchen2D(); forceRebuildThree();
     }
 
     function openPrintForm() {
@@ -1845,7 +1913,7 @@
     // ================= СТАРТ =================
     window.addEventListener('DOMContentLoaded', () => {
         updateLayoutHint();
-        renderHardware();
+        renderHardware(true);
         checkIpAndInit();
         setTimeout(() => { initThree(); }, 2000);
     });
