@@ -50,6 +50,7 @@
     .run-A { background: #dbeafe; color: #1e40af; }
     .run-B { background: #fef3c7; color: #b45309; }
     .run-C { background: #dcfce7; color: #15803d; }
+    .corner-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; background: #fde68a; color: #854d0e; }
     .summary-box { background: #f8fafc; border-radius: 8px; padding: 15px; margin-top: 15px; border: 1px solid #e2e8f0; }
     .summary-item { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.92rem; }
     .hardware-list { display: flex; flex-direction: column; gap: 8px; background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 8px; }
@@ -84,6 +85,7 @@
     #threeCanvas { display: block; width: 100%; height: 100%; }
     #threeMsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #64748b; text-align: center; padding: 20px; pointer-events: none; }
     .three-hint { font-size: 0.78rem; color: #64748b; margin-top: 6px; }
+    .corner-type-select { font-size: 0.78rem; padding: 3px 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px; }
 </style>
 </head>
 <body>
@@ -160,7 +162,7 @@
                         <div class="form-group" style="flex: 2;">
                             <label>Конфигурация модуля:</label>
                             <select id="moduleTypeInput" onchange="autoSetDefaults()">
-                                <optgroup label="Угловые модули">
+                                <optgroup label="Угловые модули (в 3D, не в 2D-эскизе)">
                                     <option value="corner_base">Угловой нижний (90°)</option>
                                     <option value="corner_top">Угловой верхний (90°)</option>
                                 </optgroup>
@@ -285,16 +287,16 @@
                 </div>
 
                 <div class="visual-side">
-                    <div class="section-title" style="margin-top: 0;">2D-эскиз</div>
+                    <div class="section-title" style="margin-top: 0;">2D-эскиз (фронт + доп. проекции)</div>
                     <canvas id="kitchenCanvas" width="440" height="480"></canvas>
-                    <div style="font-size:0.8rem; color:#64748b; margin-top:8px;">Перетаскивайте модули внутри ряда.</div>
+                    <div style="font-size:0.8rem; color:#64748b; margin-top:8px;">Угловые модули в 2D не показываются — только в 3D и таблице.</div>
 
                     <div class="section-title" style="margin-top: 20px;">3D-просмотр (только визуал)</div>
                     <div id="threeWrap">
                         <canvas id="threeCanvas"></canvas>
                         <div id="threeMsg">Загрузка 3D…</div>
                     </div>
-                    <div class="three-hint">Вращение — левая кнопка мыши / палец. Зум — колесо / щипок. Правка недоступна.</div>
+                    <div class="three-hint">Вращение — левая кнопка мыши / палец. Зум — колесо / щипок.</div>
                 </div>
             </div>
         </div>
@@ -302,7 +304,7 @@
         <div id="tabHelp" class="tab-pane">
             <div class="section-title" style="margin-top:0;">СПРАВКА — состав каждого модуля</div>
             <p style="font-size:0.9rem; color:#475569; margin-top:0;">
-                Состав модулей пересчитывается по заданным габаритам. Угловые модули считаются как Г-образный корпус.
+                Состав модулей пересчитывается по заданным габаритам. Угловые конфигурации считаются как Г-образный корпус.
             </p>
             <div class="help-actions no-print">
                 <label style="display:flex; align-items:center; gap:6px; font-weight:600;">Ширина, мм:
@@ -347,15 +349,29 @@
 
     const DATA_STORE = { dsp: [], mdf: [], countertops: [], hinges: [], slides: [], cargoSush: [], sinks: [], legs: [], lifts: [], handles: [], hangersRails: [], services: [], dvp: [], edges: [] };
 
-    // Стартовый проект: угловая (ряд A + ряд B + угловые модули)
+    // Конфигурации угловых модулей
+    const CORNER_OPTIONS = {
+        corner_base: [
+            { id: 'corner_base',             name: 'Угловой нижний 90° (глухой)' },
+            { id: 'corner_base_door',        name: 'Угловой нижний 90° с дверью' },
+            { id: 'corner_base_sink',        name: 'Угловой нижний под мойку' },
+            { id: 'corner_base_cargo',       name: 'Угловой нижний с карго' }
+        ],
+        corner_top: [
+            { id: 'corner_top',              name: 'Угловой верхний 90° (глухой)' },
+            { id: 'corner_top_door',         name: 'Угловой верхний с дверью' },
+            { id: 'corner_top_sush',         name: 'Угловой верхний с сушкой' }
+        ]
+    };
+
     let projectModules = [
-        { id: 's1', run: 'B', type: 'corner_base', name: 'Угловой нижний (90°)', width: 900, height: 720, depth: 530 },
+        { id: 's1', run: 'B', type: 'corner_base', name: 'Угловой нижний 90° (глухой)', width: 900, height: 720, depth: 530 },
         { id: 's2', run: 'B', type: 'bottom_p2d', name: 'Полка 2 двери', width: 400, height: 720, depth: 530 },
         { id: 's3', run: 'B', type: 'bottom_oven_drawer', name: 'Духовка + ящик', width: 600, height: 720, depth: 530 },
         { id: 's4', run: 'A', type: 'bottom_m2d', name: 'Мойка 2 двери', width: 800, height: 720, depth: 530 },
         { id: 's5', run: 'A', type: 'bottom_cargo', name: 'Карго / Бутылочница', width: 200, height: 720, depth: 530 },
         { id: 's6', run: 'A', type: 'bottom_ya3', name: 'Три ящика (дно ДСП)', width: 600, height: 720, depth: 530 },
-        { id: 's7', run: 'B', type: 'corner_top', name: 'Угловой верхний (90°)', width: 900, height: 720, depth: 320 },
+        { id: 's7', run: 'B', type: 'corner_top', name: 'Угловой верхний 90° (глухой)', width: 900, height: 720, depth: 320 },
         { id: 's8', run: 'B', type: 'top_sush_2d', name: 'Сушка 2 двери', width: 600, height: 720, depth: 320 },
         { id: 's9', run: 'A', type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
     ];
@@ -478,7 +494,7 @@
         box.innerText = text;
     }
 
-    const CACHE_PREFIX = 'kc_prices_v3:';
+    const CACHE_PREFIX = 'kc_prices_v4:';
     const MAX_PARALLEL = 3;
     const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -607,8 +623,8 @@
         const widthInput = document.getElementById('moduleWidthInput');
         const heightInput = document.getElementById('moduleHeightInput');
         const depthInput = document.getElementById('moduleDepthInput');
-        if (type === 'corner_base' || type === 'corner_top') {
-            widthInput.value = 900; depthInput.value = type === 'corner_base' ? 530 : 320; heightInput.value = 720;
+        if (CORNER_OPTIONS.corner_base.some(o => o.id === type) || CORNER_OPTIONS.corner_top.some(o => o.id === type)) {
+            widthInput.value = 900; depthInput.value = CORNER_OPTIONS.corner_top.some(o => o.id === type) ? 320 : 530; heightInput.value = 720;
             document.getElementById('moduleRunInput').value = 'B';
         } else if (type === 'bottom_cargo') { widthInput.value = 200; heightInput.value = 720; depthInput.value = 530; }
         else if (type === 'bottom_falsh' || type === 'top_falsh') { widthInput.value = 100; heightInput.value = 720; depthInput.value = 18; }
@@ -639,24 +655,29 @@
         if (el) el.textContent = map[l] || '';
     }
 
-    // Переключение компоновки: убираем/добавляем угловые модули и модули в несуществующих рядах
+    // Проверка: является ли тип угловым
+    function isCornerType(type) {
+        return CORNER_OPTIONS.corner_base.some(o => o.id === type) || CORNER_OPTIONS.corner_top.some(o => o.id === type);
+    }
+    function isCornerTop(type) {
+        return CORNER_OPTIONS.corner_top.some(o => o.id === type);
+    }
+
+    // Переключение компоновки
     function changeLayout(newLayout) {
         document.getElementById('layoutSelect').value = newLayout;
         updateLayoutHint();
         const runs = newLayout === 'straight' ? ['A'] : (newLayout === 'corner' ? ['A','B'] : ['A','B','C']);
-        // Удаляем модули в рядах, которых больше нет
         projectModules = projectModules.filter(m => runs.includes(m.run));
-        // Убираем угловые модули
-        projectModules = projectModules.filter(m => m.type !== 'corner_base' && m.type !== 'corner_top');
-        // Добавляем нужное число углов
+        projectModules = projectModules.filter(m => !isCornerType(m.type));
         const cornersNeeded = newLayout === 'straight' ? 0 : (newLayout === 'corner' ? 1 : 2);
         if (cornersNeeded >= 1) {
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-1'), run: 'B', type: 'corner_base', name: 'Угловой нижний (90°)', width: 900, height: 720, depth: 530 });
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-2'), run: 'B', type: 'corner_top', name: 'Угловой верхний (90°)', width: 900, height: 720, depth: 320 });
+            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-1'), run: 'B', type: 'corner_base', name: 'Угловой нижний 90° (глухой)', width: 900, height: 720, depth: 530 });
+            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-2'), run: 'B', type: 'corner_top', name: 'Угловой верхний 90° (глухой)', width: 900, height: 720, depth: 320 });
         }
         if (cornersNeeded >= 2) {
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-3'), run: 'C', type: 'corner_base', name: 'Угловой нижний (90°)', width: 900, height: 720, depth: 530 });
-            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-4'), run: 'C', type: 'corner_top', name: 'Угловой верхний (90°)', width: 900, height: 720, depth: 320 });
+            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-3'), run: 'C', type: 'corner_base', name: 'Угловой нижний 90° (глухой)', width: 900, height: 720, depth: 530 });
+            projectModules.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : 'c-'+Date.now()+'-4'), run: 'C', type: 'corner_top', name: 'Угловой верхний 90° (глухой)', width: 900, height: 720, depth: 320 });
         }
         renderModulesTable(); calculateProject(); renderHelp(); drawKitchen2D(); rebuildThree();
     }
@@ -673,8 +694,9 @@
         let hinges = 0, slides = 0, cargo = 0, sush = 0, sink = 0, legs = 0, lifts = 0, hangers = 0, handles = 0;
         let confirmats = 0, screws = 0, dvpArea = 0, grooveLength = 0, cutOven = 0, cutSink = 0;
 
-        if (type === 'corner_base' || type === 'corner_top') {
-            const isBase = type === 'corner_base';
+        // ---- УГЛОВЫЕ КОНФИГУРАЦИИ ----
+        if (isCornerType(type)) {
+            const isBase = !isCornerTop(type);
             const armA = depthMm, armB = widthMm;
             const armAM = armA / 1000, armBM = armB / 1000;
             parts.push([2, armBM, d, 'Боковина (ряд B)']);
@@ -683,23 +705,44 @@
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Дно Г-образное (часть B)']);
             parts.push([1, armAM, armBM, 'Верх Г-образный (часть A)']);
             parts.push([1, Math.max(0, armBM - armAM), armBM, 'Верх Г-образный (часть B)']);
-            if (isBase) {
-                legs = 6;
+
+            // Общее для всех нижних/верхних угловых
+            if (isBase) { legs = 6; confirmats += 16; screws += 12; }
+            else { hangers += 4; screws += 12; confirmats += 12; }
+
+            // Специфика по подтипу
+            if (type === 'corner_base_door') {
                 const doorW = Math.max(0.3, armBM - armAM);
                 facades.push([doorW - gap, h - gap, 'Фасад углового модуля']);
-                hinges += getHingesForDoor(heightMm); handles += 1; confirmats += 16; screws += 12;
-            } else {
-                hangers += 4; screws += 12;
+                hinges += getHingesForDoor(heightMm); handles += 1;
+            } else if (type === 'corner_base_sink') {
+                sink = 1; cutSink = 1;
+                const doorW = Math.max(0.3, armBM - armAM);
+                facades.push([doorW - gap, h - gap, 'Фасад под мойку']);
+                hinges += getHingesForDoor(heightMm); handles += 1;
+            } else if (type === 'corner_base_cargo') {
+                cargo = 1; screws += 8;
+                const doorW = Math.max(0.3, armBM - armAM);
+                facades.push([doorW - gap, h - gap, 'Фасад углового с карго']);
+                hinges += getHingesForDoor(heightMm); handles += 1;
+            } else if (type === 'corner_top_door') {
                 const doorW = Math.max(0.3, armBM - armAM);
                 facades.push([doorW - gap, h - gap, 'Фасад углового верхнего']);
-                hinges += getHingesForDoor(heightMm); handles += 1; confirmats += 12;
+                hinges += getHingesForDoor(heightMm); handles += 1;
+            } else if (type === 'corner_top_sush') {
+                sush = 1;
+                const doorW = Math.max(0.3, armBM - armAM);
+                facades.push([doorW - gap, h - gap, 'Фасад углового с сушкой']);
+                hinges += getHingesForDoor(heightMm); handles += 1;
             }
+            // 'corner_base' и 'corner_top' — глухие, без фасада
+
             screws += hinges * 4 + handles * 2;
             let dspArea = 0, edgeBody = 0, edgeFacade = 0, totalPartCount = 0;
             parts.forEach(p => { dspArea += p[0] * (p[1] * p[2]); edgeBody += p[0] * edgeOf(p[1], p[2]); totalPartCount += p[0]; });
             let facadeArea = 0;
             facades.forEach(f => { facadeArea += f[0] * f[1]; edgeFacade += edgeOf(f[0], f[1]); });
-            return { dsp: dspArea, dvp: 0, groove: 0, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea, partCount: totalPartCount, hinges, slides: 0, cargo: 0, sush: 0, sink: 0, legs, lifts: 0, hangers, handles, confirmats, screws, cutOven: 0, cutSink: 0, isBottom: isBase, isCorner: true, parts, facades, extraHardware };
+            return { dsp: dspArea, dvp: 0, groove: 0, edge: edgeBody + edgeFacade, edgeBody, edgeFacade, facade: facadeArea, partCount: totalPartCount, hinges, slides: 0, cargo, sush, sink, legs, lifts: 0, hangers, handles, confirmats, screws, cutOven: 0, cutSink, isBottom: isBase, isCorner: true, parts, facades, extraHardware };
         }
 
         if (type === 'bottom_falsh' || type === 'top_falsh') {
@@ -783,9 +826,11 @@
         const height = parseInt(document.getElementById('moduleHeightInput').value) || 720;
         const depth = parseInt(document.getElementById('moduleDepthInput').value) || 530;
         const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('m-' + Date.now() + '-' + Math.random().toString(36).slice(2));
-        if (type === 'corner_base' || type === 'corner_top') {
-            projectModules = projectModules.filter(m => m.type !== type);
-            projectModules.unshift({ id, run: 'B', type, name, width, height, depth });
+        if (isCornerType(type)) {
+            // Угловой того же «уровня» (низ/верх) в одном ряду может быть только один
+            const sameLevelTop = isCornerTop(type);
+            projectModules = projectModules.filter(m => !(m.run === run && isCornerType(m.type) && isCornerTop(m.type) === sameLevelTop));
+            projectModules.unshift({ id, run, type, name, width, height, depth });
         } else {
             projectModules.push({ id, run, type, name, width, height, depth });
         }
@@ -793,6 +838,14 @@
     }
 
     function removeModule(id) { projectModules = projectModules.filter(m => m.id !== id); renderModulesTable(); calculateProject(); renderHelp(); }
+    function updateCornerType(id, newType) {
+        const m = projectModules.find(x => x.id === id); if (!m) return;
+        const map = {};
+        [...CORNER_OPTIONS.corner_base, ...CORNER_OPTIONS.corner_top].forEach(o => { map[o.id] = o.name; });
+        m.type = newType;
+        m.name = map[newType] || m.name;
+        renderModulesTable(); calculateProject();
+    }
 
     function renderModulesTable() {
         const tbody = document.getElementById('modulesTableBody'); tbody.innerHTML = '';
@@ -801,12 +854,20 @@
         projectModules.forEach((m, idx) => {
             const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
             const ids = rowIds[m.run] || []; const pos = ids.indexOf(m.id);
-            const isCorner = m.type === 'corner_base' || m.type === 'corner_top';
+            const isCorner = isCornerType(m.type);
             const tr = document.createElement('tr');
+            // Для угловых — выпадающий список конфигураций
+            const configCell = isCorner
+                ? (() => {
+                    const list = CORNER_OPTIONS.corner_base.some(o => o.id === m.type) ? CORNER_OPTIONS.corner_base : CORNER_OPTIONS.corner_top;
+                    return `<span class="corner-badge">Угловой</span> <select class="corner-type-select" onchange="updateCornerType('${m.id}', this.value)">` +
+                        list.map(o => `<option value="${o.id}" ${o.id === m.type ? 'selected' : ''}>${escapeHtml(o.name)}</option>`).join('') + `</select>`;
+                })()
+                : escapeHtml(m.name);
             tr.innerHTML = `
                 <td style="font-weight:bold; color:#5c1724;">№${idx + 1}</td>
                 <td><span class="run-badge run-${m.run}">${m.run}</span></td>
-                <td>${escapeHtml(m.name)}</td>
+                <td>${configCell}</td>
                 <td>${m.width}x${m.height}x${m.depth}</td>
                 <td>${calc.dsp.toFixed(2)} м²</td>
                 <td>${calc.facade.toFixed(2)} м²</td>
@@ -834,7 +895,7 @@
 
         const runLength = { A: 0, B: 0, C: 0 };
         const runTopLength = { A: 0, B: 0, C: 0 };
-        const cornerDepth = { B: 0, C: 0 }; // глубина угла для вычитания из столешницы
+        const cornerDepth = { B: 0, C: 0 };
 
         projectModules.forEach(m => {
             const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
@@ -850,18 +911,16 @@
             totalCutOven += calc.cutOven; totalCutSink += calc.cutSink;
 
             if (runLength[m.run] !== undefined) runLength[m.run] += m.width;
-            if (m.type === 'corner_base') cornerDepth[m.run] = m.depth / 1000.0;
+            if (isCornerType(m.type) && calc.isBottom) cornerDepth[m.run] = m.depth / 1000.0;
             if (m.type.startsWith('bottom_') && m.type !== 'bottom_falsh') {
                 if (runTopLength[m.run] !== undefined) runTopLength[m.run] += m.width / 1000.0;
             }
             if (m.type.startsWith('top_') && m.type !== 'top_falsh') totalMountRailMeters += (m.width / 1000.0);
         });
 
-        // Столешница: сумма рядов минус вычтенные углы
         let totalTopLength = runTopLength.A + runTopLength.B + runTopLength.C;
         totalTopLength -= (cornerDepth.B + cornerDepth.C);
 
-        // Цоколь по всем рядам
         const edgeK = getEdgeAllowance();
         let plinthArea = 0, plinthEdgeTotal = 0;
         ['A','B','C'].forEach(r => {
@@ -1047,7 +1106,7 @@
             runs: { A: runLength.A / 1000, B: runLength.B / 1000, C: runLength.C / 1000, topTotal: Math.max(0, totalTopLength) },
             modules: projectModules.map((m, i) => {
                 const c = getModuleCalculations(m.type, m.width, m.height, m.depth);
-                return { num: i + 1, run: m.run, name: m.name, w: m.width, h: m.height, d: m.depth, dsp: c.dsp, facade: c.facade, dvp: c.dvp, hinges: c.hinges, slides: c.slides, handles: c.handles };
+                return { num: i + 1, run: m.run, name: m.name, w: m.width, h: m.height, d: m.depth, dsp: c.dsp, facade: c.facade, dvp: c.dvp, hinges: c.hinges, slides: c.slides, handles: c.handles, isCorner: c.isCorner };
             })
         };
 
@@ -1059,15 +1118,142 @@
     let sketchRaf = null;
     function scheduleSketch() { if (sketchRaf !== null) return; sketchRaf = requestAnimationFrame(() => { sketchRaf = null; drawKitchen2D(); }); }
 
+    function roundRectPath(ctx, x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    function drawLabel(ctx, x, y, w, h, num, wMm, hMm) {
+        const t1 = `№${num}`;
+        const t2 = `${wMm}x${hMm}`;
+        ctx.save();
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = 'bold 11px Arial';
+        const w1 = ctx.measureText(t1).width;
+        ctx.font = '10px Arial';
+        const w2 = ctx.measureText(t2).width;
+        const pill = (pw, ph) => {
+            roundRectPath(ctx, -pw / 2, -ph / 2, pw, ph, 4);
+            ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill();
+            ctx.strokeStyle = 'rgba(92,23,36,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+        };
+        ctx.translate(x + w / 2, y + h / 2);
+        if (w1 + 8 <= w) {
+            const showSize = (w2 + 8 <= w) && (h >= 34);
+            pill(Math.max(w1, showSize ? w2 : 0) + 8, showSize ? 30 : 17);
+            ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial';
+            ctx.fillText(t1, 0, showSize ? -7 : 0);
+            if (showSize) { ctx.fillStyle = '#1e293b'; ctx.font = '10px Arial'; ctx.fillText(t2, 0, 7); }
+        } else if (w >= 17 && h >= w1 + 8) {
+            ctx.rotate(-Math.PI / 2);
+            pill(w1 + 8, 15);
+            ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial';
+            ctx.fillText(t1, 0, 0);
+        }
+        ctx.restore();
+    }
+
+    // Прорисовка фасада модуля (1 или 2 створки, ящики, подъёмники, духовка, карго)
+    function drawModuleFace(ctx, m, x, y, w, h) {
+        const stroke = '#5c1724';
+        ctx.strokeStyle = stroke; ctx.lineWidth = 1.5;
+        const isFalsh = m.type.endsWith('falsh');
+        const isTop = m.type.startsWith('top_');
+        // корпус
+        ctx.fillStyle = isFalsh ? '#94a3b8' : (isTop ? '#ffffff' : '#f8fafc');
+        ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+
+        if (isFalsh) return;
+
+        const pad = 2;
+        const innerX = x + pad, innerY = y + pad, innerW = w - pad * 2, innerH = h - pad * 2;
+        const facadeFill = isTop ? '#e2e8f0' : '#cbd5e1';
+        const facadeStroke = '#94a3b8';
+        const drawRect = (rx, ry, rw, rh, fill, stroke2) => {
+            ctx.fillStyle = fill || facadeFill;
+            ctx.fillRect(rx, ry, rw, rh);
+            ctx.strokeStyle = stroke2 || facadeStroke; ctx.lineWidth = 1;
+            ctx.strokeRect(rx, ry, rw, rh);
+        };
+
+        // Ящики по высоте (ya2, ya3, ya2vn, oven_drawer, penal_fridge, top_lift_*)
+        if (m.type === 'bottom_ya2') {
+            const h2 = (innerH - 2) / 2;
+            drawRect(innerX, innerY, innerW, h2);
+            drawRect(innerX, innerY + h2 + 2, innerW, h2);
+        } else if (m.type === 'bottom_ya3') {
+            const h3 = (innerH - 4) / 3;
+            for (let i = 0; i < 3; i++) drawRect(innerX, innerY + i * (h3 + 2), innerW, h3);
+        } else if (m.type === 'bottom_ya2vn') {
+            // два фасада + скрытый ящик (внутри)
+            const h2 = (innerH - 2) / 2;
+            drawRect(innerX, innerY, innerW, h2);
+            drawRect(innerX, innerY + h2 + 2, innerW, h2);
+        } else if (m.type === 'bottom_oven_drawer') {
+            const ovenH = Math.min(innerH * 0.75, innerH - 8);
+            // духовка — тёмный блок
+            ctx.fillStyle = '#334155'; ctx.fillRect(innerX, innerY, innerW, ovenH);
+            ctx.strokeStyle = '#1e293b'; ctx.strokeRect(innerX, innerY, innerW, ovenH);
+            // «стекло» духовки
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(innerX + 4, innerY + 4, innerW - 8, Math.max(8, ovenH - 16));
+            // ручка
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(innerX + innerW / 2 - 14, innerY + 6, 28, 3);
+            // ящик
+            drawRect(innerX, innerY + ovenH + 4, innerW, innerH - ovenH - 4);
+        } else if (m.type === 'bottom_cargo') {
+            // карго — вертикальные секции
+            drawRect(innerX, innerY, innerW, innerH);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 3; i++) { const yy = innerY + (innerH * i) / 4; ctx.beginPath(); ctx.moveTo(innerX + 3, yy); ctx.lineTo(innerX + innerW - 3, yy); ctx.stroke(); }
+        } else if (m.type === 'top_lift_2' || m.type === 'top_lift_3') {
+            const n = m.type === 'top_lift_2' ? 2 : 3;
+            const hN = (innerH - (n - 1) * 2) / n;
+            for (let i = 0; i < n; i++) drawRect(innerX, innerY + i * (hN + 2), innerW, hN);
+        } else if (m.type === 'top_sush_1d' || m.type === 'top_sush_2d' || m.type === 'bottom_m1d' || m.type === 'bottom_m2d' || m.type === 'bottom_p1d' || m.type === 'bottom_p2d' || m.type.startsWith('penal_') || m.type === 'top_p1_1d' || m.type === 'top_p2_1d' || m.type === 'top_p1_2d' || m.type === 'top_p2_2d') {
+            // Дверные фасады: 1 или 2 створки
+            let doorCount = 1;
+            if (m.type.includes('2d')) doorCount = 2;
+            if (m.type === 'bottom_m2d') doorCount = 2;
+            if (m.type === 'bottom_p2d') doorCount = 2;
+            if (m.type === 'penal_shelves' || m.type === 'penal_appliances' || m.type === 'penal_fridge') doorCount = 2;
+            if (doorCount === 2) {
+                const w2 = (innerW - 2) / 2;
+                drawRect(innerX, innerY, w2, innerH);
+                drawRect(innerX + w2 + 2, innerY, w2, innerH);
+            } else {
+                drawRect(innerX, innerY, innerW, innerH);
+            }
+            // Точки-ручки (индикаторы)
+            ctx.fillStyle = '#5c1724';
+            if (doorCount === 2) {
+                ctx.beginPath(); ctx.arc(innerX + innerW / 2 - 6, innerY + innerH / 2, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(innerX + innerW / 2 + 6, innerY + innerH / 2, 2, 0, Math.PI * 2); ctx.fill();
+            } else {
+                const cx = innerX + innerW - 8;
+                ctx.beginPath(); ctx.arc(cx, innerY + innerH / 2, 2, 0, Math.PI * 2); ctx.fill();
+            }
+        } else {
+            // По умолчанию — одна дверь
+            drawRect(innerX, innerY, innerW, innerH);
+        }
+    }
+
     function drawKitchen2D() {
         const canvas = document.getElementById('kitchenCanvas'); if (!canvas) return;
-        const layout = currentLayout();
         const runs = layoutRuns();
-        const extraViews = runs.length - 1; // доп. проекции: 0 для прямой, 1 для угловой, 2 для П-образной
+        const extraViews = runs.length - 1;
         const cssW = canvas.clientWidth || 440;
-        // На каждую доп. проекцию добавляем высоту
         const baseH = 300;
-        const extraH = 180;
+        const extraH = 170;
         const cssH = baseH + extraViews * extraH;
         const dpr = window.devicePixelRatio || 1;
         const pxW = Math.round(cssW * dpr), pxH = Math.round(cssH * dpr);
@@ -1077,56 +1263,41 @@
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, cssW, cssH);
 
-        // Рисуем ряд в виде «фронтального» прямоугольника
         const drawRunFront = (runKey, x0, y0, wMax, hMax, title) => {
-            const mods = projectModules.filter(m => m.run === runKey);
+            // Исключаем угловые модули из 2D-эскиза
+            const mods = projectModules.filter(m => m.run === runKey && !isCornerType(m.type));
             if (mods.length === 0) {
                 ctx.fillStyle = '#94a3b8'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
-                ctx.fillText(`${title}: пусто`, x0 + wMax / 2, y0 + hMax / 2);
+                ctx.fillText(`${title}: пусто (угловые модули здесь не отображаются)`, x0 + wMax / 2, y0 + hMax / 2);
                 return;
             }
             const totalW = mods.reduce((s, m) => s + m.width, 0);
             const maxH = Math.max(...mods.map(m => m.height));
-            const scale = Math.min(wMax / totalW, hMax / maxH) * 0.92;
+            const scale = Math.min(wMax / totalW, hMax / maxH) * 0.9;
             const offsetX = x0 + (wMax - totalW * scale) / 2;
-            const baseY = y0 + hMax - 6;
+            const baseY = y0 + hMax - 8;
             let cursor = 0;
             mods.forEach(m => {
                 const wPx = m.width * scale, hPx = m.height * scale;
                 const x = offsetX + cursor * scale;
                 const y = baseY - hPx;
-                const isCorner = m.type === 'corner_base' || m.type === 'corner_top';
-                ctx.fillStyle = isCorner ? '#fef3c7' : (m.type.endsWith('falsh') ? '#94a3b8' : (m.type.startsWith('top_') ? '#f1f5f9' : '#e2e8f0'));
-                ctx.strokeStyle = isCorner ? '#b45309' : '#5c1724'; ctx.lineWidth = 1.5;
-                ctx.fillRect(x, y, wPx, hPx); ctx.strokeRect(x, y, wPx, hPx);
-                // прорисовка делений фасадов
-                if (!isCorner && !m.type.endsWith('falsh')) {
-                    const doorsCount = m.type.includes('2d') ? 2 : (m.type.includes('1d') ? 1 : 0);
-                    if (doorsCount > 1) {
-                        ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
-                        const step = wPx / doorsCount;
-                        for (let i = 1; i < doorsCount; i++) { ctx.beginPath(); ctx.moveTo(x + i * step, y); ctx.lineTo(x + i * step, y + hPx); ctx.stroke(); }
-                    }
-                }
-                ctx.fillStyle = '#334155'; ctx.font = '9px Arial'; ctx.textAlign = 'center';
-                if (wPx > 22) ctx.fillText(`${m.width}`, x + wPx / 2, y - 2);
+                drawModuleFace(ctx, m, x, y, wPx, hPx);
+                // Табличка с номером и размером
+                const globalIdx = projectModules.findIndex(p => p.id === m.id) + 1;
+                drawLabel(ctx, x, y, wPx, hPx, globalIdx, m.width, m.height);
                 cursor += m.width;
             });
+            // Подпись ряда
             ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
             ctx.fillText(title, x0 + 4, y0 + 12);
         };
 
-        // Ряд A — основная проекция
-        const titleA = layout === 'straight' ? 'Ряд A (фронт)' : 'Ряд A (основной фронт)';
-        drawRunFront('A', 8, 8, cssW - 16, baseH - 16, titleA);
-
-        // Доп. проекции: ряд B и C
+        drawRunFront('A', 8, 8, cssW - 16, baseH - 16, runs.includes('A') ? 'Ряд A' + (extraViews > 0 ? ' (основной фронт)' : '') : 'Ряд A');
         const extraRuns = runs.slice(1);
         extraRuns.forEach((r, idx) => {
             const y0 = baseH + idx * extraH;
             ctx.strokeStyle = '#cbd5e1'; ctx.beginPath(); ctx.moveTo(8, y0); ctx.lineTo(cssW - 8, y0); ctx.stroke();
-            const title = r === 'B' ? 'Ряд B (доп. проекция)' : 'Ряд C (доп. проекция)';
-            drawRunFront(r, 8, y0 + 6, cssW - 16, extraH - 12, title);
+            drawRunFront(r, 8, y0 + 6, cssW - 16, extraH - 12, `Ряд ${r} (доп. проекция)`);
         });
     }
 
@@ -1141,12 +1312,12 @@
     }
     function moveModule(id, dir) {
         const mod = projectModules.find(m => m.id === id); if (!mod) return;
-        if (mod.type === 'corner_base' || mod.type === 'corner_top') return;
-        const runIds = projectModules.filter(m => m.run === mod.run && m.type !== 'corner_base' && m.type !== 'corner_top').map(m => m.id);
+        if (isCornerType(mod.type)) return;
+        const runIds = projectModules.filter(m => m.run === mod.run && !isCornerType(m.type)).map(m => m.id);
         const idx = runIds.indexOf(id); const newIdx = idx + dir;
         if (newIdx < 0 || newIdx >= runIds.length) return;
         placeModuleInRun(id, newIdx, runIds.filter(x => x !== id));
-        renderModulesTable(); drawKitchen2D();
+        renderModulesTable(); calculateProject();
     }
 
     // ================= 3D (Three.js, только просмотр) =================
@@ -1179,38 +1350,25 @@
 
         threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
         threeRenderer.setPixelRatio(window.devicePixelRatio || 1);
-
         threeScene = new THREE.Scene();
         threeScene.background = new THREE.Color(0xf1f5f9);
-
         threeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 
-        // Свет
-        const hemi = new THREE.HemisphereLight(0xffffff, 0x94a3b8, 0.9);
-        threeScene.add(hemi);
-        const dir = new THREE.DirectionalLight(0xffffff, 0.8);
-        dir.position.set(3, 6, 4);
-        threeScene.add(dir);
+        const hemi = new THREE.HemisphereLight(0xffffff, 0x94a3b8, 0.9); threeScene.add(hemi);
+        const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(3, 6, 4); threeScene.add(dir);
+        const grid = new THREE.GridHelper(12, 24, 0xcbd5e1, 0xe2e8f0); grid.position.y = -0.001; threeScene.add(grid);
 
-        // Пол (сетка)
-        const grid = new THREE.GridHelper(12, 24, 0xcbd5e1, 0xe2e8f0);
-        grid.position.y = -0.001;
-        threeScene.add(grid);
+        threeGroup = new THREE.Group(); threeScene.add(threeGroup);
 
-        threeGroup = new THREE.Group();
-        threeScene.add(threeGroup);
-
-        // Управление мышью/пальцем — орбита
         let isDown = false, lastX = 0, lastY = 0;
-        canvas.addEventListener('pointerdown', (e) => { isDown = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); });
+        canvas.addEventListener('pointerdown', (e) => { isDown = true; lastX = e.clientX; lastY = e.clientY; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} });
         canvas.addEventListener('pointerup', () => { isDown = false; });
         canvas.addEventListener('pointercancel', () => { isDown = false; });
         canvas.addEventListener('pointermove', (e) => {
             if (!isDown) return;
             const dx = e.clientX - lastX, dy = e.clientY - lastY;
             lastX = e.clientX; lastY = e.clientY;
-            orbit.theta -= dx * 0.008;
-            orbit.phi -= dy * 0.008;
+            orbit.theta -= dx * 0.008; orbit.phi -= dy * 0.008;
             orbit.phi = Math.max(0.15, Math.min(Math.PI / 2 - 0.05, orbit.phi));
             scheduleThree();
         });
@@ -1233,22 +1391,15 @@
 
     function rebuildThree() {
         if (!threeScene || !threeGroup) return;
-        // Очистка
         while (threeGroup.children.length) {
             const o = threeGroup.children.pop();
             if (o.geometry) o.geometry.dispose();
             if (o.material) o.material.dispose();
         }
 
-        const layout = currentLayout();
         const runs = layoutRuns();
         const bottomH = 0.72, topH = 0.72, tableT = 0.038, topOffset = 1.45, plinthH = 0.10;
 
-        // Геометрия расположения рядов:
-        // Ряд A — вдоль оси X, у стены Z=-depthA.
-        // Ряд B — примыкает к A с левого конца (для угловой) или с левого края (для П-образной).
-        // Ряд C — примыкает к A с правого конца (для П-образной).
-        // Координаты: центр сцены — в середине ряда A.
         const modsA = projectModules.filter(m => m.run === 'A');
         const modsB = projectModules.filter(m => m.run === 'B');
         const modsC = projectModules.filter(m => m.run === 'C');
@@ -1259,18 +1410,18 @@
         const lenB = modsB.reduce((s, m) => s + m.width, 0) / 1000;
         const lenC = modsC.reduce((s, m) => s + m.width, 0) / 1000;
 
-        // Ряд A: от x = -lenA/2 до +lenA/2, спереди на z = 0, сзади на z = -depthA
-        const addBox = (w, h, d, x, y, z, color) => {
+        const addBox = (w, h, d, x, y, z, color, outline = true) => {
             const geo = new THREE.BoxGeometry(w, h, d);
             const mat = new THREE.MeshLambertMaterial({ color });
             const mesh = new THREE.Mesh(geo, mat);
             mesh.position.set(x, y, z);
             threeGroup.add(mesh);
-            // контур
-            const edges = new THREE.EdgesGeometry(geo);
-            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x334155 }));
-            line.position.set(x, y, z);
-            threeGroup.add(line);
+            if (outline) {
+                const edges = new THREE.EdgesGeometry(geo);
+                const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x334155 }));
+                line.position.set(x, y, z);
+                threeGroup.add(line);
+            }
         };
 
         // Ряд A
@@ -1278,30 +1429,26 @@
         modsA.forEach(m => {
             const w = m.width / 1000, d = m.depth / 1000;
             const isBase = !m.type.startsWith('top_');
-            const isCorner = m.type === 'corner_base' || m.type === 'corner_top';
+            const isCorner = isCornerType(m.type);
             const h = isBase ? bottomH : topH;
             const y = isBase ? plinthH + h / 2 : topOffset + h / 2 + tableT;
-            const z = -d / 2;
             const color = isCorner ? 0xfde68a : (isBase ? 0xcbd5e1 : 0xe2e8f0);
-            addBox(w, h, d, cursorA + w / 2, y, z, color);
+            addBox(w, h, d, cursorA + w / 2, y, -d / 2, color);
             cursorA += w;
         });
-        // Столешница над A
         if (modsA.some(m => !m.type.startsWith('top_') && m.type !== 'bottom_falsh')) {
             addBox(lenA, tableT, depthA, 0, plinthH + bottomH + tableT / 2, -depthA / 2, 0x94a3b8);
         }
 
-        // Ряд B — вдоль оси Z, слева от A (x = -lenA/2). Разворачиваем на 90°.
+        // Ряд B — слева
         let cursorB = 0;
         modsB.forEach(m => {
             const w = m.width / 1000, d = m.depth / 1000;
             const isBase = !m.type.startsWith('top_');
-            const isCorner = m.type === 'corner_base' || m.type === 'corner_top';
+            const isCorner = isCornerType(m.type);
             const h = isBase ? bottomH : topH;
             const y = isBase ? plinthH + h / 2 : topOffset + h / 2 + tableT;
-            const x = -lenA / 2 - d / 2 + (isCorner ? d / 2 : 0);
-            const z = -depthA + w / 2 + cursorB - (isCorner ? 0 : 0);
-            // Для углового модуля ставим его в угол
+            const x = -lenA / 2 - d / 2;
             const color = isCorner ? 0xfde68a : (isBase ? 0xbfdbfe : 0xdbeafe);
             addBox(w, h, d, x, y, -depthA + cursorB + w / 2, color);
             cursorB += w;
@@ -1310,12 +1457,12 @@
             addBox(depthB, tableT, lenB, -lenA / 2 - depthB / 2, plinthH + bottomH + tableT / 2, -depthA + lenB / 2, 0x94a3b8);
         }
 
-        // Ряд C — вдоль оси Z, справа от A (x = +lenA/2)
+        // Ряд C — справа
         let cursorC = 0;
         modsC.forEach(m => {
             const w = m.width / 1000, d = m.depth / 1000;
             const isBase = !m.type.startsWith('top_');
-            const isCorner = m.type === 'corner_base' || m.type === 'corner_top';
+            const isCorner = isCornerType(m.type);
             const h = isBase ? bottomH : topH;
             const y = isBase ? plinthH + h / 2 : topOffset + h / 2 + tableT;
             const x = lenA / 2 + d / 2;
@@ -1327,7 +1474,6 @@
             addBox(depthC, tableT, lenC, lenA / 2 + depthC / 2, plinthH + bottomH + tableT / 2, -depthA + lenC / 2, 0x94a3b8);
         }
 
-        // Настроим орбиту под размер
         const span = Math.max(lenA + depthB + depthC, depthA + Math.max(lenB, lenC), 1.5);
         orbit.radius = span * 2.2;
         orbit.target = { x: 0, y: 0.8, z: -depthA / 2 };
@@ -1342,7 +1488,6 @@
         threeRenderer.setSize(w, h, false);
         threeCamera.aspect = w / h;
         threeCamera.updateProjectionMatrix();
-
         const t = orbit.target;
         const r = orbit.radius, phi = orbit.phi, theta = orbit.theta;
         threeCamera.position.set(
@@ -1364,8 +1509,13 @@
 
     // ================= СПРАВКА =================
     const MODULE_TYPES = [
-        { type: 'corner_base', name: 'Угловой нижний (90°)' },
-        { type: 'corner_top', name: 'Угловой верхний (90°)' },
+        { type: 'corner_base', name: 'Угловой нижний 90° (глухой)' },
+        { type: 'corner_base_door', name: 'Угловой нижний 90° с дверью' },
+        { type: 'corner_base_sink', name: 'Угловой нижний под мойку' },
+        { type: 'corner_base_cargo', name: 'Угловой нижний с карго' },
+        { type: 'corner_top', name: 'Угловой верхний 90° (глухой)' },
+        { type: 'corner_top_door', name: 'Угловой верхний с дверью' },
+        { type: 'corner_top_sush', name: 'Угловой верхний с сушкой' },
         { type: 'bottom_m1d', name: 'Мойка 1 дверь' }, { type: 'bottom_m2d', name: 'Мойка 2 двери' },
         { type: 'bottom_p1d', name: 'Полка 1 дверь' }, { type: 'bottom_p2d', name: 'Полка 2 двери' },
         { type: 'bottom_cargo', name: 'Карго / Бутылочница' },
@@ -1397,7 +1547,7 @@
                 const byLabel = {};
                 calc.facades.forEach(f => { const key = f[2]; if (!byLabel[key]) byLabel[key] = { count: 0, w: Math.round(f[0]*1000), h: Math.round(f[1]*1000) }; byLabel[key].count++; });
                 addHelpList(card, 'Фасады', Object.keys(byLabel).map(k => `${byLabel[k].count} шт. ${byLabel[k].w}×${byLabel[k].h} мм`));
-            } else addHelpList(card, 'Фасады', ['— нет —']);
+            } else addHelpList(card, 'Фасады', ['— нет (глухой) —']);
             const hw = [];
             if (calc.hinges) hw.push(`Петли — ${calc.hinges} шт.`);
             if (calc.slides) hw.push(`Направляющие — ${calc.slides} компл.`);
@@ -1437,7 +1587,7 @@
     // ================= ЭКСПОРТ / ИМПОРТ / ПЕЧАТЬ =================
     function exportProject() {
         const data = {
-            version: 3, savedAt: new Date().toISOString(),
+            version: 4, savedAt: new Date().toISOString(),
             layout: currentLayout(),
             modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
             prices: collectPrices()
@@ -1541,7 +1691,6 @@
     window.addEventListener('DOMContentLoaded', () => {
         updateLayoutHint();
         checkIpAndInit();
-        // 3D инициализируется после загрузки прайсов, чтобы не конкурировать за сеть
         setTimeout(() => { initThree(); }, 2000);
     });
 </script>
