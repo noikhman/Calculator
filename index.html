@@ -5,501 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Конструктор Кухни — Фаворит</title>
 <style>
-    body {
-        font-family: 'Segoe UI', Arial, sans-serif;
-        background-color: #f1f5f9;
-        padding: 20px;
-        color: #1e293b;
-        margin: 0;
-    }
-    .container {
-        max-width: 1350px;
-        margin: 20px auto;
-        background: #ffffff;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        border: 1px solid #cbd5e1;
-    }
-    h2 {
-        margin-top: 0;
-        color: #5c1724;
-        border-bottom: 2px solid #f1f5f9;
-        padding-bottom: 10px;
-    }
-
-    /* ===== Статус-бар и панель прайсов ===== */
-    .status-badge {
-        display: inline-block;
-        font-size: 0.85rem;
-        padding: 6px 12px;
-        border-radius: 20px;
-        margin-bottom: 15px;
-        font-weight: 600;
-    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #1e293b; margin: 0; }
+    .container { max-width: 1350px; margin: 20px auto; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
+    h2 { margin-top: 0; color: #5c1724; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+    .status-badge { display: inline-block; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; margin-bottom: 15px; font-weight: 600; }
     .status-loading { background: #fef3c7; color: #b45309; }
     .status-success { background: #dcfce7; color: #15803d; }
     .status-error { background: #fee2e2; color: #b91c1c; }
-    .price-panel-head {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #475569;
-        margin-bottom: 6px;
-    }
-    .price-panel-head button {
-        margin-left: 8px;
-        border: 1px solid #cbd5e1;
-        background: #fff;
-        color: #334155;
-        border-radius: 6px;
-        padding: 2px 8px;
-        font-size: 0.78rem;
-        cursor: pointer;
-    }
-    .price-chip {
-        display: inline-block;
-        font-size: 0.78rem;
-        padding: 3px 4px 3px 9px;
-        margin: 0 6px 6px 0;
-        border-radius: 14px;
-        border: 1px solid transparent;
-        white-space: nowrap;
-    }
-    .price-chip button {
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-size: 0.9rem;
-        margin-left: 2px;
-        padding: 0 5px;
-        color: inherit;
-        border-radius: 10px;
-    }
+    .price-panel-head { font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+    .price-panel-head button { margin-left: 8px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; padding: 2px 8px; font-size: 0.78rem; cursor: pointer; }
+    .price-chip { display: inline-block; font-size: 0.78rem; padding: 3px 4px 3px 9px; margin: 0 6px 6px 0; border-radius: 14px; border: 1px solid transparent; white-space: nowrap; }
+    .price-chip button { border: none; background: transparent; cursor: pointer; font-size: 0.9rem; margin-left: 2px; padding: 0 5px; color: inherit; border-radius: 10px; }
     .chip-ok { background: #dcfce7; color: #15803d; }
     .chip-warn { background: #fef3c7; color: #b45309; }
     .chip-err { background: #fee2e2; color: #b91c1c; }
     .chip-load { background: #e2e8f0; color: #475569; }
-
-    /* ===== Заголовки секций и сетки ===== */
-    .section-title {
-        font-size: 1.05rem;
-        font-weight: bold;
-        color: #334155;
-        margin-top: 25px;
-        margin-bottom: 12px;
-        padding-bottom: 4px;
-        border-bottom: 2px solid #cbd5e1;
-    }
-    .materials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 15px;
-        background: #f8fafc;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 15px;
-    }
-    .mat-card {
-        background: #ffffff;
-        padding: 10px 12px;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
-    }
-    .mat-card-title {
-        font-weight: bold;
-        font-size: 0.88rem;
-        color: #5c1724;
-        margin-bottom: 8px;
-    }
-
-    /* ===== Формы ===== */
-    .form-row {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 12px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
+    .section-title { font-size: 1.05rem; font-weight: bold; color: #334155; margin-top: 25px; margin-bottom: 12px; padding-bottom: 4px; border-bottom: 2px solid #cbd5e1; }
+    .materials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+    .mat-card { background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
+    .mat-card-title { font-weight: bold; font-size: 0.88rem; color: #5c1724; margin-bottom: 8px; }
+    .form-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-end; flex-wrap: wrap; }
     .form-group { flex: 1; min-width: 130px; }
-    label {
-        display: block;
-        font-size: 0.82rem;
-        font-weight: 600;
-        margin-bottom: 4px;
-        color: #475569;
-    }
-    input[type="number"], input[type="text"], select {
-        width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        box-sizing: border-box;
-        outline: none;
-    }
+    label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
+    input[type="number"], input[type="text"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; }
     input:focus, select:focus { border-color: #5c1724; }
-
-    /* ===== Кнопки ===== */
-    .btn {
-        background-color: #5c1724;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.9rem;
-        height: 38px;
-    }
+    .btn { background-color: #5c1724; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; height: 38px; }
     .btn:hover { background-color: #43101a; }
     .btn-secondary { background-color: #64748b; }
     .btn-danger { background-color: #ef4444; padding: 4px 8px; height: auto; font-size: 0.8rem; }
     .btn-mini { padding: 3px 8px; height: auto; font-size: 0.78rem; }
-    .btn-move { background-color: #64748b; padding: 4px 8px; height: auto; font-size: 0.8rem; }
-
-    /* ===== Раскладка ===== */
-    .main-layout {
-        display: flex;
-        gap: 25px;
-        flex-wrap: wrap;
-    }
+    .main-layout { display: flex; gap: 25px; flex-wrap: wrap; }
     .config-side { flex: 1.5; min-width: 320px; }
-    .visual-side {
-        flex: 1;
-        min-width: 300px;
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        padding: 15px;
-        text-align: center;
-    }
-    #kitchenCanvas {
-        display: block;
-        width: 100%;
-        max-width: 520px;
-        margin: 0 auto;
-        touch-action: none;
-        user-select: none;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        cursor: default;
-    }
-
-    /* ===== Таблица модулей ===== */
-    .modules-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    .modules-table th, .modules-table td {
-        border: 1px solid #cbd5e1;
-        padding: 8px 10px;
-        text-align: left;
-        font-size: 0.85rem;
-    }
+    .visual-side { flex: 1; min-width: 300px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; text-align: center; }
+    #kitchenCanvas { display: block; width: 100%; max-width: 520px; margin: 0 auto; touch-action: none; user-select: none; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; cursor: default; }
+    .btn-move { background-color: #64748b; padding: 4px 8px; height: auto; font-size: 0.8rem; }
+    .modules-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .modules-table th, .modules-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; font-size: 0.85rem; }
     .modules-table th { background-color: #f8fafc; color: #475569; }
-    .run-badge {
-        display: inline-block;
-        padding: 1px 8px;
-        border-radius: 10px;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
+    .run-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
     .run-A { background: #dbeafe; color: #1e40af; }
     .run-B { background: #fef3c7; color: #b45309; }
     .run-C { background: #dcfce7; color: #15803d; }
-    .corner-badge {
-        display: inline-block;
-        padding: 1px 8px;
-        border-radius: 10px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        background: #fde68a;
-        color: #854d0e;
-    }
-    .corner-type-select {
-        font-size: 0.78rem;
-        padding: 3px 6px;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
-        min-width: 180px;
-    }
-
-    /* ===== Сводка ===== */
-    .summary-box {
-        background: #f8fafc;
-        border-radius: 8px;
-        padding: 15px;
-        margin-top: 15px;
-        border: 1px solid #e2e8f0;
-    }
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-        font-size: 0.92rem;
-    }
-    .block-summary {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        border-radius: 6px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.88rem;
-        color: #065f46;
-        font-weight: 600;
-    }
-
-    /* ===== Блок фурнитуры ===== */
-    .hardware-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        background: #ffffff;
-        padding: 12px;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
-        margin-top: 8px;
-    }
-    .hardware-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f8fafc;
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .hardware-label {
-        font-size: 0.88rem;
-        color: #334155;
-        font-weight: 500;
-        flex: 1.2;
-        min-width: 180px;
-    }
+    .corner-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; background: #fde68a; color: #854d0e; }
+    .summary-box { background: #f8fafc; border-radius: 8px; padding: 15px; margin-top: 15px; border: 1px solid #e2e8f0; }
+    .summary-item { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.92rem; }
+    .block-summary { margin-top: 10px; padding: 8px 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; display: flex; justify-content: space-between; font-size: 0.88rem; color: #065f46; font-weight: 600; }
+    .hardware-list { display: flex; flex-direction: column; gap: 8px; background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 8px; }
+    .hardware-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; gap: 10px; flex-wrap: wrap; }
+    .hardware-label { font-size: 0.88rem; color: #334155; font-weight: 500; flex: 1.2; min-width: 180px; }
     .hardware-select { flex: 2; font-size: 0.85rem; min-width: 150px; }
-    .hardware-price-input {
-        width: 100px !important;
-        padding: 4px 8px !important;
-        font-size: 0.85rem !important;
-        text-align: right;
-    }
-    .split-block {
-        width: 100%;
-        background: #ffffff;
-        border: 1px dashed #cbd5e1;
-        border-radius: 6px;
-        padding: 8px;
-        margin-top: 6px;
-    }
-    .split-row {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        padding: 4px 0;
-        flex-wrap: wrap;
-    }
-    .split-row select, .split-row input {
-        font-size: 0.82rem;
-        padding: 4px 6px;
-    }
+    .hardware-price-input { width: 100px !important; padding: 4px 8px !important; font-size: 0.85rem !important; text-align: right; }
+    .split-block { width: 100%; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 8px; margin-top: 6px; }
+    .split-row { display: flex; gap: 6px; align-items: center; padding: 4px 0; flex-wrap: wrap; }
+    .split-row select, .split-row input { font-size: 0.82rem; padding: 4px 6px; }
     .split-row .split-select { flex: 2; min-width: 150px; }
     .split-row .split-qty { width: 80px; }
     .split-row .split-price { width: 90px; text-align: right; }
-    .split-row .split-rec {
-        font-size: 0.75rem;
-        color: #64748b;
-        min-width: 90px;
-    }
-    .split-total {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 6px;
-        padding-top: 6px;
-        border-top: 1px solid #e2e8f0;
-        font-size: 0.88rem;
-    }
-    .split-toggle {
-        background: #e2e8f0;
-        color: #334155;
-        border: 1px solid #cbd5e1;
-        padding: 3px 10px;
-        border-radius: 6px;
-        font-size: 0.78rem;
-        cursor: pointer;
-    }
-
-    /* ===== Итог ===== */
-    .total-box {
-        margin-top: 20px;
-        padding: 15px;
-        background: #f8fafc;
-        border-radius: 10px;
-        border: 2px solid #5c1724;
-        text-align: center;
-    }
-    .total-price {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #5c1724;
-        margin-top: 5px;
-    }
-
-    /* ===== Вкладки ===== */
-    .tabs {
-        display: flex;
-        gap: 6px;
-        margin: 10px 0 18px;
-        border-bottom: 2px solid #e2e8f0;
-        flex-wrap: wrap;
-    }
-    .tab-btn {
-        background: transparent;
-        border: none;
-        padding: 10px 18px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #64748b;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-        margin-bottom: -2px;
-    }
-    .tab-btn:hover { color: #5c1724; }
+    .split-row .split-rec { font-size: 0.75rem; color: #64748b; min-width: 90px; }
+    .split-total { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e2e8f0; font-size: 0.88rem; }
+    .split-toggle { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; padding: 3px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
+    .total-box { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px; border: 2px solid #5c1724; text-align: center; }
+    .total-price { font-size: 1.8rem; font-weight: bold; color: #5c1724; margin-top: 5px; }
+    .access-denied { max-width: 450px; margin: 80px auto; background: #ffffff; padding: 30px; border-radius: 12px; text-align: center; border-top: 5px solid #ef4444; }
+    .ip-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+    .tabs { display: flex; gap: 6px; margin: 10px 0 18px; border-bottom: 2px solid #e2e8f0; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: none; padding: 10px 18px; font-size: 0.95rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
     .tab-btn.active { color: #5c1724; border-bottom-color: #5c1724; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
-
-    /* ===== Справка ===== */
-    .help-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-        gap: 16px;
-    }
-    .help-card {
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        padding: 14px 16px;
-    }
+    .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+    .help-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 16px; }
     .help-card h3 { margin: 0 0 8px; color: #5c1724; font-size: 1rem; }
-    .help-card .help-sub {
-        font-size: 0.78rem;
-        color: #64748b;
-        margin-bottom: 10px;
-    }
-    .help-section-label {
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: #475569;
-        margin: 10px 0 4px;
-    }
-    .help-list {
-        margin: 0;
-        padding-left: 18px;
-        font-size: 0.85rem;
-        color: #1e293b;
-    }
+    .help-card .help-sub { font-size: 0.78rem; color: #64748b; margin-bottom: 10px; }
+    .help-section-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #475569; margin: 10px 0 4px; }
+    .help-list { margin: 0; padding-left: 18px; font-size: 0.85rem; color: #1e293b; }
     .help-list li { margin-bottom: 2px; }
     .help-empty { font-size: 0.82rem; color: #94a3b8; font-style: italic; }
     .help-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-
-    /* ===== 3D и прочее ===== */
-    .layout-settings {
-        background: #fefce8;
-        border: 1px solid #fde68a;
-        border-radius: 8px;
-        padding: 10px 14px;
-        margin-bottom: 12px;
-        font-size: 0.85rem;
-        color: #854d0e;
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
+    .layout-settings { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.85rem; color: #854d0e; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
     .layout-settings select { width: auto; min-width: 180px; }
-    #threeWrap {
-        position: relative;
-        background: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        overflow: hidden;
-        height: 380px;
-        margin-top: 10px;
-    }
+    #threeWrap { position: relative; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; height: 380px; margin-top: 10px; }
     #threeCanvas { display: block; width: 100%; height: 100%; }
-    #threeMsg {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        color: #64748b;
-        text-align: center;
-        padding: 20px;
-        pointer-events: none;
-    }
+    #threeMsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #64748b; text-align: center; padding: 20px; pointer-events: none; }
     .three-hint { font-size: 0.78rem; color: #64748b; margin-top: 6px; }
     .three-actions { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-
-    /* ===== Сервисы ===== */
-    .services-summary {
-        margin-top: 12px;
-        padding: 10px 12px;
-        background: #f0f9ff;
-        border: 1px solid #bae6fd;
-        border-radius: 6px;
-    }
+    .corner-type-select { font-size: 0.78rem; padding: 3px 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px; }
+    .services-summary { margin-top: 12px; padding: 10px 12px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; }
     .services-summary h4 { margin: 0 0 6px; font-size: 0.9rem; color: #0c4a6e; }
-    .services-summary .srv-line {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.82rem;
-        padding: 2px 0;
-        color: #334155;
-    }
-    .services-summary .srv-total {
-        margin-top: 6px;
-        padding-top: 6px;
-        border-top: 1px solid #bae6fd;
-        font-weight: 700;
-        display: flex;
-        justify-content: space-between;
-        color: #0c4a6e;
-    }
-
-    /* ===== Доступ ===== */
-    .access-denied {
-        max-width: 450px;
-        margin: 80px auto;
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 12px;
-        text-align: center;
-        border-top: 5px solid #ef4444;
-    }
-    .ip-badge {
-        background: #f1f5f9;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-family: monospace;
-        font-weight: bold;
-    }
+    .services-summary .srv-line { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 2px 0; color: #334155; }
+    .services-summary .srv-total { margin-top: 6px; padding-top: 6px; border-top: 1px solid #bae6fd; font-weight: 700; display: flex; justify-content: space-between; color: #0c4a6e; }
 </style>
 </head>
 <body>
 
-<!-- ============ Контейнер приложения ============ -->
 <div id="appContainer" style="display: none;">
     <div class="container">
         <h2>🏗️ Конструктор Кухни — Фаворит</h2>
@@ -507,13 +105,11 @@
         <div id="pricePanel" style="margin-bottom:12px;"></div>
         <div id="servicesInfo" style="display:none; font-size:0.82rem; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:12px;"></div>
 
-        <!-- Вкладки -->
         <div class="tabs no-print">
             <button type="button" class="tab-btn active" data-tab="tabConstructor" onclick="switchTab('tabConstructor')">Конструктор</button>
             <button type="button" class="tab-btn" data-tab="tabHelp" onclick="switchTab('tabHelp')">СПРАВКА</button>
         </div>
 
-        <!-- ============ Вкладка Конструктор ============ -->
         <div id="tabConstructor" class="tab-pane active">
             <div class="layout-settings">
                 <strong>Компоновка:</strong>
@@ -529,35 +125,25 @@
             <div class="materials-grid">
                 <div class="mat-card">
                     <div class="mat-card-title">👇 Нижние модули</div>
-                    <label>Корпус (ДСП):</label>
-                    <select id="bottomBodySelect" onchange="calculateProject()"></select>
-                    <label style="margin-top:6px;">Кромка корпуса:</label>
-                    <select id="bottomBodyEdgeSelect" onchange="calculateProject()"></select>
-                    <label style="margin-top:6px;">Фасады:</label>
-                    <select id="bottomFacadeSelect" onchange="calculateProject()"></select>
-                    <label style="margin-top:6px;">Кромка фасадов:</label>
-                    <select id="bottomFacadeEdgeSelect" onchange="calculateProject()"></select>
+                    <label>Корпус (ДСП):</label><select id="bottomBodySelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка корпуса:</label><select id="bottomBodyEdgeSelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Фасады:</label><select id="bottomFacadeSelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка фасадов:</label><select id="bottomFacadeEdgeSelect" onchange="calculateProject()"></select>
                 </div>
                 <div class="mat-card">
                     <div class="mat-card-title">👆 Верхние модули</div>
-                    <label>Корпус (ДСП):</label>
-                    <select id="topBodySelect" onchange="calculateProject()"></select>
-                    <label style="margin-top:6px;">Кромка корпуса:</label>
-                    <select id="topBodyEdgeSelect" onchange="calculateProject()"></select>
-                    <label style="margin-top:6px;">Фасады:</label>
-                    <select id="topFacadeSelect" onchange="calculateProject()"></select>
-                    <label style="margin-top:6px;">Кромка фасадов:</label>
-                    <select id="topFacadeEdgeSelect" onchange="calculateProject()"></select>
+                    <label>Корпус (ДСП):</label><select id="topBodySelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка корпуса:</label><select id="topBodyEdgeSelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Фасады:</label><select id="topFacadeSelect" onchange="calculateProject()"></select>
+                    <label style="margin-top:6px;">Кромка фасадов:</label><select id="topFacadeEdgeSelect" onchange="calculateProject()"></select>
                 </div>
                 <div class="mat-card">
                     <div class="mat-card-title">🧱 ДВП / ХДФ</div>
-                    <label>Материал:</label>
-                    <select id="dvpSelect" onchange="syncPriceFromSelect('dvpSelect', 'dvpPrice')"></select>
+                    <label>Материал:</label><select id="dvpSelect" onchange="syncPriceFromSelect('dvpSelect', 'dvpPrice')"></select>
                 </div>
                 <div class="mat-card">
                     <div class="mat-card-title">🪵 Столешница и фасады</div>
-                    <label>Столешница:</label>
-                    <select id="topMaterialSelect" onchange="calculateProject()"></select>
+                    <label>Столешница:</label><select id="topMaterialSelect" onchange="calculateProject()"></select>
                     <label style="margin-top:6px;">Тип фасадов:</label>
                     <select id="defaultFacadeType" onchange="handleFacadeTypeChange()">
                         <option value="mdf" selected>МДФ Панели</option>
@@ -616,34 +202,16 @@
                         </div>
                         <div class="form-group" style="flex: 0.8;">
                             <label>Ряд:</label>
-                            <select id="moduleRunInput">
-                                <option value="A">Ряд A</option>
-                                <option value="B">Ряд B</option>
-                                <option value="C">Ряд C</option>
-                            </select>
+                            <select id="moduleRunInput"><option>A</option><option>B</option><option>C</option></select>
                         </div>
-                        <div class="form-group">
-                            <label>Ш (мм):</label>
-                            <input type="number" id="moduleWidthInput" value="600" min="100" max="1200" step="10">
-                        </div>
-                        <div class="form-group">
-                            <label>В (мм):</label>
-                            <input type="number" id="moduleHeightInput" value="720" min="300" max="2400" step="10">
-                        </div>
-                        <div class="form-group">
-                            <label>Г (мм):</label>
-                            <input type="number" id="moduleDepthInput" value="530" min="16" max="900" step="10">
-                        </div>
+                        <div class="form-group"><label>Ш (мм):</label><input type="number" id="moduleWidthInput" value="600" min="100" max="1200" step="10"></div>
+                        <div class="form-group"><label>В (мм):</label><input type="number" id="moduleHeightInput" value="720" min="300" max="2400" step="10"></div>
+                        <div class="form-group"><label>Г (мм):</label><input type="number" id="moduleDepthInput" value="530" min="16" max="900" step="10"></div>
                         <button class="btn" type="button" onclick="addModule()">+ Добавить</button>
                     </div>
 
                     <table class="modules-table">
-                        <thead>
-                            <tr>
-                                <th>№</th><th>Ряд</th><th>Конфигурация</th><th>Ш×В×Г</th>
-                                <th>ДСП</th><th>Фасад</th><th>ДВП</th><th></th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>№</th><th>Ряд</th><th>Конфигурация</th><th>Ш×В×Г</th><th>ДСП</th><th>Фасад</th><th>ДВП</th><th></th></tr></thead>
                         <tbody id="modulesTableBody"></tbody>
                     </table>
 
@@ -655,22 +223,16 @@
                         <div class="summary-item"><span>Площадь фасадов верхних:</span><strong id="topFacadeAreaDisplay">0</strong></div>
                         <div class="summary-item"><span>Площадь ДВП:</span><strong id="totalDvpArea">0</strong></div>
                         <div class="summary-item"><span>Пропил паза:</span><strong id="totalGrooveDisplay">0</strong></div>
-                        <div class="summary-item" style="background:#f1f5f9;padding:4px 6px;border-radius:4px;font-weight:bold;">
-                            <span>Суммарная длина распила:</span><strong id="totalSawingLength">0</strong>
-                        </div>
+                        <div class="summary-item" style="background:#f1f5f9;padding:4px 6px;border-radius:4px;font-weight:bold;"><span>Суммарная длина распила:</span><strong id="totalSawingLength">0</strong></div>
                         <div class="summary-item"><span>Кромка:</span><strong id="totalEdgeLength">0</strong></div>
                         <div class="summary-item"><span>Длина столешницы:</span><strong id="totalTopLength">0</strong></div>
                         <div class="summary-item"><span>Длины рядов A / B / C:</span><strong id="runsLengthDisplay">0/0/0</strong></div>
-                        <div class="block-summary" id="materialsBlockSummary">
-                            <span>Итого по материалам:</span><span>0 ₽</span>
-                        </div>
+                        <div class="block-summary" id="materialsBlockSummary"><span>Итого по материалам:</span><span>0 ₽</span></div>
                     </div>
 
                     <div class="section-title">4. Фурнитура</div>
                     <div id="hardwareContainer" class="hardware-list"></div>
-                    <div class="block-summary" id="hardwareBlockSummary" style="display:none;">
-                        <span>Итого по фурнитуре и крепежу:</span><span>0 ₽</span>
-                    </div>
+                    <div class="block-summary" id="hardwareBlockSummary" style="display:none;"><span>Итого по фурнитуре и крепежу:</span><span>0 ₽</span></div>
 
                     <div class="total-box">
                         <div>Предварительный расчёт:</div>
@@ -689,27 +251,19 @@
                 <div class="visual-side">
                     <div class="section-title" style="margin-top: 0;">2D-эскиз</div>
                     <canvas id="kitchenCanvas" width="440" height="480"></canvas>
-                    <div style="font-size:0.8rem; color:#64748b; margin-top:8px;">Модули можно перетаскивать внутри ряда.</div>
-
+                    <div style="font-size:0.8rem; color:#64748b; margin-top:8px;">Модули можно перетаскивать.</div>
                     <div class="section-title" style="margin-top: 20px;">3D-просмотр</div>
-                    <div id="threeWrap">
-                        <canvas id="threeCanvas"></canvas>
-                        <div id="threeMsg">Загрузка 3D…</div>
-                    </div>
+                    <div id="threeWrap"><canvas id="threeCanvas"></canvas><div id="threeMsg">Загрузка 3D…</div></div>
                     <div class="three-hint">Вращение — мышь/палец. Зум — колесо.</div>
-                    <div class="three-actions">
-                        <button class="btn btn-secondary" onclick="forceRebuildThree()">🔄 Обновить 3D</button>
-                    </div>
+                    <div class="three-actions"><button class="btn btn-secondary" onclick="forceRebuildThree()">🔄 Обновить 3D</button></div>
                 </div>
             </div>
         </div>
 
-        <!-- ============ Вкладка СПРАВКА ============ -->
         <div id="tabHelp" class="tab-pane">
             <div class="section-title" style="margin-top:0;">СПРАВКА — состав каждого модуля</div>
             <p style="font-size:0.9rem; color:#475569; margin-top:0;">
-                Состав пересчитывается по заданным габаритам (по умолчанию 600×720×530).
-                Угловые конфигурации: 90° — Г-образный корпус, 45° — скошенный под 45°, «в угол» — корпус в один ряд.
+                Состав по файлам технолога для: Угловой нижний 90°, 2 подъёмника, 1 полка 1 дверь, 1 полка 2 двери. Остальные — по стандартным формулам.
             </p>
             <div class="help-actions no-print">
                 <label style="display:flex; align-items:center; gap:6px; font-weight:600;">Ширина, мм:
@@ -728,14 +282,11 @@
     </div>
 </div>
 
-<!-- ============ Отказ в доступе ============ -->
 <div id="deniedContainer" class="access-denied" style="display: none;">
     <h2>⛔ Доступ ограничен</h2>
-    <p>Калькулятор предназначен только для использования внутри сети компании.</p>
     <p>Ваш IP: <span id="userIpSpan" class="ip-badge">проверка...</span></p>
     <div id="deniedActions" style="margin-top:16px; display:none;">
-        <p style="font-size:0.85rem; color:#64748b;">Не удалось проверить доступ.</p>
-        <button class="btn" onclick="checkIpAndInit()">Повторить проверку</button>
+        <button class="btn" onclick="checkIpAndInit()">Повторить</button>
     </div>
 </div>
 
@@ -746,37 +297,21 @@
 const ALLOWED_IPS = ["217.19.209.217"];
 const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzDjxq-Tys5RiT0DTPpNNb4sv23gi1MTQFrGHlIqA4YT82Yd63eKoKK3nCfmTx3CDwdoFVlP2ii3bl/pub?output=csv";
 
-// Источники прайсов (Google Sheets, публичные CSV)
 const SOURCES = {
-    dsp: BASE_URL + "&gid=0",
-    mdf: BASE_URL + "&gid=96674774",
-    countertops: BASE_URL + "&gid=815843097",
-    hinges: BASE_URL + "&gid=630759093",
-    slides: BASE_URL + "&gid=1778804050",
-    cargoSush: BASE_URL + "&gid=588424463",
-    sinks: BASE_URL + "&gid=629476626",
-    legs: BASE_URL + "&gid=561534920",
-    lifts: BASE_URL + "&gid=701412219",
-    handles: BASE_URL + "&gid=1779899106",
-    hangersRails: BASE_URL + "&gid=223592342",
-    services: BASE_URL + "&gid=26549823",
-    dvp: BASE_URL + "&gid=1199686527",
-    edges: BASE_URL + "&gid=1007814118"
+    dsp: BASE_URL + "&gid=0", mdf: BASE_URL + "&gid=96674774",
+    countertops: BASE_URL + "&gid=815843097", hinges: BASE_URL + "&gid=630759093",
+    slides: BASE_URL + "&gid=1778804050", cargoSush: BASE_URL + "&gid=588424463",
+    sinks: BASE_URL + "&gid=629476626", legs: BASE_URL + "&gid=561534920",
+    lifts: BASE_URL + "&gid=701412219", handles: BASE_URL + "&gid=1779899106",
+    hangersRails: BASE_URL + "&gid=223592342", services: BASE_URL + "&gid=26549823",
+    dvp: BASE_URL + "&gid=1199686527", edges: BASE_URL + "&gid=1007814118"
 };
 
-// Хранилище загруженных данных
-const DATA_STORE = {
-    dsp: [], mdf: [], countertops: [], hinges: [], slides: [],
-    cargoSush: [], sinks: [], legs: [], lifts: [], handles: [],
-    hangersRails: [], services: [], dvp: [], edges: []
-};
+const DATA_STORE = { dsp: [], mdf: [], countertops: [], hinges: [], slides: [], cargoSush: [], sinks: [], legs: [], lifts: [], handles: [], hangersRails: [], services: [], dvp: [], edges: [] };
 
-// Типы угловых модулей
 const CORNER_BASE_TYPES = ['corner_base_90', 'corner_base_45', 'corner_base_v1050'];
 const CORNER_TOP_TYPES = ['corner_top_90', 'corner_top_45', 'corner_top_v700'];
 const CORNER_ALL = [...CORNER_BASE_TYPES, ...CORNER_TOP_TYPES];
-
-// Человеческие названия угловых
 const CORNER_NAMES = {
     corner_base_90: 'Угловой нижний 900×900 (90°)',
     corner_base_45: 'Угловой нижний 900×900 (45°)',
@@ -785,14 +320,9 @@ const CORNER_NAMES = {
     corner_top_45: 'Угловой верхний 600×600 (45°)',
     corner_top_v700: 'В угол на 700 (верхний)'
 };
-
-// Пеналы (не считаются под столешницу)
 const PENAL_TYPES = ['penal_oven', 'penal_oven_mw', 'penal_door_2drawers', 'penal_2doors'];
 
-// Скрытые угловые (при переключении на прямую кухню)
 let hiddenCornerModules = [];
-
-// Текущий проект (стартовый — угловая с 45°)
 let projectModules = [
     { id: 's1', run: 'B', type: 'corner_base_45', name: CORNER_NAMES.corner_base_45, width: 900, height: 720, depth: 530 },
     { id: 's2', run: 'B', type: 'bottom_p2d', name: 'Полка 2 двери', width: 400, height: 720, depth: 530 },
@@ -805,7 +335,7 @@ let projectModules = [
     { id: 's9', run: 'A', type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
 ];
 
-// Категории фурнитуры для блока с разбиением
+// НОВОЕ: добавлены полкодержатели (source = null — из прайса не выбираются)
 const HW_CATEGORIES = [
     { id: 'hinges', label: 'Петли мебельные', unit: 'шт.', source: 'hinges' },
     { id: 'slides', label: 'Направляющие', unit: 'компл.', source: 'slides' },
@@ -816,16 +346,13 @@ const HW_CATEGORIES = [
     { id: 'lifts', label: 'Подъёмные механизмы', unit: 'шт.', source: 'lifts' },
     { id: 'handles', label: 'Ручки мебельные', unit: 'шт.', source: 'handles' },
     { id: 'hangers', label: 'Навесы верхних модулей', unit: 'пар', source: 'hangersRails' },
-    { id: 'mountRail', label: 'Монтажная планка', unit: 'шт.', source: 'hangersRails' }
+    { id: 'mountRail', label: 'Монтажная планка', unit: 'шт.', source: 'hangersRails' },
+    { id: 'shelfPins', label: 'Полкодержатели', unit: 'шт.', source: null }
 ];
 
-// Состояние разбиения каждой категории
 const HW_STATE = {};
 HW_CATEGORIES.forEach(c => {
-    HW_STATE[c.id] = {
-        split: false,
-        rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }]
-    };
+    HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] };
 });
 
 // =================================================================
@@ -837,24 +364,16 @@ function safeNum(v) {
     const n = parseFloat(v);
     return isNaN(n) ? 0 : n;
 }
-
 function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, ch => ({
-        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
-    }[ch]));
+    return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
 }
-
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// =================================================================
-// ДОСТУП
-// =================================================================
 async function checkIpAndInit() {
     const denied = document.getElementById('deniedContainer');
     const actions = document.getElementById('deniedActions');
     const ipSpan = document.getElementById('userIpSpan');
-    actions.style.display = 'none';
-    ipSpan.innerText = 'проверка...';
+    actions.style.display = 'none'; ipSpan.innerText = 'проверка...';
     try {
         const r = await fetch("https://api.ipify.org?format=json", { cache: 'no-store' });
         const d = await r.json();
@@ -867,43 +386,22 @@ async function checkIpAndInit() {
             denied.style.display = 'block';
         }
     } catch (e) {
-        ipSpan.innerText = '?';
-        denied.style.display = 'block';
-        actions.style.display = 'block';
+        ipSpan.innerText = '?'; denied.style.display = 'block'; actions.style.display = 'block';
     }
 }
 
-// =================================================================
-// ЗАГРУЗКА ПРАЙСОВ
-// =================================================================
-const SOURCE_LABELS = {
-    dsp:'ДСП', mdf:'МДФ', countertops:'Столешницы', hinges:'Петли',
-    slides:'Направляющие', cargoSush:'Карго/сушки', sinks:'Мойки',
-    legs:'Ножки', lifts:'Подъёмники', handles:'Ручки',
-    hangersRails:'Навесы/планки', services:'Услуги', dvp:'ДВП', edges:'Кромка'
-};
+const SOURCE_LABELS = { dsp:'ДСП', mdf:'МДФ', countertops:'Столешницы', hinges:'Петли', slides:'Направляющие', cargoSush:'Карго/сушки', sinks:'Мойки', legs:'Ножки', lifts:'Подъёмники', handles:'Ручки', hangersRails:'Навесы/планки', services:'Услуги', dvp:'ДВП', edges:'Кромка' };
 const NON_CRITICAL = ['services'];
 let failedSources = [];
 
 async function fetchWithTimeout(url, ms = 30000) {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), ms);
-    try {
-        return await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
-    } finally {
-        clearTimeout(t);
-    }
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), ms);
+    try { return await fetch(url, { signal: ctrl.signal, cache: 'no-store' }); } finally { clearTimeout(t); }
 }
-function looksLikeCsv(t) {
-    return !!t && t.length > 10 && !/^\s*<(!doctype|html)/i.test(t);
-}
+function looksLikeCsv(t) { return !!t && t.length > 10 && !/^\s*<(!doctype|html)/i.test(t); }
 
 async function fetchCsvData(url) {
-    const endpoints = [
-        url,
-        "https://corsproxy.io/?" + encodeURIComponent(url),
-        "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
-    ];
+    const endpoints = [url, "https://corsproxy.io/?" + encodeURIComponent(url), "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)];
     for (let round = 0; round < 2; round++) {
         for (const ep of endpoints) {
             try {
@@ -911,54 +409,35 @@ async function fetchCsvData(url) {
                 if (!r.ok) continue;
                 const t = await r.text();
                 if (looksLikeCsv(t)) return t;
-            } catch (e) { /* следующий */ }
+            } catch (e) {}
         }
         if (round === 0) await sleep(1200);
     }
     return null;
 }
 
-// Полноценный CSV-парсер (кавычки, запятые внутри кавычек, переносы строк)
 function parseCsv(text) {
     text = text.replace(/^\uFEFF/, '');
     const sample = text.split(/\r?\n/).filter(l => l.trim()).slice(0, 10);
     let delim = ',', best = -1;
     [',', ';', '\t', '|'].forEach(dl => {
         let cnt = 0;
-        sample.forEach(line => {
-            let inQ = false;
-            for (const ch of line) {
-                if (ch === '"') inQ = !inQ;
-                else if (!inQ && ch === dl) cnt++;
-            }
-        });
+        sample.forEach(line => { let inQ = false; for (const ch of line) { if (ch === '"') inQ = !inQ; else if (!inQ && ch === dl) cnt++; } });
         if (cnt > best) { best = cnt; delim = dl; }
     });
-    const rows = [];
-    let row = [], cell = '', inQ = false;
+    const rows = []; let row = [], cell = '', inQ = false;
     for (let i = 0; i < text.length; i++) {
         const ch = text[i];
-        if (inQ) {
-            if (ch === '"') {
-                if (text[i+1] === '"') { cell += '"'; i++; }
-                else inQ = false;
-            } else cell += ch;
-        } else if (ch === '"') {
-            inQ = true;
-        } else if (ch === delim) {
-            row.push(cell); cell = '';
-        } else if (ch === '\n' || ch === '\r') {
-            if (ch === '\r' && text[i+1] === '\n') i++;
-            row.push(cell); rows.push(row); row = []; cell = '';
-        } else {
-            cell += ch;
-        }
+        if (inQ) { if (ch === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else inQ = false; } else cell += ch; }
+        else if (ch === '"') inQ = true;
+        else if (ch === delim) { row.push(cell); cell = ''; }
+        else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i+1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+        else cell += ch;
     }
     if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
     return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c !== ''));
 }
 
-// Строгий парсинг цены (ячейка должна быть числом, а не "18 мм")
 function parsePrice(s) {
     if (!s) return NaN;
     const c = s.replace(/[\s\u00A0]/g, '').replace(',', '.');
@@ -984,62 +463,31 @@ function parseCsvToItems(csvText) {
     }
     const items = [];
     for (let r = start; r < rows.length; r++) {
-        const cols = rows[r];
-        const title = cols[nameCol] || '';
-        if (!title) continue;
+        const cols = rows[r]; const title = cols[nameCol] || ''; if (!title) continue;
         let price = NaN;
         if (priceCol !== -1) price = parsePrice(cols[priceCol]);
-        else {
-            for (let i = nameCol + 1; i < cols.length; i++) {
-                const p = parsePrice(cols[i]);
-                if (!isNaN(p) && p > 0) { price = p; break; }
-            }
-        }
-        const isHeader = /^#(n\/a|н\/д|ref|value)/i.test(title)
-            || title.includes("ДСП, ДВП, МДФ")
-            || /^фаворит/i.test(title)
-            || title.toLowerCase().includes("название");
-        if (!isHeader && !isNaN(price) && price > 0) {
-            items.push({ name: title, price: price });
-        }
+        else { for (let i = nameCol + 1; i < cols.length; i++) { const p = parsePrice(cols[i]); if (!isNaN(p) && p > 0) { price = p; break; } } }
+        const isHeader = /^#(n\/a|н\/д|ref|value)/i.test(title) || title.includes("ДСП, ДВП, МДФ") || /^фаворит/i.test(title) || title.toLowerCase().includes("название");
+        if (!isHeader && !isNaN(price) && price > 0) items.push({ name: title, price: price });
     }
     return items;
 }
 
-// =================================================================
-// СЕЛЕКТОР ПОКЛЕЙКИ КРОМКИ
-// =================================================================
-function getEdgeGlueItems() {
-    return (DATA_STORE.services || []).filter(it => /поклейк/i.test(it.name));
-}
-
+function getEdgeGlueItems() { return (DATA_STORE.services || []).filter(it => /поклейк/i.test(it.name)); }
 function updateEdgeGlueSelect() {
-    const sel = document.getElementById('edgeGlueSelect');
-    if (!sel) return;
-    const items = getEdgeGlueItems();
-    const cur = sel.value;
-    if (items.length === 0) {
-        sel.innerHTML = '<option value="">— нет позиций «поклейка» —</option>';
-        return;
-    }
-    sel.innerHTML = '<option value="">— выберите —</option>'
-        + items.map((it, idx) => `<option value="${idx}">${escapeHtml(it.name)} (${it.price})</option>`).join('');
+    const sel = document.getElementById('edgeGlueSelect'); if (!sel) return;
+    const items = getEdgeGlueItems(); const cur = sel.value;
+    if (items.length === 0) { sel.innerHTML = '<option value="">— нет позиций «поклейка» —</option>'; return; }
+    sel.innerHTML = '<option value="">— выберите —</option>' + items.map((it, idx) => `<option value="${idx}">${escapeHtml(it.name)} (${it.price})</option>`).join('');
     if (cur !== '' && items[Number(cur)]) sel.value = cur;
 }
-
 function onEdgeGlueSelectChange() {
-    const sel = document.getElementById('edgeGlueSelect');
-    const inp = document.getElementById('edgeGluePrice');
+    const sel = document.getElementById('edgeGlueSelect'); const inp = document.getElementById('edgeGluePrice');
     const items = getEdgeGlueItems();
-    if (sel.value !== '' && items[Number(sel.value)]) {
-        inp.value = items[Number(sel.value)].price;
-    }
+    if (sel.value !== '' && items[Number(sel.value)]) inp.value = items[Number(sel.value)].price;
     calculateProject();
 }
 
-// =================================================================
-// АВТОПОДСТАНОВКА ЦЕН УСЛУГ
-// =================================================================
 const SERVICE_RULES = [
     { inputId: 'hingeD35Price', label: 'Отверстие d-35', re: /(отверсти|присадк).*петл|петл.*(отверсти|присадк)/i },
     { inputId: 'tripanPrice', label: 'Трипан', re: /трипан/i },
@@ -1048,39 +496,24 @@ const SERVICE_RULES = [
 ];
 
 function applyServicePrices(fetchFailed) {
-    const box = document.getElementById('servicesInfo');
-    if (!box) return;
-    if (fetchFailed) {
-        box.style.display = 'block';
-        box.style.background = '#fef3c7';
-        box.innerText = '⚠️ Услуги не загружены — используются цены из полей.';
-        return;
-    }
+    const box = document.getElementById('servicesInfo'); if (!box) return;
+    if (fetchFailed) { box.style.display = 'block'; box.style.background = '#fef3c7'; box.innerText = '⚠️ Услуги не загружены — используются цены из полей.'; return; }
     const found = [], notFound = [];
     SERVICE_RULES.forEach(rule => {
         const item = DATA_STORE.services.find(it => rule.re.test(it.name));
         const input = document.getElementById(rule.inputId);
-        if (item && input) {
-            input.value = item.price;
-            input.title = `Из таблицы: ${item.name}`;
-            found.push(`${rule.label} = ${item.price}`);
-        } else {
-            notFound.push(rule.label);
-        }
+        if (item && input) { input.value = item.price; input.title = `Из таблицы: ${item.name}`; found.push(`${rule.label} = ${item.price}`); }
+        else notFound.push(rule.label);
     });
     updateEdgeGlueSelect();
     const glue = getEdgeGlueItems();
     if (glue.length) found.push(`Поклейка: ${glue.length} поз.`);
     else notFound.push('Поклейка');
-    box.style.display = 'block';
-    box.style.background = notFound.length ? '#fef3c7' : '#f8fafc';
+    box.style.display = 'block'; box.style.background = notFound.length ? '#fef3c7' : '#f8fafc';
     box.innerText = `Услуги: подставлено ${found.length}. ${found.join('; ')}`;
 }
 
-// =================================================================
-// СИСТЕМА ЗАГРУЗКИ ИСТОЧНИКОВ
-// =================================================================
-const CACHE_PREFIX = 'kc_v15:';
+const CACHE_PREFIX = 'kc_v16:';
 const MAX_PARALLEL = 3;
 const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -1095,33 +528,15 @@ const SOURCE_UI = {
     services: { fills: [], services: true }
 };
 
-function cacheGet(k) {
-    try {
-        const raw = localStorage.getItem(CACHE_PREFIX + k);
-        const obj = raw ? JSON.parse(raw) : null;
-        return obj && Array.isArray(obj.items) && obj.items.length ? obj : null;
-    } catch (e) { return null; }
-}
-function cacheSet(k, items) {
-    try {
-        localStorage.setItem(CACHE_PREFIX + k, JSON.stringify({ t: Date.now(), items }));
-    } catch (e) { /* недоступно */ }
-}
-function fmtTime(t) {
-    return t ? new Date(t).toLocaleString('ru-RU', {
-        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-    }) : '';
-}
+function cacheGet(k) { try { const r = localStorage.getItem(CACHE_PREFIX + k); const o = r ? JSON.parse(r) : null; return o && Array.isArray(o.items) && o.items.length ? o : null; } catch (e) { return null; } }
+function cacheSet(k, items) { try { localStorage.setItem(CACHE_PREFIX + k, JSON.stringify({ t: Date.now(), items })); } catch (e) {} }
+function fmtTime(t) { return t ? new Date(t).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''; }
 
 function applySourceToUI(k) {
-    const ui = SOURCE_UI[k];
-    if (!ui) return;
+    const ui = SOURCE_UI[k]; if (!ui) return;
     ui.fills.forEach(([sid, pid]) => fillSelect(sid, DATA_STORE[k], pid || null));
     if (ui.facades) handleFacadeTypeChange();
-    if (ui.services) {
-        const st = SOURCE_STATE[k] || {};
-        applyServicePrices(st.status === 'error');
-    }
+    if (ui.services) { const st = SOURCE_STATE[k] || {}; applyServicePrices(st.status === 'error'); }
     updateSplitSelects();
 }
 
@@ -1130,77 +545,42 @@ function loadSource(k) {
     inflight[k] = (async () => {
         const prev = SOURCE_STATE[k] || {};
         SOURCE_STATE[k] = { status: 'loading', time: prev.time };
-        renderPricePanel();
-        updateStatusBadge();
+        renderPricePanel(); updateStatusBadge();
         const text = await fetchCsvData(SOURCES[k]);
         const items = parseCsvToItems(text);
         if (text && items.length > 0) {
-            DATA_STORE[k] = items;
-            DATA_TIME[k] = Date.now();
-            cacheSet(k, items);
+            DATA_STORE[k] = items; DATA_TIME[k] = Date.now(); cacheSet(k, items);
             SOURCE_STATE[k] = { status: 'ok', time: DATA_TIME[k] };
         } else {
             const note = text ? 'нет цен' : 'нет связи';
-            if (!DATA_STORE[k] || DATA_STORE[k].length === 0) {
-                const c = cacheGet(k);
-                if (c) { DATA_STORE[k] = c.items; DATA_TIME[k] = c.t; }
-            }
-            if (DATA_STORE[k] && DATA_STORE[k].length > 0) {
-                SOURCE_STATE[k] = { status: 'cached', time: DATA_TIME[k], note };
-            } else {
-                DATA_STORE[k] = [];
-                SOURCE_STATE[k] = { status: 'error', note };
-            }
+            if (!DATA_STORE[k] || DATA_STORE[k].length === 0) { const c = cacheGet(k); if (c) { DATA_STORE[k] = c.items; DATA_TIME[k] = c.t; } }
+            if (DATA_STORE[k] && DATA_STORE[k].length > 0) SOURCE_STATE[k] = { status: 'cached', time: DATA_TIME[k], note };
+            else { DATA_STORE[k] = []; SOURCE_STATE[k] = { status: 'error', note }; }
         }
-        applySourceToUI(k);
-        renderPricePanel();
-        updateStatusBadge();
-    })().catch(err => {
-        SOURCE_STATE[k] = { status: 'error', note: String(err) };
-        renderPricePanel();
-        updateStatusBadge();
-    }).finally(() => { delete inflight[k]; });
+        applySourceToUI(k); renderPricePanel(); updateStatusBadge();
+    })().catch(err => { SOURCE_STATE[k] = { status: 'error', note: String(err) }; renderPricePanel(); updateStatusBadge(); })
+      .finally(() => { delete inflight[k]; });
     return inflight[k];
 }
 
 function updateStatusBadge() {
-    const b = document.getElementById('statusBadge');
-    if (!b) return;
-    const keys = Object.keys(SOURCES);
-    const st = k => SOURCE_STATE[k] || { status: 'loading' };
+    const b = document.getElementById('statusBadge'); if (!b) return;
+    const keys = Object.keys(SOURCES); const st = k => SOURCE_STATE[k] || { status: 'loading' };
     const loading = keys.filter(k => st(k).status === 'loading');
     const errors = keys.filter(k => st(k).status === 'error');
     const cached = keys.filter(k => st(k).status === 'cached');
-    failedSources = errors.filter(k => !NON_CRITICAL.includes(k))
-        .map(k => `${SOURCE_LABELS[k]} — ${st(k).note}`);
-    if (loading.length > 0) {
-        b.className = "status-badge status-loading";
-        b.innerText = `⏳ Загрузка… (${keys.length - loading.length}/${keys.length})`;
-    } else if (errors.length > 0) {
-        b.className = "status-badge status-error";
-        b.innerHTML = "⚠️ Не загружено: " + errors.map(k => SOURCE_LABELS[k]).join(', ');
-    } else if (cached.length > 0) {
-        b.className = "status-badge status-loading";
-        b.innerHTML = "⚠️ Копии: " + cached.map(k => SOURCE_LABELS[k]).join(', ');
-    } else {
-        b.className = "status-badge status-success";
-        b.innerText = "✓ Все прайсы загружены";
-    }
+    failedSources = errors.filter(k => !NON_CRITICAL.includes(k)).map(k => `${SOURCE_LABELS[k]} — ${st(k).note}`);
+    if (loading.length > 0) { b.className = "status-badge status-loading"; b.innerText = `⏳ Загрузка… (${keys.length - loading.length}/${keys.length})`; }
+    else if (errors.length > 0) { b.className = "status-badge status-error"; b.innerHTML = "⚠️ Не загружено: " + errors.map(k => SOURCE_LABELS[k]).join(', '); }
+    else if (cached.length > 0) { b.className = "status-badge status-loading"; b.innerHTML = "⚠️ Копии: " + cached.map(k => SOURCE_LABELS[k]).join(', '); }
+    else { b.className = "status-badge status-success"; b.innerText = "✓ Все прайсы загружены"; }
 }
 
 function renderPricePanel() {
-    const box = document.getElementById('pricePanel');
-    if (!box) return;
-    const head = document.createElement('div');
-    head.className = 'price-panel-head';
-    head.textContent = 'Прайсы ';
-    const btnAll = document.createElement('button');
-    btnAll.type = 'button';
-    btnAll.textContent = '↻ Обновить всё';
-    btnAll.onclick = () => loadAllData(false, 0);
-    head.appendChild(btnAll);
-    box.innerHTML = '';
-    box.appendChild(head);
+    const box = document.getElementById('pricePanel'); if (!box) return;
+    const head = document.createElement('div'); head.className = 'price-panel-head'; head.textContent = 'Прайсы ';
+    const btnAll = document.createElement('button'); btnAll.type = 'button'; btnAll.textContent = '↻ Обновить всё'; btnAll.onclick = () => loadAllData(false, 0);
+    head.appendChild(btnAll); box.innerHTML = ''; box.appendChild(head);
     const wrap = document.createElement('div');
     Object.keys(SOURCES).forEach(k => {
         const s = SOURCE_STATE[k] || { status: 'loading' };
@@ -1208,157 +588,74 @@ function renderPricePanel() {
         if (s.status === 'loading') { cls = 'chip-load'; icon = '⏳'; title = 'Загрузка…'; }
         else if (s.status === 'cached') { cls = 'chip-warn'; icon = '⚠'; title = 'Копия от ' + fmtTime(s.time); }
         else if (s.status === 'error') { cls = 'chip-err'; icon = '✕'; title = 'Ошибка: ' + s.note; }
-        const chip = document.createElement('span');
-        chip.className = 'price-chip ' + cls;
-        chip.title = title;
+        const chip = document.createElement('span'); chip.className = 'price-chip ' + cls; chip.title = title;
         chip.appendChild(document.createTextNode(`${icon} ${SOURCE_LABELS[k]}`));
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = '↻';
-        btn.title = 'Обновить';
+        const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '↻'; btn.title = 'Обновить';
         btn.onclick = () => { loadSource(k).then(() => calculateProject()); };
-        chip.appendChild(btn);
-        wrap.appendChild(chip);
+        chip.appendChild(btn); wrap.appendChild(chip);
     });
     box.appendChild(wrap);
 }
 
 async function loadAllData(onlyFailed = false, autoRetries = 2) {
-    const keys = Object.keys(SOURCES).filter(k =>
-        !onlyFailed || !SOURCE_STATE[k] || SOURCE_STATE[k].status !== 'ok');
-    keys.forEach(k => {
-        if (!inflight[k]) SOURCE_STATE[k] = { status: 'loading', time: (SOURCE_STATE[k] || {}).time };
-    });
-    renderPricePanel();
-    updateStatusBadge();
+    const keys = Object.keys(SOURCES).filter(k => !onlyFailed || !SOURCE_STATE[k] || SOURCE_STATE[k].status !== 'ok');
+    keys.forEach(k => { if (!inflight[k]) SOURCE_STATE[k] = { status: 'loading', time: (SOURCE_STATE[k] || {}).time }; });
+    renderPricePanel(); updateStatusBadge();
     let next = 0;
-    const worker = async () => {
-        while (next < keys.length) {
-            const k = keys[next++];
-            await loadSource(k);
-        }
-    };
+    const worker = async () => { while (next < keys.length) { const k = keys[next++]; await loadSource(k); } };
     await Promise.all(Array.from({ length: Math.min(MAX_PARALLEL, keys.length) }, worker));
-    renderModulesTable();
-    renderHardware();
-    calculateProject();
+    renderModulesTable(); renderHardware(); calculateProject();
     const stillBad = Object.keys(SOURCES).some(k => (SOURCE_STATE[k] || {}).status === 'error');
-    if (stillBad && autoRetries > 0) {
-        await sleep(2500);
-        return loadAllData(true, autoRetries - 1);
-    }
+    if (stillBad && autoRetries > 0) { await sleep(2500); return loadAllData(true, autoRetries - 1); }
 }
 
-// =================================================================
-// UI: СЕЛЕКТЫ И ТИПЫ ФАСАДОВ
-// =================================================================
 function handleFacadeTypeChange() {
     const t = document.getElementById('defaultFacadeType').value;
     const items = (t === 'dsp') ? DATA_STORE.dsp : DATA_STORE.mdf;
-    fillSelect('bottomFacadeSelect', items);
-    fillSelect('topFacadeSelect', items);
+    fillSelect('bottomFacadeSelect', items); fillSelect('topFacadeSelect', items);
     calculateProject();
 }
-
 function fillSelect(id, items, priceId = null) {
-    const sel = document.getElementById(id);
-    if (!sel) return;
+    const sel = document.getElementById(id); if (!sel) return;
     const prevOpt = sel.options[sel.selectedIndex];
     const prevName = prevOpt && prevOpt.dataset ? prevOpt.dataset.name : undefined;
     sel.innerHTML = '';
     if (items.length === 0) {
-        const opt = document.createElement('option');
-        opt.value = 0;
-        opt.textContent = "— по умолчанию —";
-        sel.appendChild(opt);
-        return;
+        const opt = document.createElement('option'); opt.value = 0; opt.textContent = "— по умолчанию —"; sel.appendChild(opt); return;
     }
     items.forEach(it => {
-        const o = document.createElement('option');
-        o.value = it.price;
-        o.dataset.name = it.name;
-        o.textContent = `${it.name} (${it.price})`;
-        sel.appendChild(o);
+        const o = document.createElement('option'); o.value = it.price; o.dataset.name = it.name;
+        o.textContent = `${it.name} (${it.price})`; sel.appendChild(o);
     });
-    if (prevName !== undefined) {
-        const idx = [...sel.options].findIndex(o => o.dataset.name === prevName);
-        if (idx >= 0) sel.selectedIndex = idx;
-    }
-    if (priceId && sel.options.length > 0) {
-        document.getElementById(priceId).value = sel.value;
-    }
+    if (prevName !== undefined) { const idx = [...sel.options].findIndex(o => o.dataset.name === prevName); if (idx >= 0) sel.selectedIndex = idx; }
+    if (priceId && sel.options.length > 0) document.getElementById(priceId).value = sel.value;
 }
-
-function syncPriceFromSelect(sid, pid) {
-    const s = document.getElementById(sid);
-    const p = document.getElementById(pid);
-    if (s && p) { p.value = s.value; calculateProject(); }
-}
+function syncPriceFromSelect(sid, pid) { const s = document.getElementById(sid); const p = document.getElementById(pid); if (s && p) { p.value = s.value; calculateProject(); } }
 
 function autoSetDefaults() {
     const t = document.getElementById('moduleTypeInput').value;
-    const w = document.getElementById('moduleWidthInput');
-    const h = document.getElementById('moduleHeightInput');
-    const d = document.getElementById('moduleDepthInput');
-    if (t === 'corner_base_90' || t === 'corner_base_45') {
-        w.value = 900; h.value = 720; d.value = 530;
-        document.getElementById('moduleRunInput').value = 'B';
-    } else if (t === 'corner_base_v1050') {
-        w.value = 1050; h.value = 720; d.value = 530;
-        document.getElementById('moduleRunInput').value = 'B';
-    } else if (t === 'corner_top_90' || t === 'corner_top_45') {
-        w.value = 600; h.value = 720; d.value = 320;
-        document.getElementById('moduleRunInput').value = 'B';
-    } else if (t === 'corner_top_v700') {
-        w.value = 700; h.value = 720; d.value = 320;
-        document.getElementById('moduleRunInput').value = 'B';
-    } else if (t === 'bottom_cargo') {
-        w.value = 200; h.value = 720; d.value = 530;
-    } else if (t === 'bottom_falsh' || t === 'top_falsh') {
-        w.value = 100; h.value = 720; d.value = 18;
-    } else if (t.startsWith('bottom_')) {
-        d.value = 530;
-        if (parseInt(h.value) > 1000) h.value = 720;
-    } else if (t.startsWith('top_')) {
-        d.value = 320;
-        if (parseInt(h.value) > 1000) h.value = 720;
-    } else if (t.startsWith('penal_')) {
-        d.value = 530; h.value = 2100;
-    }
+    const w = document.getElementById('moduleWidthInput'), h = document.getElementById('moduleHeightInput'), d = document.getElementById('moduleDepthInput');
+    // ИЗМЕНЕНО: угловой 90° — D=900 (по файлу технолога), остальные — D=530
+    if (t === 'corner_base_90') { w.value = 900; h.value = 720; d.value = 900; document.getElementById('moduleRunInput').value = 'B'; }
+    else if (t === 'corner_base_45') { w.value = 900; h.value = 720; d.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
+    else if (t === 'corner_base_v1050') { w.value = 1050; h.value = 720; d.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
+    else if (t === 'corner_top_90' || t === 'corner_top_45') { w.value = 600; h.value = 720; d.value = 320; document.getElementById('moduleRunInput').value = 'B'; }
+    else if (t === 'corner_top_v700') { w.value = 700; h.value = 720; d.value = 320; document.getElementById('moduleRunInput').value = 'B'; }
+    else if (t === 'bottom_cargo') { w.value = 200; h.value = 720; d.value = 530; }
+    else if (t === 'bottom_falsh' || t === 'top_falsh') { w.value = 100; h.value = 720; d.value = 18; }
+    else if (t.startsWith('bottom_')) { d.value = 530; if (parseInt(h.value) > 1000) h.value = 720; }
+    else if (t.startsWith('top_')) { d.value = 320; if (parseInt(h.value) > 1000) h.value = 720; }
+    else if (t.startsWith('penal_')) { d.value = 530; h.value = 2100; }
 }
 
-function getHingesForDoor(h) {
-    if (h <= 900) return 2;
-    if (h <= 1600) return 3;
-    if (h <= 2000) return 4;
-    return 5;
-}
-function getEdgeAllowance() {
-    return safeNum(document.getElementById('edgeAllowanceMm')) / 1000.0 || 0.06;
-}
+function getHingesForDoor(h) { if (h <= 900) return 2; if (h <= 1600) return 3; if (h <= 2000) return 4; return 5; }
+function getEdgeAllowance() { return safeNum(document.getElementById('edgeAllowanceMm')) / 1000.0 || 0.06; }
 
-// =================================================================
-// РАСКЛАДКА
-// =================================================================
-function currentLayout() {
-    const el = document.getElementById('layoutSelect');
-    return el ? el.value : 'corner';
-}
-function layoutRuns() {
-    const l = currentLayout();
-    if (l === 'straight') return ['A'];
-    if (l === 'corner') return ['A', 'B'];
-    return ['A', 'B', 'C'];
-}
+function currentLayout() { const el = document.getElementById('layoutSelect'); return el ? el.value : 'corner'; }
+function layoutRuns() { const l = currentLayout(); if (l === 'straight') return ['A']; if (l === 'corner') return ['A', 'B']; return ['A', 'B', 'C']; }
 function updateLayoutHint() {
     const el = document.getElementById('layoutHint');
-    if (el) {
-        el.textContent = {
-            straight: 'Один ряд.',
-            corner: 'Ряд A + доп. проекция B.',
-            'u-shape': 'Ряд A + доп. проекции B и C.'
-        }[currentLayout()] || '';
-    }
+    if (el) el.textContent = { straight: 'Один ряд.', corner: 'Ряд A + доп. проекция B.', 'u-shape': 'Ряд A + доп. проекции B и C.' }[currentLayout()] || '';
 }
 function isCornerType(t) { return CORNER_ALL.includes(t); }
 function isCornerBaseType(t) { return CORNER_BASE_TYPES.includes(t); }
@@ -1366,8 +663,6 @@ function isCornerTopType(t) { return CORNER_TOP_TYPES.includes(t); }
 function isBaseType(m) { return !m.type.startsWith('top_') && !m.type.startsWith('corner_top'); }
 function isTopType(m) { return m.type.startsWith('top_') || m.type.startsWith('corner_top'); }
 function isPenalType(t) { return PENAL_TYPES.includes(t); }
-
-// Модуль считается «под столешницу», если это тумба (не пенал, не верхний)
 function isCountertopModule(m) {
     if (isTopType(m)) return false;
     if (isPenalType(m.type)) return false;
@@ -1387,19 +682,17 @@ function changeLayout(newLayout) {
         projectModules = projectModules.filter(m => runs.includes(m.run));
         if (hiddenCornerModules.length > 0) {
             hiddenCornerModules.forEach(m => {
-                const exists = projectModules.some(x =>
-                    x.run === m.run && isCornerType(x.type) && isCornerTopType(x.type) === isCornerTopType(m.type));
+                const exists = projectModules.some(x => x.run === m.run && isCornerType(x.type) && isCornerTopType(x.type) === isCornerTopType(m.type));
                 if (!exists && runs.includes(m.run)) projectModules.unshift({ ...m });
             });
             hiddenCornerModules = [];
         }
     }
-    renderModulesTable();
-    calculateProject();
+    renderModulesTable(); calculateProject();
 }
 
 // =================================================================
-// РАСЧЁТ ОДНОГО МОДУЛЯ
+// РАСЧЁТ МОДУЛЯ (обновлены 4 модуля по файлам технолога)
 // =================================================================
 function getModuleCalculations(type, widthMm, heightMm, depthMm) {
     const w = widthMm / 1000, h = heightMm / 1000, d = depthMm / 1000;
@@ -1407,28 +700,50 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
     const k = getEdgeAllowance();
     const edgeOf = (a, b) => 2 * ((a + k) + (b + k));
     let parts = [], facades = [];
-    const doors = (n, doorH) => {
-        for (let i = 0; i < n; i++) facades.push([(w - gap) / n, doorH, `Фасад (${n})`]);
-    };
-    const stacked = (n) => {
-        for (let i = 0; i < n; i++) facades.push([w - gap, (h - gap) / n, `Фасад ящика (${n})`]);
-    };
+    const doors = (n, doorH) => { for (let i = 0; i < n; i++) facades.push([(w - gap) / n, doorH, `Фасад (${n})`]); };
+    const stacked = (n) => { for (let i = 0; i < n; i++) facades.push([w - gap, (h - gap) / n, `Фасад ящика (${n})`]); };
     let hinges = 0, slides = 0, cargo = 0, sush = 0, sink = 0;
     let legs = 0, lifts = 0, hangers = 0, handles = 0;
     let dvpArea = 0, grooveLength = 0, cutOven = 0, cutSink = 0;
+    // НОВЫЕ поля:
+    let shelfPins = 0;         // полкодержатели
+    let shkants = 0;           // шканты
+    let glueDotsKg = 0;        // гвозди мебельные, кг
+    let exactConfirmats = null;  // явное количество конфирматов (переопределяет «2 × деталей»)
 
     // ===== УГЛОВЫЕ =====
-    if (type === 'corner_base_90' || type === 'corner_top_90') {
-        const isBase = type === 'corner_base_90';
+    if (type === 'corner_base_90') {
+        // ИЗМЕНЕНО по файлу технолога (базовый 900×820×900, H_корп = 720):
+        // Боковины (H-18)×510 — 2 шт
+        // Дно (W-50)×(D-50) — 1 шт (единый прямоугольник)
+        // Стенка задняя (W-68)×(H-18) — 1 шт (ДСП)
+        // Царга (W-86)×80 — 2 шт
+        // Царга угловая 322×80 — 1 шт
+        // Дверь 320×(H-4) — 2 шт
+        parts.push([2, 0.510, h - 0.018, 'Боковина']);
+        parts.push([1, w - 0.050, d - 0.050, 'Дно (Г-обр.)']);
+        parts.push([1, w - 0.068, h - 0.018, 'Стенка задняя (ДСП)']);
+        parts.push([2, w - 0.086, 0.080, 'Царга']);
+        parts.push([1, 0.322, 0.080, 'Царга угловая']);
+        facades.push([0.320, h - 0.004, 'Фасад B']);
+        facades.push([0.320, h - 0.004, 'Фасад A']);
+        legs = 5;
+        hinges = 4;
+        handles = 1;
+        exactConfirmats = 14;
+        shkants = 2;
+        // dvpArea остаётся 0 — задняя стенка из ДСП
+    }
+    else if (type === 'corner_top_90') {
+        const isBase = false;
         const aM = depthMm / 1000, bM = widthMm / 1000;
-        // Г-образный: два плеча
         parts.push([2, bM, d, 'Боковина (B)']);
         parts.push([1, aM, d, 'Боковина (A)']);
         parts.push([1, aM, bM, 'Дно Г (A)']);
         parts.push([1, Math.max(0, bM - aM), bM, 'Дно Г (B)']);
         parts.push([1, aM, bM, 'Верх Г (A)']);
         parts.push([1, Math.max(0, bM - aM), bM, 'Верх Г (B)']);
-        if (isBase) legs = 6; else hangers += 2;
+        hangers += 2;
         facades.push([Math.max(0.05, (bM - aM) - gap), h - gap, 'Фасад B']);
         facades.push([Math.max(0.05, aM - gap), h - gap, 'Фасад A']);
         hinges += getHingesForDoor(heightMm) * 2;
@@ -1437,7 +752,6 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
     else if (type === 'corner_base_45' || type === 'corner_top_45') {
         const isBase = type === 'corner_base_45';
         const aM = depthMm / 1000, bM = widthMm / 1000;
-        // Скошенный: задняя стенка по A + по B, скошенный фасад
         parts.push([1, bM, h, 'Задняя стенка A']);
         parts.push([1, bM, h, 'Задняя стенка B']);
         parts.push([1, aM, bM, 'Дно (A)']);
@@ -1447,8 +761,7 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         const facadeLen = (bM - aM) * Math.SQRT2;
         facades.push([facadeLen - gap, h - gap, 'Фасад скошенный 45°']);
         if (isBase) legs = 6; else hangers += 2;
-        hinges += getHingesForDoor(heightMm);
-        handles += 1;
+        hinges += getHingesForDoor(heightMm); handles += 1;
     }
     else if (type === 'corner_base_v1050' || type === 'corner_top_v700') {
         const isBase = type === 'corner_base_v1050';
@@ -1457,59 +770,41 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         parts.push([2, w - dspT, d, 'Дно / верх']);
         if (isBase) legs = 4; else hangers += 1;
         facades.push([facadeW - gap, h - gap, 'Фасад']);
-        hinges += getHingesForDoor(heightMm);
-        handles += 1;
+        hinges += getHingesForDoor(heightMm); handles += 1;
     }
-    // ===== ФАЛЬШПАНЕЛЬ =====
     else if (type === 'bottom_falsh' || type === 'top_falsh') {
         parts.push([1, w, h, 'Фальшпанель']);
-        return {
-            dsp: 0, dvp: 0, groove: 0,
-            edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h),
-            facade: w * h, partCount: 1,
-            hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0,
-            confirmats: 2, cutOven: 0, cutSink: 0,
-            isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades
-        };
+        return { dsp: 0, dvp: 0, groove: 0, edge: edgeOf(w, h), edgeBody: 0, edgeFacade: edgeOf(w, h), facade: w * h, partCount: 1, hinges: 0, slides: 0, cargo: 0, sush: 0, sink: 0, legs: 0, lifts: 0, hangers: 0, handles: 0, confirmats: 2, cutOven: 0, cutSink: 0, shelfPins: 0, shkants: 0, glueDotsKg: 0, isBottom: type.startsWith('bottom_'), isCorner: false, parts, facades };
     }
-    // ===== ПЕНАЛЫ =====
     else if (type.startsWith('penal_')) {
         legs = 4;
         parts.push([2, h, d, 'Боковина']);
         parts.push([2, w - dspT, d, 'Дно / верх']);
         if (type === 'penal_oven') {
             parts.push([1, w - dspT, d - 0.02, 'Полка']);
-            facades.push([w - gap, (h - 0.9) / 2 - gap, 'Фасад верхний']);
-            hinges += getHingesForDoor(heightMm / 2);
-            handles += 1;
-            cutOven = 1;
+            facades.push([w - gap, (h - 0.9) / 2 - gap, 'Фасад']);
+            hinges += getHingesForDoor(heightMm / 2); handles += 1; cutOven = 1;
         } else if (type === 'penal_oven_mw') {
             parts.push([1, w - dspT, d - 0.02, 'Полка 1']);
             parts.push([1, w - dspT, d - 0.02, 'Полка 2']);
-            facades.push([w - gap, (h - 1.2) / 2 - gap, 'Фасад верхний']);
-            hinges += getHingesForDoor(heightMm / 2);
-            handles += 1;
-            cutOven = 1;
+            facades.push([w - gap, (h - 1.2) / 2 - gap, 'Фасад']);
+            hinges += getHingesForDoor(heightMm / 2); handles += 1; cutOven = 1;
         } else if (type === 'penal_door_2drawers') {
             const drawerH = (h - 0.9) / 2;
             facades.push([w - gap, h - 0.9 - gap, 'Фасад двери']);
             facades.push([w - gap, drawerH - gap, 'Фасад ящика 1']);
             facades.push([w - gap, drawerH - gap, 'Фасад ящика 2']);
-            slides += 2;
-            hinges += getHingesForDoor((h - 0.9) * 1000);
-            handles += 3;
+            slides += 2; hinges += getHingesForDoor((h - 0.9) * 1000); handles += 3;
             parts.push([4, drawerH, d - 0.05, 'Бок ящика']);
-            parts.push([4, drawerH, w - drawerDspT, 'Стенка ящика']);
-            parts.push([2, w - drawerDspT, d - 0.05, 'Дно ящика']);
+            parts.push([4, drawerH, w - drawerDspT, 'Стенка']);
+            parts.push([2, w - drawerDspT, d - 0.05, 'Дно']);
         } else if (type === 'penal_2doors') {
             parts.push([2, w - dspT, d - 0.02, 'Полка']);
             facades.push([(w - gap) / 2 - gap/2, h - gap, 'Фасад L']);
             facades.push([(w - gap) / 2 - gap/2, h - gap, 'Фасад R']);
-            hinges += getHingesForDoor(heightMm) * 2;
-            handles += 2;
+            hinges += getHingesForDoor(heightMm) * 2; handles += 2;
         }
     }
-    // ===== НИЖНИЕ =====
     else if (type.startsWith('bottom_')) {
         dvpArea = w * h;
         parts.push([2, h, d, 'Боковина']);
@@ -1518,8 +813,7 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         legs = 4;
         if (type === 'bottom_m1d' || type === 'bottom_m2d') {
             const n = type === 'bottom_m1d' ? 1 : 2;
-            doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n;
-            sink = 1; cutSink = 1;
+            doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n; sink = 1; cutSink = 1;
         } else if (type === 'bottom_p1d' || type === 'bottom_p2d') {
             parts.push([1, w - dspT, d - 0.02, 'Полка']);
             const n = type === 'bottom_p1d' ? 1 : 2;
@@ -1555,47 +849,90 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
     }
     // ===== ВЕРХНИЕ =====
     else if (type.startsWith('top_')) {
-        dvpArea = w * h;
-        grooveLength = 2 * (w + h);
-        parts.push([2, h, d, 'Боковина']);
-        parts.push([2, w - dspT, d, 'Дно / верх']);
-        hangers += 1;
-        if (type === 'top_sush_1d' || type === 'top_sush_2d') {
-            sush = 1;
-            const n = type === 'top_sush_1d' ? 1 : 2;
-            doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n;
-        } else if (type.includes('1d')) {
-            if (type.includes('p1_')) parts.push([1, w - dspT, d - 0.02, 'Полка']);
-            if (type.includes('p2_')) parts.push([2, w - dspT, d - 0.02, 'Полка']);
-            doors(1, h - gap); hinges += getHingesForDoor(heightMm); handles += 1;
-        } else if (type.includes('2d')) {
-            if (type.includes('p1_')) parts.push([1, w - dspT, d - 0.02, 'Полка']);
-            if (type.includes('p2_')) parts.push([2, w - dspT, d - 0.02, 'Полка']);
-            doors(2, h - gap); hinges += getHingesForDoor(heightMm) * 2; handles += 2;
-        } else if (type === 'top_lift_2') {
-            parts.push([1, w - dspT, d - 0.02, 'Полка']);
-            stacked(2); lifts += 4; handles += 2;
-        } else if (type === 'top_lift_3') {
-            parts.push([2, w - dspT, d - 0.02, 'Полка']);
-            stacked(3); lifts += 6; handles += 3;
+        // ИЗМЕНЕНО: 3 модуля из файла технолога
+        if (type === 'top_lift_2') {
+            // 2 подъёмника: 800×720×300
+            parts.push([2, d, h, 'Боковина']);
+            parts.push([1, d, w - 0.036, 'Дно']);
+            parts.push([1, d - 0.015, w - 0.036, 'Крышка']);
+            parts.push([1, d - 0.015, w - 0.036, 'Полка']);
+            facades.push([w - 0.003, (h - 0.006) / 2, 'Фасад верхний']);
+            facades.push([w - 0.003, (h - 0.006) / 2, 'Фасад нижний']);
+            dvpArea = (w - 0.028) * (h - 0.016);
+            lifts = 4;
+            hinges = 4;
+            handles = 2;
+            hangers = 1;
+            exactConfirmats = 12;
+            glueDotsKg = 0.008;
+        }
+        else if (type === 'top_p1_1d') {
+            // 1 полка 1 дверь: 400×720×300
+            parts.push([2, d, h, 'Боковина']);
+            parts.push([1, d, w - 0.036, 'Дно']);
+            parts.push([1, d - 0.015, w - 0.036, 'Крышка']);
+            parts.push([1, d - 0.015, w - 0.038, 'Полка съёмная']);
+            facades.push([w - 0.003, h - 0.003, 'Фасад']);
+            dvpArea = (w - 0.028) * (h - 0.016);
+            hinges = 2;
+            handles = 1;
+            hangers = 1;
+            shelfPins = 4;
+            exactConfirmats = 8;
+            glueDotsKg = 0.008;
+        }
+        else if (type === 'top_p1_2d') {
+            // 1 полка 2 двери: 800×720×300
+            parts.push([2, d, h, 'Боковина']);
+            parts.push([1, d, w - 0.036, 'Дно']);
+            parts.push([1, d - 0.015, w - 0.036, 'Крышка']);
+            parts.push([1, d - 0.015, w - 0.038, 'Полка съёмная']);
+            facades.push([(w - 0.006) / 2, h - 0.003, 'Фасад L']);
+            facades.push([(w - 0.006) / 2, h - 0.003, 'Фасад R']);
+            dvpArea = (w - 0.028) * (h - 0.016);
+            hinges = 4;
+            handles = 2;
+            hangers = 1;
+            shelfPins = 4;
+            exactConfirmats = 8;
+            glueDotsKg = 0.008;
+        }
+        // Остальные верхние — стандартная логика
+        else {
+            dvpArea = w * h;
+            grooveLength = 2 * (w + h);
+            parts.push([2, h, d, 'Боковина']);
+            parts.push([2, w - dspT, d, 'Дно / верх']);
+            hangers += 1;
+            if (type === 'top_sush_1d' || type === 'top_sush_2d') {
+                sush = 1;
+                const n = type === 'top_sush_1d' ? 1 : 2;
+                doors(n, h - gap); hinges += getHingesForDoor(heightMm) * n; handles += n;
+            } else if (type.includes('1d')) {
+                if (type.includes('p1_')) parts.push([1, w - dspT, d - 0.02, 'Полка']);
+                if (type.includes('p2_')) parts.push([2, w - dspT, d - 0.02, 'Полка']);
+                doors(1, h - gap); hinges += getHingesForDoor(heightMm); handles += 1;
+            } else if (type.includes('2d')) {
+                if (type.includes('p1_')) parts.push([1, w - dspT, d - 0.02, 'Полка']);
+                if (type.includes('p2_')) parts.push([2, w - dspT, d - 0.02, 'Полка']);
+                doors(2, h - gap); hinges += getHingesForDoor(heightMm) * 2; handles += 2;
+            } else if (type === 'top_lift_3') {
+                parts.push([2, w - dspT, d - 0.02, 'Полка']);
+                stacked(3); lifts += 6; handles += 3;
+            }
         }
     }
 
-    // Конфирматы: 2 на каждую деталь корпуса
-    let confirmats = 0;
-    parts.forEach(p => { confirmats += 2 * p[0]; });
+    // Конфирматы: явное значение приоритетнее «2 × деталей»
+    let confirmats = exactConfirmats !== null ? exactConfirmats : 0;
+    if (exactConfirmats === null) {
+        parts.forEach(p => { confirmats += 2 * p[0]; });
+    }
 
     let dspArea = 0, edgeBody = 0, edgeFacade = 0, partCount = 0;
-    parts.forEach(p => {
-        dspArea += p[0] * (p[1] * p[2]);
-        edgeBody += p[0] * edgeOf(p[1], p[2]);
-        partCount += p[0];
-    });
+    parts.forEach(p => { dspArea += p[0] * (p[1] * p[2]); edgeBody += p[0] * edgeOf(p[1], p[2]); partCount += p[0]; });
     let facadeArea = 0;
-    facades.forEach(f => {
-        facadeArea += f[0] * f[1];
-        edgeFacade += edgeOf(f[0], f[1]);
-    });
+    facades.forEach(f => { facadeArea += f[0] * f[1]; edgeFacade += edgeOf(f[0], f[1]); });
 
     const isCorner = isCornerType(type);
     const isBottom = isCorner ? isCornerBaseType(type) : (type.startsWith('bottom_') || type.startsWith('penal_'));
@@ -1605,13 +942,11 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         facade: facadeArea, partCount,
         hinges, slides, cargo, sush, sink, legs, lifts, hangers, handles, confirmats,
         cutOven, cutSink,
+        shelfPins, shkants, glueDotsKg,  // НОВЫЕ поля
         isBottom, isCorner, parts, facades
     };
 }
 
-// =================================================================
-// ДОБАВЛЕНИЕ / УДАЛЕНИЕ МОДУЛЕЙ
-// =================================================================
 function addModule() {
     const ts = document.getElementById('moduleTypeInput');
     const type = ts.value, name = ts.options[ts.selectedIndex].text;
@@ -1622,57 +957,41 @@ function addModule() {
     const h = parseInt(document.getElementById('moduleHeightInput').value) || 720;
     const d = parseInt(document.getElementById('moduleDepthInput').value) || 530;
     const id = crypto.randomUUID ? crypto.randomUUID() : ('m-' + Date.now() + Math.random().toString(36).slice(2));
-
     if (isCornerType(type)) {
-        // Один угловой на ряд и уровень — заменяет предыдущий
-        projectModules = projectModules.filter(m =>
-            !(m.run === run && isCornerType(m.type) && (isCornerTopType(m.type) === isCornerTopType(type))));
+        projectModules = projectModules.filter(m => !(m.run === run && isCornerType(m.type) && (isCornerTopType(m.type) === isCornerTopType(type))));
         projectModules.unshift({ id, run, type, name, width: w, height: h, depth: d });
     } else {
         projectModules.push({ id, run, type, name, width: w, height: h, depth: d });
     }
-    renderModulesTable();
-    calculateProject();
+    renderModulesTable(); calculateProject();
 }
 
-function removeModule(id) {
-    projectModules = projectModules.filter(m => m.id !== id);
-    renderModulesTable();
-    calculateProject();
-}
+function removeModule(id) { projectModules = projectModules.filter(m => m.id !== id); renderModulesTable(); calculateProject(); }
 
 function updateCornerType(id, newType) {
-    const m = projectModules.find(x => x.id === id);
-    if (!m) return;
-    m.type = newType;
-    m.name = CORNER_NAMES[newType] || m.name;
-    if (newType === 'corner_base_90' || newType === 'corner_base_45') { m.width = 900; m.depth = 530; }
+    const m = projectModules.find(x => x.id === id); if (!m) return;
+    m.type = newType; m.name = CORNER_NAMES[newType] || m.name;
+    // ИЗМЕНЕНО: 90° → D=900
+    if (newType === 'corner_base_90') { m.width = 900; m.depth = 900; }
+    else if (newType === 'corner_base_45') { m.width = 900; m.depth = 530; }
     else if (newType === 'corner_base_v1050') { m.width = 1050; m.depth = 530; }
     else if (newType === 'corner_top_90' || newType === 'corner_top_45') { m.width = 600; m.depth = 320; }
     else if (newType === 'corner_top_v700') { m.width = 700; m.depth = 320; }
-    renderModulesTable();
-    calculateProject();
+    renderModulesTable(); calculateProject();
 }
 
 function renderModulesTable() {
-    const tb = document.getElementById('modulesTableBody');
-    if (!tb) return;
+    const tb = document.getElementById('modulesTableBody'); if (!tb) return;
     tb.innerHTML = '';
     const rowIds = { A: [], B: [], C: [] };
     projectModules.forEach(x => { if (rowIds[x.run]) rowIds[x.run].push(x.id); });
     projectModules.forEach((m, idx) => {
         const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
-        const ids = rowIds[m.run] || [];
-        const pos = ids.indexOf(m.id);
+        const ids = rowIds[m.run] || []; const pos = ids.indexOf(m.id);
         const isCorner = isCornerType(m.type);
         const tr = document.createElement('tr');
         const cfgCell = isCorner
-            ? `<span class="corner-badge">Угловой</span>
-               <select class="corner-type-select" onchange="updateCornerType('${m.id}', this.value)">
-                 ${(isCornerBaseType(m.type) ? CORNER_BASE_TYPES : CORNER_TOP_TYPES).map(t =>
-                     `<option value="${t}" ${t === m.type ? 'selected' : ''}>${CORNER_NAMES[t]}</option>`
-                 ).join('')}
-               </select>`
+            ? `<span class="corner-badge">Угловой</span> <select class="corner-type-select" onchange="updateCornerType('${m.id}', this.value)">${(isCornerBaseType(m.type) ? CORNER_BASE_TYPES : CORNER_TOP_TYPES).map(t => `<option value="${t}" ${t === m.type ? 'selected' : ''}>${CORNER_NAMES[t]}</option>`).join('')}</select>`
             : escapeHtml(m.name);
         tr.innerHTML = `
             <td style="font-weight:bold; color:#5c1724;">№${idx + 1}</td>
@@ -1692,189 +1011,104 @@ function renderModulesTable() {
 }
 
 // =================================================================
-// БЛОК ФУРНИТУРЫ С РАЗБИЕНИЕМ
+// ФУРНИТУРА
 // =================================================================
 let lastRecommended = {};
 let hardwareRendered = false;
 
 function renderHardware(force = false) {
-    const box = document.getElementById('hardwareContainer');
-    if (!box) return;
+    const box = document.getElementById('hardwareContainer'); if (!box) return;
     if (hardwareRendered && !force) { updateHardwareLabels(); return; }
     hardwareRendered = true;
     box.innerHTML = '';
 
     HW_CATEGORIES.forEach(cat => {
         const state = HW_STATE[cat.id];
-        const row = document.createElement('div');
-        row.className = 'hardware-row';
-        row.id = 'hwrow-' + cat.id;
-        const head = document.createElement('div');
-        head.style.cssText = 'display:flex; align-items:center; gap:10px; flex:1 1 100%; flex-wrap:wrap;';
-        head.innerHTML = `<span class="hardware-label">${cat.label}</span>
-                          <span id="hwrec-${cat.id}" style="font-size:0.78rem; color:#64748b;">Рекомендуется: —</span>`;
-        const tog = document.createElement('button');
-        tog.type = 'button';
-        tog.className = 'split-toggle';
-        tog.textContent = state.split ? 'Свернуть' : 'Разбить';
+        const row = document.createElement('div'); row.className = 'hardware-row'; row.id = 'hwrow-' + cat.id;
+        const head = document.createElement('div'); head.style.cssText = 'display:flex; align-items:center; gap:10px; flex:1 1 100%; flex-wrap:wrap;';
+        head.innerHTML = `<span class="hardware-label">${cat.label}</span><span id="hwrec-${cat.id}" style="font-size:0.78rem; color:#64748b;">Рекомендуется: —</span>`;
+        const tog = document.createElement('button'); tog.type = 'button'; tog.className = 'split-toggle'; tog.textContent = state.split ? 'Свернуть' : 'Разбить';
         tog.onclick = () => {
             state.split = !state.split;
             if (!state.split) state.rows = [{ selectIdx: '', customName: '', qtyManual: '', price: '' }];
-            renderHardware(true);
-            calculateProject();
+            renderHardware(true); calculateProject();
         };
-        head.appendChild(tog);
-        row.appendChild(head);
+        head.appendChild(tog); row.appendChild(head);
 
         if (!state.split) {
-            // Одна позиция — рендерим только при force, чтобы не терять фокус
             if (force) {
-                const pi = document.createElement('input');
-                pi.type = 'number';
-                pi.className = 'hardware-price-input';
-                pi.placeholder = 'цена';
-                pi.id = 'hwprice-' + cat.id;
+                const pi = document.createElement('input'); pi.type = 'number'; pi.className = 'hardware-price-input'; pi.placeholder = 'цена'; pi.id = 'hwprice-' + cat.id;
                 pi.value = state.rows[0].price || '';
                 pi.oninput = () => { state.rows[0].price = pi.value; calculateProject(); };
                 row.appendChild(pi);
-
-                const sel = document.createElement('select');
-                sel.className = 'hardware-select';
-                sel.id = 'hwsel-' + cat.id;
-                sel.innerHTML = '<option value="">— из прайса —</option>' +
-                    (DATA_STORE[cat.source] || []).map((it, idx) =>
-                        `<option value="${idx}" ${state.rows[0].selectIdx == idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`
-                    ).join('');
-                sel.onchange = () => {
-                    state.rows[0].selectIdx = sel.value;
-                    const items = DATA_STORE[cat.source] || [];
-                    if (sel.value !== '' && items[sel.value]) {
-                        state.rows[0].price = items[sel.value].price;
-                        pi.value = items[sel.value].price;
-                    }
-                    calculateProject();
-                };
-                row.appendChild(sel);
+                // ИЗМЕНЕНО: селект только если есть источник в прайсе
+                if (cat.source) {
+                    const sel = document.createElement('select'); sel.className = 'hardware-select'; sel.id = 'hwsel-' + cat.id;
+                    sel.innerHTML = '<option value="">— из прайса —</option>' + (DATA_STORE[cat.source] || []).map((it, idx) => `<option value="${idx}" ${state.rows[0].selectIdx == idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                    sel.onchange = () => {
+                        state.rows[0].selectIdx = sel.value;
+                        const items = DATA_STORE[cat.source] || [];
+                        if (sel.value !== '' && items[sel.value]) { state.rows[0].price = items[sel.value].price; pi.value = items[sel.value].price; }
+                        calculateProject();
+                    };
+                    row.appendChild(sel);
+                }
             }
         } else {
-            // Разбито на несколько позиций
-            const block = document.createElement('div');
-            block.className = 'split-block';
-            block.id = 'hwsplit-' + cat.id;
+            const block = document.createElement('div'); block.className = 'split-block'; block.id = 'hwsplit-' + cat.id;
             state.rows.forEach((r, ri) => {
-                const srow = document.createElement('div');
-                srow.className = 'split-row';
-                const sel = document.createElement('select');
-                sel.className = 'split-select';
-                sel.id = `hwsplit-sel-${cat.id}-${ri}`;
-                sel.innerHTML = '<option value="">— своя подпись —</option>' +
-                    (DATA_STORE[cat.source] || []).map((it, idx) =>
-                        `<option value="${idx}" ${r.selectIdx !== '' && Number(r.selectIdx) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`
-                    ).join('');
-                sel.onchange = () => {
-                    r.selectIdx = sel.value;
-                    const items = DATA_STORE[cat.source] || [];
-                    if (sel.value !== '' && items[sel.value]) r.price = items[sel.value].price;
-                    const pi = document.getElementById(`hwsplit-price-${cat.id}-${ri}`);
-                    if (pi) pi.value = r.price;
-                    calculateProject();
-                };
-                srow.appendChild(sel);
-
-                const ni = document.createElement('input');
-                ni.type = 'text';
-                ni.placeholder = 'название';
-                ni.style.cssText = 'flex:2; min-width:120px;';
-                ni.value = r.customName;
-                ni.id = `hwsplit-name-${cat.id}-${ri}`;
-                ni.oninput = () => { r.customName = ni.value; };
-                srow.appendChild(ni);
-
-                const rs = document.createElement('span');
-                rs.className = 'split-rec';
-                rs.id = `hwsplit-rec-${cat.id}-${ri}`;
-                rs.textContent = 'реком. —';
-                srow.appendChild(rs);
-
-                const qi = document.createElement('input');
-                qi.type = 'number';
-                qi.className = 'split-qty';
-                qi.placeholder = 'кол-во';
-                qi.min = 0;
-                qi.value = r.qtyManual;
-                qi.id = `hwsplit-qty-${cat.id}-${ri}`;
-                qi.oninput = () => { r.qtyManual = qi.value; calculateProject(); };
-                srow.appendChild(qi);
-
-                const pi = document.createElement('input');
-                pi.type = 'number';
-                pi.className = 'split-price';
-                pi.placeholder = 'цена';
-                pi.value = r.price;
-                pi.id = `hwsplit-price-${cat.id}-${ri}`;
-                pi.oninput = () => { r.price = pi.value; calculateProject(); };
-                srow.appendChild(pi);
-
-                const del = document.createElement('button');
-                del.type = 'button';
-                del.className = 'btn btn-danger btn-mini';
-                del.textContent = '✕';
-                del.onclick = () => {
-                    state.rows.splice(ri, 1);
-                    if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' });
-                    renderHardware(true);
-                    calculateProject();
-                };
-                srow.appendChild(del);
-                block.appendChild(srow);
+                const srow = document.createElement('div'); srow.className = 'split-row';
+                // ИЗМЕНЕНО: селект только если есть прайс
+                if (cat.source) {
+                    const sel = document.createElement('select'); sel.className = 'split-select'; sel.id = `hwsplit-sel-${cat.id}-${ri}`;
+                    sel.innerHTML = '<option value="">— своя —</option>' + (DATA_STORE[cat.source] || []).map((it, idx) => `<option value="${idx}" ${r.selectIdx !== '' && Number(r.selectIdx) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                    sel.onchange = () => {
+                        r.selectIdx = sel.value;
+                        const items2 = DATA_STORE[cat.source] || [];
+                        if (sel.value !== '' && items2[sel.value]) r.price = items2[sel.value].price;
+                        const pi = document.getElementById(`hwsplit-price-${cat.id}-${ri}`); if (pi) pi.value = r.price;
+                        calculateProject();
+                    };
+                    srow.appendChild(sel);
+                }
+                const ni = document.createElement('input'); ni.type = 'text'; ni.placeholder = 'название'; ni.style.cssText = 'flex:2; min-width:120px;';
+                ni.value = r.customName; ni.id = `hwsplit-name-${cat.id}-${ri}`; ni.oninput = () => { r.customName = ni.value; }; srow.appendChild(ni);
+                const rs = document.createElement('span'); rs.className = 'split-rec'; rs.id = `hwsplit-rec-${cat.id}-${ri}`; rs.textContent = 'реком. —'; srow.appendChild(rs);
+                const qi = document.createElement('input'); qi.type = 'number'; qi.className = 'split-qty'; qi.placeholder = 'кол-во'; qi.min = 0; qi.value = r.qtyManual; qi.id = `hwsplit-qty-${cat.id}-${ri}`;
+                qi.oninput = () => { r.qtyManual = qi.value; calculateProject(); }; srow.appendChild(qi);
+                const pi = document.createElement('input'); pi.type = 'number'; pi.className = 'split-price'; pi.placeholder = 'цена'; pi.value = r.price; pi.id = `hwsplit-price-${cat.id}-${ri}`;
+                pi.oninput = () => { r.price = pi.value; calculateProject(); }; srow.appendChild(pi);
+                const del = document.createElement('button'); del.type = 'button'; del.className = 'btn btn-danger btn-mini'; del.textContent = '✕';
+                del.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); calculateProject(); };
+                srow.appendChild(del); block.appendChild(srow);
             });
-            const addBtn = document.createElement('button');
-            addBtn.type = 'button';
-            addBtn.className = 'btn btn-secondary btn-mini';
-            addBtn.textContent = '+ строка';
-            addBtn.onclick = () => {
-                state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' });
-                renderHardware(true);
-            };
+            const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.className = 'btn btn-secondary btn-mini'; addBtn.textContent = '+ строка';
+            addBtn.onclick = () => { state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); };
             block.appendChild(addBtn);
-            const tot = document.createElement('div');
-            tot.className = 'split-total';
-            tot.id = 'hwsplit-total-' + cat.id;
-            block.appendChild(tot);
+            const tot = document.createElement('div'); tot.className = 'split-total'; tot.id = 'hwsplit-total-' + cat.id; block.appendChild(tot);
             row.appendChild(block);
         }
         box.appendChild(row);
     });
 
-    // ===== Дополнительные поля (крепёж, коэффициенты, поклейка) =====
     const extra = document.createElement('div');
     extra.style.cssText = 'margin-top:12px; padding-top:12px; border-top:2px dashed #cbd5e1;';
     extra.innerHTML = '<div style="font-weight:700;color:#475569;margin-bottom:8px;">Крепёж, присадка и коэффициенты</div>';
-
-    // Селектор поклейки кромки
-    const glueRow = document.createElement('div');
-    glueRow.className = 'hardware-row';
+    const glueRow = document.createElement('div'); glueRow.className = 'hardware-row';
     glueRow.innerHTML = '<span class="hardware-label">Поклейка кромки (из прайса)</span>';
-    const glueSel = document.createElement('select');
-    glueSel.className = 'hardware-select';
-    glueSel.id = 'edgeGlueSelect';
-    glueSel.onchange = onEdgeGlueSelectChange;
-    const gluePrice = document.createElement('input');
-    gluePrice.type = 'number';
-    gluePrice.className = 'hardware-price-input';
-    gluePrice.id = 'edgeGluePrice';
-    gluePrice.value = 0;
+    const glueSel = document.createElement('select'); glueSel.className = 'hardware-select'; glueSel.id = 'edgeGlueSelect'; glueSel.onchange = onEdgeGlueSelectChange;
+    const gluePrice = document.createElement('input'); gluePrice.type = 'number'; gluePrice.className = 'hardware-price-input'; gluePrice.id = 'edgeGluePrice'; gluePrice.value = 0;
     gluePrice.oninput = () => calculateProject();
-    glueRow.appendChild(glueSel);
-    glueRow.appendChild(gluePrice);
-    extra.appendChild(glueRow);
+    glueRow.appendChild(glueSel); glueRow.appendChild(gluePrice); extra.appendChild(glueRow);
     updateEdgeGlueSelect();
 
-    // Стандартные поля цен
+    // НОВЫЕ поля: glueDotsPrice, shkantPrice
     const fields = [
         { l: 'Цена конфирматов (руб/шт)', id: 'confirmatPrice', d: 1.5 },
         { l: 'Цена шурупов (руб/шт)', id: 'screwPrice', d: 0.5 },
         { l: 'Цена дюбелей (руб/шт)', id: 'dowelPrice', d: 2 },
+        { l: 'Цена гвоздей мебельных (руб/кг)', id: 'glueDotsPrice', d: 250 },
+        { l: 'Цена шкантов (руб/шт)', id: 'shkantPrice', d: 1 },
         { l: 'Присадка d-35 (руб/отв)', id: 'hingeD35Price', d: 15 },
         { l: 'Присадка «Трипан» (руб/отв)', id: 'tripanPrice', d: 5.04 },
         { l: 'Вырез под технику (руб/шт)', id: 'cutOvenPrice', d: 270 },
@@ -1889,25 +1123,14 @@ function renderHardware(force = false) {
         { l: 'Наценка (%)', id: 'marginPercent', d: 30 }
     ];
     fields.forEach(f => {
-        const r = document.createElement('div');
-        r.className = 'hardware-row';
+        const r = document.createElement('div'); r.className = 'hardware-row';
         r.innerHTML = `<span class="hardware-label">${f.l}</span>`;
-        const inp = document.createElement('input');
-        inp.type = 'number';
-        inp.className = 'hardware-price-input';
-        inp.id = f.id;
-        inp.value = f.d;
+        const inp = document.createElement('input'); inp.type = 'number'; inp.className = 'hardware-price-input'; inp.id = f.id; inp.value = f.d;
         inp.oninput = () => calculateProject();
-        r.appendChild(inp);
-        extra.appendChild(r);
+        r.appendChild(inp); extra.appendChild(r);
     });
-
-    const srvBox = document.createElement('div');
-    srvBox.className = 'services-summary';
-    srvBox.id = 'servicesSummary';
-    extra.appendChild(srvBox);
+    const srvBox = document.createElement('div'); srvBox.className = 'services-summary'; srvBox.id = 'servicesSummary'; extra.appendChild(srvBox);
     box.appendChild(extra);
-
     updateHardwareLabels();
 }
 
@@ -1923,10 +1146,7 @@ function updateHardwareLabels() {
                 if (rs) rs.textContent = `реком. ${rec}`;
             });
             const tot = document.getElementById('hwsplit-total-' + cat.id);
-            if (tot) {
-                const t = computeCategoryTotal(cat.id);
-                tot.innerHTML = `<span>Итого:</span><strong>${t.qty} ${cat.unit} / ${Math.round(t.sum).toLocaleString('ru-RU')} ₽</strong>`;
-            }
+            if (tot) { const t = computeCategoryTotal(cat.id); tot.innerHTML = `<span>Итого:</span><strong>${t.qty} ${cat.unit} / ${Math.round(t.sum).toLocaleString('ru-RU')} ₽</strong>`; }
         }
     });
     updateServicesSummary();
@@ -1934,23 +1154,20 @@ function updateHardwareLabels() {
 
 function updateSplitSelects() {
     HW_CATEGORIES.forEach(cat => {
+        if (!cat.source) return; // НОВОЕ: пропускаем категории без прайса
         const state = HW_STATE[cat.id];
         if (!state.split) {
             const sel = document.getElementById('hwsel-' + cat.id);
             if (sel) {
-                const items = DATA_STORE[cat.source] || [];
-                const cur = state.rows[0].selectIdx;
-                sel.innerHTML = '<option value="">— из прайса —</option>' +
-                    items.map((it, idx) => `<option value="${idx}" ${cur !== '' && Number(cur) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                const items = DATA_STORE[cat.source] || []; const cur = state.rows[0].selectIdx;
+                sel.innerHTML = '<option value="">— из прайса —</option>' + items.map((it, idx) => `<option value="${idx}" ${cur !== '' && Number(cur) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
             }
         } else {
             state.rows.forEach((r, ri) => {
                 const sel = document.getElementById(`hwsplit-sel-${cat.id}-${ri}`);
                 if (sel) {
-                    const items = DATA_STORE[cat.source] || [];
-                    const cur = r.selectIdx;
-                    sel.innerHTML = '<option value="">— своя —</option>' +
-                        items.map((it, idx) => `<option value="${idx}" ${cur !== '' && Number(cur) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
+                    const items = DATA_STORE[cat.source] || []; const cur = r.selectIdx;
+                    sel.innerHTML = '<option value="">— своя —</option>' + items.map((it, idx) => `<option value="${idx}" ${cur !== '' && Number(cur) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
                 }
             });
         }
@@ -1958,10 +1175,8 @@ function updateSplitSelects() {
 }
 
 function computeCategoryTotal(catId) {
-    const cat = HW_CATEGORIES.find(c => c.id === catId);
-    if (!cat) return { qty: 0, sum: 0 };
-    const state = HW_STATE[catId];
-    const rec = lastRecommended[catId] || 0;
+    const cat = HW_CATEGORIES.find(c => c.id === catId); if (!cat) return { qty: 0, sum: 0 };
+    const state = HW_STATE[catId]; const rec = lastRecommended[catId] || 0;
     let qty = 0, sum = 0;
     if (!state.split) {
         const p = safeNum((state.rows[0] || {}).price);
@@ -1979,8 +1194,7 @@ function computeCategoryTotal(catId) {
 // =================================================================
 // РАСЧЁТ ПРОЕКТА
 // =================================================================
-let lastCalc = null;
-let lastServices = null;
+let lastCalc = null, lastServices = null;
 
 function calculateProject() {
     let bottomDspArea = 0, topDspArea = 0, bottomFacadeArea = 0, topFacadeArea = 0;
@@ -1989,6 +1203,9 @@ function calculateProject() {
     let totalHinges = 0, totalSlides = 0, totalCargo = 0, totalSush = 0, totalSink = 0;
     let totalLegs = 0, totalLifts = 0, totalHangers = 0, totalHandles = 0, totalConfirmats = 0;
     let totalMountRailMeters = 0, totalCutOven = 0, totalCutSink = 0;
+    // НОВЫЕ накопители:
+    let totalShelfPins = 0, totalShkants = 0, totalGlueDotsKg = 0;
+
     const runLength = { A: 0, B: 0, C: 0 };
     const runTopLength = { A: 0, B: 0, C: 0 };
     const cornerDepth = { B: 0, C: 0 };
@@ -1997,58 +1214,33 @@ function calculateProject() {
         const calc = getModuleCalculations(m.type, m.width, m.height, m.depth);
         if (calc.isBottom) { bottomDspArea += calc.dsp; bottomFacadeArea += calc.facade; }
         else { topDspArea += calc.dsp; topFacadeArea += calc.facade; }
-        totalDvpArea += calc.dvp;
-        totalGrooveLength += calc.groove;
-        totalEdgeLength += calc.edge;
-        if (calc.isBottom) {
-            bottomBodyEdge += calc.edgeBody;
-            bottomFacadeEdge += calc.edgeFacade;
-        } else {
-            topBodyEdge += calc.edgeBody;
-            topFacadeEdge += calc.edgeFacade;
-        }
-        totalHinges += calc.hinges;
-        totalSlides += calc.slides;
-        totalCargo += calc.cargo;
-        totalSush += calc.sush;
-        totalSink += calc.sink;
-        totalLegs += calc.legs;
-        totalLifts += calc.lifts;
-        totalHangers += calc.hangers;
-        totalHandles += calc.handles;
+        totalDvpArea += calc.dvp; totalGrooveLength += calc.groove; totalEdgeLength += calc.edge;
+        if (calc.isBottom) { bottomBodyEdge += calc.edgeBody; bottomFacadeEdge += calc.edgeFacade; }
+        else { topBodyEdge += calc.edgeBody; topFacadeEdge += calc.edgeFacade; }
+        totalHinges += calc.hinges; totalSlides += calc.slides; totalCargo += calc.cargo;
+        totalSush += calc.sush; totalSink += calc.sink; totalLegs += calc.legs;
+        totalLifts += calc.lifts; totalHangers += calc.hangers; totalHandles += calc.handles;
         totalConfirmats += (calc.confirmats || 0);
-        totalCutOven += calc.cutOven;
-        totalCutSink += calc.cutSink;
+        totalCutOven += calc.cutOven; totalCutSink += calc.cutSink;
+        // НОВОЕ:
+        totalShelfPins += (calc.shelfPins || 0);
+        totalShkants += (calc.shkants || 0);
+        totalGlueDotsKg += (calc.glueDotsKg || 0);
 
         if (runLength[m.run] !== undefined) runLength[m.run] += m.width;
-
-        // Для 90° и 45° вычитаем глубину из общей длины столешницы
-        if ((m.type === 'corner_base_90' || m.type === 'corner_base_45') && calc.isBottom) {
-            cornerDepth[m.run] = m.depth / 1000;
-        }
-
-        if (isCountertopModule(m) && runTopLength[m.run] !== undefined) {
-            runTopLength[m.run] += m.width / 1000;
-        }
-        if (m.type.startsWith('top_') && m.type !== 'top_falsh') {
-            totalMountRailMeters += m.width / 1000;
-        }
+        if ((m.type === 'corner_base_90' || m.type === 'corner_base_45') && calc.isBottom) cornerDepth[m.run] = m.depth / 1000;
+        if (isCountertopModule(m) && runTopLength[m.run] !== undefined) runTopLength[m.run] += m.width / 1000;
+        if (m.type.startsWith('top_') && m.type !== 'top_falsh') totalMountRailMeters += m.width / 1000;
     });
 
     let totalTopLength = runTopLength.A + runTopLength.B + runTopLength.C - (cornerDepth.B + cornerDepth.C);
-
     const edgeK = getEdgeAllowance();
     let plinthArea = 0, plinthEdgeTotal = 0;
     ['A','B','C'].forEach(r => {
         const w = projectModules.filter(m => m.run === r && isCountertopModule(m)).reduce((s, m) => s + m.width, 0);
-        if (w > 0) {
-            plinthArea += (w / 1000) * 0.10;
-            plinthEdgeTotal += 2 * ((w/1000 + edgeK) + (0.10 + edgeK));
-        }
+        if (w > 0) { plinthArea += (w / 1000) * 0.10; plinthEdgeTotal += 2 * ((w/1000 + edgeK) + (0.10 + edgeK)); }
     });
-    bottomFacadeArea += plinthArea;
-    totalEdgeLength += plinthEdgeTotal;
-    bottomFacadeEdge += plinthEdgeTotal;
+    bottomFacadeArea += plinthArea; totalEdgeLength += plinthEdgeTotal; bottomFacadeEdge += plinthEdgeTotal;
 
     const totalBoardArea = bottomDspArea + topDspArea + bottomFacadeArea + topFacadeArea + totalDvpArea;
     const sawPerM2 = safeNum(document.getElementById('sawPerM2')) || 7.0;
@@ -2056,21 +1248,18 @@ function calculateProject() {
     const wasteK = 1 + (safeNum(document.getElementById('wastePercent')) || 20) / 100.0;
     const mountRailPcs = Math.ceil(totalMountRailMeters / 2.0);
     const dowelsCount = mountRailPcs * 5;
-
     const grooveUnitPrice = safeNum(document.getElementById('groovePrice')) || 30;
-    const grooveCost = totalGrooveLength > 0 && totalGrooveLength <= 1.0
-        ? grooveUnitPrice
-        : totalGrooveLength * grooveUnitPrice;
+    const grooveCost = totalGrooveLength > 0 && totalGrooveLength <= 1.0 ? grooveUnitPrice : totalGrooveLength * grooveUnitPrice;
 
     // Рекомендуемые количества
     lastRecommended = {
         hinges: totalHinges, slides: totalSlides, cargo: totalCargo, sush: totalSush,
         sink: totalSink, legs: totalLegs, lifts: totalLifts, handles: totalHandles,
-        hangers: totalHangers, mountRail: mountRailPcs
+        hangers: totalHangers, mountRail: mountRailPcs,
+        shelfPins: totalShelfPins  // НОВОЕ
     };
     updateHardwareLabels();
 
-    // Вывод расходников
     const withWaste = a => `${a.toFixed(2)} м² (${(a * wasteK).toFixed(2)})`;
     document.getElementById('bottomDspAreaDisplay').innerText = withWaste(bottomDspArea);
     document.getElementById('topDspAreaDisplay').innerText = withWaste(topDspArea);
@@ -2081,8 +1270,7 @@ function calculateProject() {
     document.getElementById('totalSawingLength').innerText = totalSawingLength.toFixed(2) + " пог.м";
     document.getElementById('totalEdgeLength').innerText = totalEdgeLength.toFixed(2) + " пог.м";
     document.getElementById('totalTopLength').innerText = Math.max(0, totalTopLength).toFixed(2) + " пог.м";
-    document.getElementById('runsLengthDisplay').innerText =
-        `${(runLength.A/1000).toFixed(2)}/${(runLength.B/1000).toFixed(2)}/${(runLength.C/1000).toFixed(2)}`;
+    document.getElementById('runsLengthDisplay').innerText = `${(runLength.A/1000).toFixed(2)}/${(runLength.B/1000).toFixed(2)}/${(runLength.C/1000).toFixed(2)}`;
 
     // Цены
     const bB = safeNum(document.getElementById('bottomBodySelect'));
@@ -2095,6 +1283,8 @@ function calculateProject() {
     const confP = safeNum(document.getElementById('confirmatPrice'));
     const scrP = safeNum(document.getElementById('screwPrice'));
     const dowP = safeNum(document.getElementById('dowelPrice'));
+    const glueDotsP = safeNum(document.getElementById('glueDotsPrice'));
+    const shkantP = safeNum(document.getElementById('shkantPrice'));
     const d35P = safeNum(document.getElementById('hingeD35Price'));
     const triP = safeNum(document.getElementById('tripanPrice'));
     const cutOP = safeNum(document.getElementById('cutOvenPrice'));
@@ -2109,13 +1299,9 @@ function calculateProject() {
     const sawingCost = totalSawingLength * sawP;
     const edgeP = id => safeNum(document.getElementById(id));
     const edgeGlueCost = totalEdgeLength * glueP;
-    const edgeCost = bottomBodyEdge * edgeP('bottomBodyEdgeSelect')
-        + bottomFacadeEdge * edgeP('bottomFacadeEdgeSelect')
-        + topBodyEdge * edgeP('topBodyEdgeSelect')
-        + topFacadeEdge * edgeP('topFacadeEdgeSelect');
+    const edgeCost = bottomBodyEdge * edgeP('bottomBodyEdgeSelect') + bottomFacadeEdge * edgeP('bottomFacadeEdgeSelect') + topBodyEdge * edgeP('topBodyEdgeSelect') + topFacadeEdge * edgeP('topFacadeEdgeSelect');
     const topCost = Math.max(0, totalTopLength) * tP;
 
-    // Фурнитура по категориям
     const hwTotals = {};
     HW_CATEGORIES.forEach(cat => { hwTotals[cat.id] = computeCategoryTotal(cat.id); });
     const hingesCost = hwTotals.hinges.sum;
@@ -2128,14 +1314,9 @@ function calculateProject() {
     const handlesCost = hwTotals.handles.sum;
     const hangersCost = hwTotals.hangers.sum;
     const mountRailCost = hwTotals.mountRail.sum;
+    const shelfPinsCost = hwTotals.shelfPins.sum;  // НОВОЕ
 
-    // Крепёж: 4 шурупа на механизм, трипан = шурупы + 2×конфирматы
-    const aH = hwTotals.hinges.qty;
-    const aSl = hwTotals.slides.qty;
-    const aC = hwTotals.cargo.qty;
-    const aL = hwTotals.legs.qty;
-    const aLf = hwTotals.lifts.qty;
-    const aHg = hwTotals.hangers.qty;
+    const aH = hwTotals.hinges.qty, aSl = hwTotals.slides.qty, aC = hwTotals.cargo.qty, aL = hwTotals.legs.qty, aLf = hwTotals.lifts.qty, aHg = hwTotals.hangers.qty;
     const totalScrews = 4 * (aH + aSl + aLf + aC + aL + aHg);
     const totalTripanHoles = totalScrews + 2 * totalConfirmats;
 
@@ -2146,20 +1327,19 @@ function calculateProject() {
     const triCost = totalTripanHoles * triP;
     const cutOCost = totalCutOven * cutOP;
     const cutSCost = totalCutSink * cutSP;
+    // НОВОЕ:
+    const glueDotsCost = totalGlueDotsKg * glueDotsP;
+    const shkantCost = totalShkants * shkantP;
 
-    // Итог
-    const net = dspCost + facadeCost + dvpCost + grooveCost + sawingCost
-        + edgeCost + edgeGlueCost + topCost
-        + hingesCost + slidesCost + cargoCost + sushCost + sinkCost
-        + legsCost + liftsCost + handlesCost + hangersCost + mountRailCost
-        + confCost + scrCost + dowCost + d35Cost + triCost
-        + cutOCost + cutSCost + extraC;
+    const net = dspCost + facadeCost + dvpCost + grooveCost + sawingCost + edgeCost + edgeGlueCost + topCost +
+        hingesCost + slidesCost + cargoCost + sushCost + sinkCost + legsCost + liftsCost +
+        handlesCost + hangersCost + mountRailCost + shelfPinsCost +
+        confCost + scrCost + dowCost + d35Cost + triCost + cutOCost + cutSCost + glueDotsCost + shkantCost + extraC;
     const safeNet = isFinite(net) ? net : 0;
     const final = safeNet * (1 + margin / 100);
     const safeFinal = isFinite(final) ? final : 0;
     document.getElementById('totalPriceDisplay').innerText = Math.round(safeFinal).toLocaleString('ru-RU') + " ₽";
 
-    // Услуги
     lastServices = [
         { name: 'Распил', qty: totalSawingLength, unit: 'пог.м', price: sawP, sum: sawingCost },
         { name: 'Паз', qty: totalGrooveLength, unit: 'пог.м', price: grooveUnitPrice, sum: grooveCost },
@@ -2171,25 +1351,15 @@ function calculateProject() {
     ].filter(s => s.qty > 0);
     updateServicesSummary();
 
-    // Итоги по блокам
     const matSum = dspCost + facadeCost + dvpCost + edgeCost + topCost;
-    document.getElementById('materialsBlockSummary').innerHTML =
-        `<span>Итого по материалам:</span><span>${Math.round(matSum).toLocaleString('ru-RU')} ₽</span>`;
-    const hwSum = hingesCost + slidesCost + cargoCost + sushCost + sinkCost
-        + legsCost + liftsCost + handlesCost + hangersCost + mountRailCost
-        + confCost + scrCost + dowCost + extraC;
+    document.getElementById('materialsBlockSummary').innerHTML = `<span>Итого по материалам:</span><span>${Math.round(matSum).toLocaleString('ru-RU')} ₽</span>`;
+    const hwSum = hingesCost + slidesCost + cargoCost + sushCost + sinkCost + legsCost + liftsCost + handlesCost + hangersCost + mountRailCost + shelfPinsCost + confCost + scrCost + dowCost + extraC + glueDotsCost + shkantCost;
     document.getElementById('hardwareBlockSummary').style.display = 'flex';
-    document.getElementById('hardwareBlockSummary').innerHTML =
-        `<span>Итого по фурнитуре и крепежу:</span><span>${Math.round(hwSum).toLocaleString('ru-RU')} ₽</span>`;
+    document.getElementById('hardwareBlockSummary').innerHTML = `<span>Итого по фурнитуре и крепежу:</span><span>${Math.round(hwSum).toLocaleString('ru-RU')} ₽</span>`;
 
-    // === Спецификация для КП ===
     const nameOf = sid => {
-        const el = document.getElementById(sid);
-        if (!el) return '';
-        if (el.tagName === 'SELECT') {
-            const o = el.options[el.selectedIndex];
-            return o ? (o.dataset && o.dataset.name ? o.dataset.name : o.textContent) : '';
-        }
+        const el = document.getElementById(sid); if (!el) return '';
+        if (el.tagName === 'SELECT') { const o = el.options[el.selectedIndex]; return o ? (o.dataset && o.dataset.name ? o.dataset.name : o.textContent) : ''; }
         return el.value;
     };
 
@@ -2208,31 +1378,26 @@ function calculateProject() {
 
     const specHw = [];
     HW_CATEGORIES.forEach(cat => {
-        const st = HW_STATE[cat.id];
-        const rec = lastRecommended[cat.id] || 0;
+        const st = HW_STATE[cat.id]; const rec = lastRecommended[cat.id] || 0;
         if (!st.split) {
-            const r = st.rows[0] || {};
-            const p = safeNum(r.price);
+            const r = st.rows[0] || {}; const p = safeNum(r.price);
             if (rec > 0) specHw.push({ name: cat.label, detail: '', qty: rec, unit: cat.unit, price: p, sum: rec * p });
         } else {
             st.rows.forEach(r => {
-                const p = safeNum(r.price);
-                const q = r.qtyManual !== '' ? safeNum(r.qtyManual) : rec;
+                const p = safeNum(r.price); const q = r.qtyManual !== '' ? safeNum(r.qtyManual) : rec;
                 if (q > 0) {
-                    const items = DATA_STORE[cat.source] || [];
-                    const it = r.selectIdx !== '' ? items[Number(r.selectIdx)] : null;
-                    specHw.push({
-                        name: cat.label,
-                        detail: it ? it.name : (r.customName || ''),
-                        qty: q, unit: cat.unit, price: p, sum: q * p
-                    });
+                    const items = cat.source ? (DATA_STORE[cat.source] || []) : [];
+                    const it = r.selectIdx !== '' && items.length ? items[Number(r.selectIdx)] : null;
+                    specHw.push({ name: cat.label, detail: it ? it.name : (r.customName || ''), qty: q, unit: cat.unit, price: p, sum: q * p });
                 }
             });
         }
     });
-    specHw.push({ name: 'Конфирматы', detail: '2 шт. на деталь корпуса', qty: totalConfirmats, unit: 'шт', price: confP, sum: confCost });
-    specHw.push({ name: 'Шурупы', detail: '4 шт. на механизм', qty: totalScrews, unit: 'шт', price: scrP, sum: scrCost });
-    specHw.push({ name: 'Дюбеля', detail: '5 шт. на монтажную планку', qty: dowelsCount, unit: 'шт', price: dowP, sum: dowCost });
+    specHw.push({ name: 'Конфирматы', detail: '', qty: totalConfirmats, unit: 'шт', price: confP, sum: confCost });
+    specHw.push({ name: 'Шурупы', detail: '', qty: totalScrews, unit: 'шт', price: scrP, sum: scrCost });
+    specHw.push({ name: 'Дюбеля', detail: '5 шт. на планку', qty: dowelsCount, unit: 'шт', price: dowP, sum: dowCost });
+    if (totalShkants > 0) specHw.push({ name: 'Шканты', detail: 'по файлу технолога', qty: totalShkants, unit: 'шт', price: shkantP, sum: shkantCost });
+    if (totalGlueDotsKg > 0) specHw.push({ name: 'Гвозди мебельные', detail: 'по файлу технолога', qty: totalGlueDotsKg, unit: 'кг', price: glueDotsP, sum: glueDotsCost });
     specHw.push({ name: 'Расходники', detail: '', qty: 1, unit: 'компл', price: extraC, sum: extraC });
 
     const specWorks = [
@@ -2246,19 +1411,13 @@ function calculateProject() {
     ].filter(x => x.qty > 0);
 
     lastCalc = {
-        date: new Date(),
-        layout: currentLayout(),
+        date: new Date(), layout: currentLayout(),
         net: safeNet, margin, final: safeFinal,
         specMat, specHw, specWorks,
         runs: { A: runLength.A / 1000, B: runLength.B / 1000, C: runLength.C / 1000, topTotal: Math.max(0, totalTopLength) },
         modules: projectModules.map((m, i) => {
             const c = getModuleCalculations(m.type, m.width, m.height, m.depth);
-            return {
-                num: i + 1, run: m.run, name: m.name,
-                w: m.width, h: m.height, d: m.depth,
-                dsp: c.dsp, facade: c.facade, dvp: c.dvp,
-                isCorner: c.isCorner
-            };
+            return { num: i + 1, run: m.run, name: m.name, w: m.width, h: m.height, d: m.depth, dsp: c.dsp, facade: c.facade, dvp: c.dvp, isCorner: c.isCorner };
         })
     };
 
@@ -2267,173 +1426,76 @@ function calculateProject() {
 }
 
 function updateServicesSummary() {
-    const box = document.getElementById('servicesSummary');
-    if (!box) return;
-    if (!lastServices || lastServices.length === 0) {
-        box.innerHTML = '<h4>Услуги</h4><div style="font-size:0.82rem;color:#94a3b8;">— нет —</div>';
-        return;
-    }
-    let html = '<h4>Услуги (количество и сумма)</h4>';
-    let total = 0;
-    lastServices.forEach(s => {
-        total += s.sum;
-        html += `<div class="srv-line"><span>${escapeHtml(s.name)}: <b>${s.qty.toFixed(2)} ${s.unit}</b></span><span>${Math.round(s.sum).toLocaleString('ru-RU')} ₽</span></div>`;
-    });
+    const box = document.getElementById('servicesSummary'); if (!box) return;
+    if (!lastServices || lastServices.length === 0) { box.innerHTML = '<h4>Услуги</h4><div style="font-size:0.82rem;color:#94a3b8;">— нет —</div>'; return; }
+    let html = '<h4>Услуги (количество и сумма)</h4>', total = 0;
+    lastServices.forEach(s => { total += s.sum; html += `<div class="srv-line"><span>${escapeHtml(s.name)}: <b>${s.qty.toFixed(2)} ${s.unit}</b></span><span>${Math.round(s.sum).toLocaleString('ru-RU')} ₽</span></div>`; });
     html += `<div class="srv-total"><span>Итого услуги:</span><span>${Math.round(total).toLocaleString('ru-RU')} ₽</span></div>`;
     box.innerHTML = html;
 }
 
 // =================================================================
-// 2D-ЭСКИЗ
+// 2D
 // =================================================================
-let sketchRaf = null;
-let sketchHits = [];
-let sketchDragId = null;
-let sketchDragRun = null;
-let sketchDragIsTop = false;
+let sketchRaf = null, sketchHits = [], sketchDragId = null, sketchDragRun = null, sketchDragIsTop = false;
 let dragRaf = null;
 
-function scheduleSketch() {
-    if (sketchRaf !== null) return;
-    sketchRaf = requestAnimationFrame(() => { sketchRaf = null; drawKitchen2D(); });
-}
+function scheduleSketch() { if (sketchRaf !== null) return; sketchRaf = requestAnimationFrame(() => { sketchRaf = null; drawKitchen2D(); }); }
 
 function roundRectPath(ctx, x, y, w, h, r) {
     r = Math.min(r, w/2, h/2);
-    ctx.beginPath();
-    ctx.moveTo(x+r, y);
-    ctx.arcTo(x+w, y, x+w, y+h, r);
-    ctx.arcTo(x+w, y+h, x, y+h, r);
-    ctx.arcTo(x, y+h, x, y, r);
-    ctx.arcTo(x, y, x+w, y, r);
-    ctx.closePath();
+    ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
 }
-
 function drawLabel(ctx, x, y, w, h, num, wMm, hMm) {
     const t1 = `№${num}`, t2 = `${wMm}x${hMm}`;
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = 'bold 11px Arial';
-    const w1 = ctx.measureText(t1).width;
-    ctx.font = '10px Arial';
-    const w2 = ctx.measureText(t2).width;
-    const pill = (pw, ph) => {
-        roundRectPath(ctx, -pw/2, -ph/2, pw, ph, 4);
-        ctx.fillStyle = 'rgba(255,255,255,0.95)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(92,23,36,0.45)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-    };
+    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 11px Arial'; const w1 = ctx.measureText(t1).width;
+    ctx.font = '10px Arial'; const w2 = ctx.measureText(t2).width;
+    const pill = (pw, ph) => { roundRectPath(ctx, -pw/2, -ph/2, pw, ph, 4); ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill(); ctx.strokeStyle = 'rgba(92,23,36,0.45)'; ctx.lineWidth = 1; ctx.stroke(); };
     ctx.translate(x + w/2, y + h/2);
     if (w1 + 8 <= w) {
         const showSize = (w2 + 8 <= w) && (h >= 34);
         pill(Math.max(w1, showSize ? w2 : 0) + 8, showSize ? 30 : 17);
-        ctx.fillStyle = '#5c1724';
-        ctx.font = 'bold 11px Arial';
-        ctx.fillText(t1, 0, showSize ? -7 : 0);
-        if (showSize) {
-            ctx.fillStyle = '#1e293b';
-            ctx.font = '10px Arial';
-            ctx.fillText(t2, 0, 7);
-        }
-    } else if (w >= 17 && h >= w1 + 8) {
-        ctx.rotate(-Math.PI/2);
-        pill(w1 + 8, 15);
-        ctx.fillStyle = '#5c1724';
-        ctx.font = 'bold 11px Arial';
-        ctx.fillText(t1, 0, 0);
-    }
+        ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial'; ctx.fillText(t1, 0, showSize ? -7 : 0);
+        if (showSize) { ctx.fillStyle = '#1e293b'; ctx.font = '10px Arial'; ctx.fillText(t2, 0, 7); }
+    } else if (w >= 17 && h >= w1 + 8) { ctx.rotate(-Math.PI/2); pill(w1 + 8, 15); ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial'; ctx.fillText(t1, 0, 0); }
     ctx.restore();
 }
-
 function drawModuleFace(ctx, m, x, y, w, h) {
-    ctx.strokeStyle = '#5c1724';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#5c1724'; ctx.lineWidth = 1.5;
     const isFalsh = m.type.endsWith('falsh');
     const isTop = m.type.startsWith('top_');
     ctx.fillStyle = isFalsh ? '#94a3b8' : (isTop ? '#ffffff' : '#f8fafc');
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeRect(x, y, w, h);
+    ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
     if (isFalsh) return;
-    const pad = 2;
-    const ix = x + pad, iy = y + pad, iw = w - pad * 2, ih = h - pad * 2;
-    const fF = isTop ? '#e2e8f0' : '#cbd5e1';
-    const fS = '#94a3b8';
-    const dr = (rx, ry, rw, rh) => {
-        ctx.fillStyle = fF;
-        ctx.fillRect(rx, ry, rw, rh);
-        ctx.strokeStyle = fS;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(rx, ry, rw, rh);
-    };
-
-    if (m.type === 'bottom_ya2' || m.type === 'bottom_ya2vn') {
-        const h2 = (ih - 2)/2;
-        dr(ix, iy, iw, h2);
-        dr(ix, iy + h2 + 2, iw, h2);
-    } else if (m.type === 'bottom_ya3') {
-        const h3 = (ih - 4)/3;
-        for (let i = 0; i < 3; i++) dr(ix, iy + i*(h3+2), iw, h3);
-    } else if (m.type === 'bottom_oven_drawer' || m.type === 'penal_oven' || m.type === 'penal_oven_mw') {
+    const pad = 2, ix = x + pad, iy = y + pad, iw = w - pad * 2, ih = h - pad * 2;
+    const fF = isTop ? '#e2e8f0' : '#cbd5e1', fS = '#94a3b8';
+    const dr = (rx, ry, rw, rh) => { ctx.fillStyle = fF; ctx.fillRect(rx, ry, rw, rh); ctx.strokeStyle = fS; ctx.lineWidth = 1; ctx.strokeRect(rx, ry, rw, rh); };
+    if (m.type === 'bottom_ya2' || m.type === 'bottom_ya2vn') { const h2 = (ih - 2)/2; dr(ix, iy, iw, h2); dr(ix, iy + h2 + 2, iw, h2); }
+    else if (m.type === 'bottom_ya3') { const h3 = (ih - 4)/3; for (let i = 0; i < 3; i++) dr(ix, iy + i*(h3+2), iw, h3); }
+    else if (m.type === 'top_lift_2') { const h2 = (ih - 2)/2; dr(ix, iy, iw, h2); dr(ix, iy + h2 + 2, iw, h2); }
+    else if (m.type === 'bottom_oven_drawer' || m.type === 'penal_oven' || m.type === 'penal_oven_mw') {
         const oh = Math.min(ih * 0.4, ih - 8);
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(ix, iy + ih - oh, iw, oh);
-        ctx.strokeStyle = '#1e293b';
-        ctx.strokeRect(ix, iy + ih - oh, iw, oh);
-        if (m.type === 'penal_oven_mw') {
-            const mw = Math.min(ih * 0.3, ih - oh - 8);
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(ix, iy + ih - oh - mw - 4, iw, mw);
-            ctx.strokeRect(ix, iy + ih - oh - mw - 4, iw, mw);
-        }
+        ctx.fillStyle = '#334155'; ctx.fillRect(ix, iy + ih - oh, iw, oh); ctx.strokeStyle = '#1e293b'; ctx.strokeRect(ix, iy + ih - oh, iw, oh);
+        if (m.type === 'penal_oven_mw') { const mw = Math.min(ih * 0.3, ih - oh - 8); ctx.fillStyle = '#475569'; ctx.fillRect(ix, iy + ih - oh - mw - 4, iw, mw); ctx.strokeRect(ix, iy + ih - oh - mw - 4, iw, mw); }
         dr(ix, iy, iw, ih - oh - (m.type === 'penal_oven_mw' ? (ih*0.3 + 4) : 4));
-    } else if (m.type === 'bottom_cargo') {
-        dr(ix, iy, iw, ih);
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1;
-        for (let i = 1; i <= 3; i++) {
-            const yy = iy + (ih * i)/4;
-            ctx.beginPath();
-            ctx.moveTo(ix+3, yy);
-            ctx.lineTo(ix+iw-3, yy);
-            ctx.stroke();
-        }
-    } else if (m.type === 'top_lift_2' || m.type === 'top_lift_3') {
-        const n = m.type === 'top_lift_2' ? 2 : 3;
-        const hn = (ih - (n-1)*2)/n;
-        for (let i = 0; i < n; i++) dr(ix, iy + i*(hn+2), iw, hn);
-    } else if (m.type === 'penal_door_2drawers') {
-        const dh = ih/3;
-        dr(ix, iy, iw, ih - dh*2 - 4);
-        dr(ix, iy + ih - dh*2, iw, dh - 2);
-        dr(ix, iy + ih - dh, iw, dh);
-    } else {
+    }
+    else if (m.type === 'bottom_cargo') { dr(ix, iy, iw, ih); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; for (let i = 1; i <= 3; i++) { const yy = iy + (ih * i)/4; ctx.beginPath(); ctx.moveTo(ix+3, yy); ctx.lineTo(ix+iw-3, yy); ctx.stroke(); } }
+    else if (m.type === 'top_lift_3') { const n = 3; const hn = (ih - (n-1)*2)/n; for (let i = 0; i < n; i++) dr(ix, iy + i*(hn+2), iw, hn); }
+    else if (m.type === 'penal_door_2drawers') { const dh = ih/3; dr(ix, iy, iw, ih - dh*2 - 4); dr(ix, iy + ih - dh*2, iw, dh - 2); dr(ix, iy + ih - dh, iw, dh); }
+    else {
         let dc = 1;
         if (m.type.includes('2d') || m.type === 'penal_2doors' || m.type === 'bottom_m2d' || m.type === 'bottom_p2d') dc = 2;
-        if (dc === 2) {
-            const w2 = (iw - 2)/2;
-            dr(ix, iy, w2, ih);
-            dr(ix + w2 + 2, iy, w2, ih);
-        } else {
-            dr(ix, iy, iw, ih);
-        }
+        if (dc === 2) { const w2 = (iw - 2)/2; dr(ix, iy, w2, ih); dr(ix + w2 + 2, iy, w2, ih); } else dr(ix, iy, iw, ih);
         ctx.fillStyle = '#5c1724';
-        if (dc === 2) {
-            ctx.beginPath(); ctx.arc(ix + iw/2 - 6, iy + ih/2, 2, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(ix + iw/2 + 6, iy + ih/2, 2, 0, Math.PI*2); ctx.fill();
-        } else {
-            ctx.beginPath(); ctx.arc(ix + iw - 8, iy + ih/2, 2, 0, Math.PI*2); ctx.fill();
-        }
+        if (dc === 2) { ctx.beginPath(); ctx.arc(ix + iw/2 - 6, iy + ih/2, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(ix + iw/2 + 6, iy + ih/2, 2, 0, Math.PI*2); ctx.fill(); }
+        else { ctx.beginPath(); ctx.arc(ix + iw - 8, iy + ih/2, 2, 0, Math.PI*2); ctx.fill(); }
     }
 }
-
 function computeRunLayout(runKey, x0, y0, wMax, hMax) {
     const mods = projectModules.filter(m => m.run === runKey && !isCornerType(m.type));
-    const bottom = mods.filter(m => !isTopType(m));
-    const top = mods.filter(m => isTopType(m));
-    const GAP = 600;  // 600 мм между верхом нижних и низом верхних
+    const bottom = mods.filter(m => !isTopType(m)), top = mods.filter(m => isTopType(m));
+    const GAP = 600;
     const maxBH = bottom.length ? Math.max(...bottom.map(m => m.height)) : 0;
     const maxTH = top.length ? Math.max(...top.map(m => m.height)) : 0;
     const bLen = bottom.reduce((s, m) => s + m.width, 0);
@@ -2444,174 +1506,106 @@ function computeRunLayout(runKey, x0, y0, wMax, hMax) {
     const offX = x0 + (wMax - totalLen * scale) / 2;
     const baseY = y0 + hMax - 8;
     const rects = [];
-
     let cursor = 0;
-    bottom.forEach(m => {
-        const wPx = m.width * scale, hPx = m.height * scale;
-        rects.push({ id: m.id, x: offX + cursor * scale, y: baseY - hPx, w: wPx, h: hPx, run: runKey, isTop: false, m });
-        cursor += m.width;
-    });
+    bottom.forEach(m => { const wPx = m.width * scale, hPx = m.height * scale; rects.push({ id: m.id, x: offX + cursor * scale, y: baseY - hPx, w: wPx, h: hPx, run: runKey, isTop: false, m }); cursor += m.width; });
     cursor = 0;
-    top.forEach(m => {
-        const wPx = m.width * scale, hPx = m.height * scale;
-        const botTopY = baseY - maxBH * scale - GAP * scale;
-        rects.push({ id: m.id, x: offX + cursor * scale, y: botTopY - hPx, w: wPx, h: hPx, run: runKey, isTop: true, m });
-        cursor += m.width;
-    });
+    top.forEach(m => { const wPx = m.width * scale, hPx = m.height * scale; const botTopY = baseY - maxBH * scale - GAP * scale; rects.push({ id: m.id, x: offX + cursor * scale, y: botTopY - hPx, w: wPx, h: hPx, run: runKey, isTop: true, m }); cursor += m.width; });
     return { rects, mods };
 }
-
 function drawKitchen2D() {
-    const canvas = document.getElementById('kitchenCanvas');
-    if (!canvas) return;
-    const runs = layoutRuns();
-    const extraV = runs.length - 1;
+    const canvas = document.getElementById('kitchenCanvas'); if (!canvas) return;
+    const runs = layoutRuns(), extraV = runs.length - 1;
     const cssW = canvas.clientWidth || 440;
     const baseH = 340, extraH = 200;
     const cssH = baseH + extraV * extraH;
     const dpr = window.devicePixelRatio || 1;
     const pxW = Math.round(cssW * dpr), pxH = Math.round(cssH * dpr);
-    if (canvas.width !== pxW || canvas.height !== pxH) {
-        canvas.width = pxW;
-        canvas.height = pxH;
-    }
+    if (canvas.width !== pxW || canvas.height !== pxH) { canvas.width = pxW; canvas.height = pxH; }
     canvas.style.height = cssH + 'px';
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssW, cssH);
     sketchHits = [];
-
     const drawRun = (runKey, x0, y0, wMax, hMax, title) => {
         const L = computeRunLayout(runKey, x0, y0, wMax, hMax);
-        if (L.mods.length === 0) {
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '11px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${title}: пусто (угловые не показаны)`, x0 + wMax/2, y0 + hMax/2);
-            return;
-        }
+        if (L.mods.length === 0) { ctx.fillStyle = '#94a3b8'; ctx.font = '11px Arial'; ctx.textAlign = 'center'; ctx.fillText(`${title}: пусто`, x0 + wMax/2, y0 + hMax/2); return; }
         L.rects.forEach(r => {
             drawModuleFace(ctx, r.m, r.x, r.y, r.w, r.h);
             const gi = projectModules.findIndex(p => p.id === r.id) + 1;
             drawLabel(ctx, r.x, r.y, r.w, r.h, gi, r.m.width, r.m.height);
             sketchHits.push(r);
-            if (sketchDragId === r.id) {
-                ctx.save();
-                ctx.strokeStyle = '#f59e0b';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(r.x-1, r.y-1, r.w+2, r.h+2);
-                ctx.restore();
-            }
+            if (sketchDragId === r.id) { ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3; ctx.strokeRect(r.x-1, r.y-1, r.w+2, r.h+2); ctx.restore(); }
         });
-        ctx.fillStyle = '#5c1724';
-        ctx.font = 'bold 11px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(title, x0 + 4, y0 + 12);
+        ctx.fillStyle = '#5c1724'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left'; ctx.fillText(title, x0 + 4, y0 + 12);
     };
-
-    drawRun('A', 8, 8, cssW - 16, baseH - 16,
-        runs.includes('A') ? 'Ряд A' + (extraV > 0 ? ' (основной)' : '') : 'Ряд A');
+    drawRun('A', 8, 8, cssW - 16, baseH - 16, runs.includes('A') ? 'Ряд A' + (extraV > 0 ? ' (основной)' : '') : 'Ряд A');
     runs.slice(1).forEach((r, idx) => {
         const y0 = baseH + idx * extraH;
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.beginPath();
-        ctx.moveTo(8, y0);
-        ctx.lineTo(cssW - 8, y0);
-        ctx.stroke();
-        drawRun(r, 8, y0 + 6, cssW - 16, extraH - 12, `Ряд ${r} (доп. проекция)`);
+        ctx.strokeStyle = '#cbd5e1'; ctx.beginPath(); ctx.moveTo(8, y0); ctx.lineTo(cssW - 8, y0); ctx.stroke();
+        drawRun(r, 8, y0 + 6, cssW - 16, extraH - 12, `Ряд ${r} (доп.)`);
     });
 }
-
-// ПРОСТОЕ перетаскивание (позиционный реордер по центрам)
 function initSketchDrag() {
-    const canvas = document.getElementById('kitchenCanvas');
-    if (!canvas) return;
-    const toLocal = e => {
-        const r = canvas.getBoundingClientRect();
-        const k = r.width ? (canvas.clientWidth || 440) / r.width : 1;
-        return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k };
-    };
+    const canvas = document.getElementById('kitchenCanvas'); if (!canvas) return;
+    const toLocal = e => { const r = canvas.getBoundingClientRect(); const k = r.width ? (canvas.clientWidth || 440) / r.width : 1; return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k }; };
     const hitAt = p => sketchHits.find(h => p.x >= h.x && p.x <= h.x + h.w && p.y >= h.y && p.y <= h.y + h.h);
-
     canvas.addEventListener('pointerdown', e => {
         const hit = hitAt(toLocal(e));
         if (!hit) return;
-        sketchDragId = hit.id;
-        sketchDragRun = hit.run;
-        sketchDragIsTop = hit.isTop;
+        sketchDragId = hit.id; sketchDragRun = hit.run; sketchDragIsTop = hit.isTop;
         try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
-        canvas.style.cursor = 'grabbing';
-        drawKitchen2D();
+        canvas.style.cursor = 'grabbing'; drawKitchen2D();
     });
     canvas.addEventListener('pointermove', e => {
         const p = toLocal(e);
-        if (sketchDragId === null) {
-            canvas.style.cursor = hitAt(p) ? 'grab' : 'default';
-            return;
-        }
-        // Определяем позицию по центрам модулей того же ряда/уровня
+        if (sketchDragId === null) { canvas.style.cursor = hitAt(p) ? 'grab' : 'default'; return; }
         const sameLevel = sketchHits.filter(h => h.run === sketchDragRun && h.isTop === sketchDragIsTop).sort((a, b) => a.x - b.x);
         const meIdx = sameLevel.findIndex(h => h.id === sketchDragId);
         if (meIdx < 0) return;
         const others = sameLevel.filter((_, i) => i !== meIdx);
         const newIdx = others.filter(h => h.x + h.w / 2 < p.x).length;
         if (newIdx === meIdx) return;
-        // Переставляем в массиве projectModules
         const mod = projectModules.find(m => m.id === sketchDragId);
         if (!mod) return;
         projectModules = projectModules.filter(m => m.id !== sketchDragId);
         const otherIds = others.map(h => h.id);
         let insertAt;
-        if (newIdx >= otherIds.length) {
-            insertAt = projectModules.findIndex(m => m.id === otherIds[otherIds.length - 1]) + 1;
-        } else {
-            insertAt = projectModules.findIndex(m => m.id === otherIds[newIdx]);
-        }
+        if (newIdx >= otherIds.length) insertAt = projectModules.findIndex(m => m.id === otherIds[otherIds.length - 1]) + 1;
+        else insertAt = projectModules.findIndex(m => m.id === otherIds[newIdx]);
         if (insertAt < 0) insertAt = projectModules.length;
         projectModules.splice(insertAt, 0, mod);
         if (!dragRaf) dragRaf = requestAnimationFrame(() => { dragRaf = null; drawKitchen2D(); });
     });
     canvas.addEventListener('pointerup', () => {
         if (sketchDragId === null) return;
-        sketchDragId = null;
-        sketchDragRun = null;
+        sketchDragId = null; sketchDragRun = null;
         canvas.style.cursor = 'default';
-        renderModulesTable();
-        drawKitchen2D();
+        renderModulesTable(); drawKitchen2D();
     });
     canvas.addEventListener('pointercancel', () => {
         if (sketchDragId === null) return;
-        sketchDragId = null;
-        sketchDragRun = null;
-        canvas.style.cursor = 'default';
-        drawKitchen2D();
+        sketchDragId = null; sketchDragRun = null;
+        canvas.style.cursor = 'default'; drawKitchen2D();
     });
 }
-
 function moveModule(id, dir) {
-    const mod = projectModules.find(m => m.id === id);
-    if (!mod) return;
+    const mod = projectModules.find(m => m.id === id); if (!mod) return;
     if (isCornerType(mod.type)) return;
     const isTop = isTopType(mod);
     const runIds = projectModules.filter(m => m.run === mod.run && !isCornerType(m.type) && isTopType(m) === isTop).map(m => m.id);
-    const idx = runIds.indexOf(id);
-    const newIdx = idx + dir;
+    const idx = runIds.indexOf(id), newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= runIds.length) return;
     const otherIds = runIds.filter(x => x !== id);
     const modCopy = projectModules.splice(projectModules.findIndex(m => m.id === id), 1)[0];
     let insertAt;
-    if (newIdx >= otherIds.length) {
-        insertAt = projectModules.findIndex(m => m.id === otherIds[otherIds.length - 1]) + 1;
-    } else {
-        insertAt = projectModules.findIndex(m => m.id === otherIds[Math.max(0, newIdx)]);
-    }
+    if (newIdx >= otherIds.length) insertAt = projectModules.findIndex(m => m.id === otherIds[otherIds.length - 1]) + 1;
+    else insertAt = projectModules.findIndex(m => m.id === otherIds[Math.max(0, newIdx)]);
     projectModules.splice(insertAt, 0, modCopy);
-    renderModulesTable();
-    calculateProject();
+    renderModulesTable(); calculateProject();
 }
 
 // =================================================================
-// 3D (Three.js)
+// 3D
 // =================================================================
 const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
 let threeLoaded = false, threeLoading = false;
@@ -2622,142 +1616,74 @@ let threeRaf = null;
 function loadThree() {
     return new Promise(resolve => {
         if (threeLoaded) return resolve(true);
-        if (threeLoading) {
-            const t = setInterval(() => { if (threeLoaded) { clearInterval(t); resolve(true); } }, 100);
-            return;
-        }
+        if (threeLoading) { const t = setInterval(() => { if (threeLoaded) { clearInterval(t); resolve(true); } }, 100); return; }
         threeLoading = true;
-        const s = document.createElement('script');
-        s.src = THREE_URL;
+        const s = document.createElement('script'); s.src = THREE_URL;
         s.onload = () => { threeLoaded = true; resolve(true); };
         s.onerror = () => resolve(false);
         document.head.appendChild(s);
     });
 }
-
-// Геометрия 45° — пятиугольная призма (вид сверху).
-// Вершины: (0,0) угол кухни, (W,0), (W,D), (D,W), (0,W).
-// Для mirrored — инверсия X.
 function createCorner45Geometry(W, D, H, mirrored = false) {
     let pts = [[0, 0], [W, 0], [W, D], [D, W], [0, W]];
     if (mirrored) pts = pts.map(([x, z]) => [-x, z]);
     const N = pts.length, positions = [], indices = [];
     pts.forEach(([x, z]) => positions.push(x, 0, z));
     pts.forEach(([x, z]) => positions.push(x, H, z));
-    // Верхняя крышка (веер)
     for (let i = 1; i < N - 1; i++) indices.push(N, N + i + 1, N + i);
-    // Нижняя крышка
     for (let i = 1; i < N - 1; i++) indices.push(0, i, i + 1);
-    // Боковины
-    for (let i = 0; i < N; i++) {
-        const j = (i + 1) % N;
-        indices.push(i, j, N + j);
-        indices.push(i, N + j, N + i);
-    }
+    for (let i = 0; i < N; i++) { const j = (i + 1) % N; indices.push(i, j, N + j); indices.push(i, N + j, N + i); }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geo.setIndex(indices);
-    geo.computeVertexNormals();
+    geo.setIndex(indices); geo.computeVertexNormals();
     return geo;
 }
-
 async function initThree() {
     const ok = await loadThree();
     const msg = document.getElementById('threeMsg');
-    if (!ok) {
-        if (msg) { msg.style.display = 'flex'; msg.textContent = 'Three.js не загружен'; }
-        return;
-    }
-    const canvas = document.getElementById('threeCanvas');
-    if (!canvas) return;
+    if (!ok) { if (msg) { msg.style.display = 'flex'; msg.textContent = 'Three.js не загружен'; } return; }
+    const canvas = document.getElementById('threeCanvas'); if (!canvas) return;
     if (msg) msg.style.display = 'none';
     threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
     threeRenderer.setPixelRatio(window.devicePixelRatio || 1);
-    threeScene = new THREE.Scene();
-    threeScene.background = new THREE.Color(0xf1f5f9);
+    threeScene = new THREE.Scene(); threeScene.background = new THREE.Color(0xf1f5f9);
     threeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
     threeScene.add(new THREE.HemisphereLight(0xffffff, 0x94a3b8, 0.9));
-    const dir = new THREE.DirectionalLight(0xffffff, 0.8);
-    dir.position.set(3, 6, 4);
-    threeScene.add(dir);
-    const grid = new THREE.GridHelper(12, 24, 0xcbd5e1, 0xe2e8f0);
-    grid.position.y = -0.001;
-    threeScene.add(grid);
-    threeGroup = new THREE.Group();
-    threeScene.add(threeGroup);
-
+    const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(3, 6, 4); threeScene.add(dir);
+    const grid = new THREE.GridHelper(12, 24, 0xcbd5e1, 0xe2e8f0); grid.position.y = -0.001; threeScene.add(grid);
+    threeGroup = new THREE.Group(); threeScene.add(threeGroup);
     let isDown = false, lastX = 0, lastY = 0;
-    canvas.addEventListener('pointerdown', e => {
-        isDown = true; lastX = e.clientX; lastY = e.clientY;
-        try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
-    });
+    canvas.addEventListener('pointerdown', e => { isDown = true; lastX = e.clientX; lastY = e.clientY; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} });
     canvas.addEventListener('pointerup', () => isDown = false);
     canvas.addEventListener('pointercancel', () => isDown = false);
-    canvas.addEventListener('pointermove', e => {
-        if (!isDown) return;
-        const dx = e.clientX - lastX, dy = e.clientY - lastY;
-        lastX = e.clientX; lastY = e.clientY;
-        orbit.theta += dx * 0.008;
-        orbit.phi -= dy * 0.008;
-        orbit.phi = Math.max(0.15, Math.min(Math.PI/2 - 0.05, orbit.phi));
-        scheduleThree();
-    });
-    canvas.addEventListener('wheel', e => {
-        e.preventDefault();
-        orbit.radius *= (e.deltaY > 0 ? 1.1 : 0.9);
-        orbit.radius = Math.max(2.5, Math.min(20, orbit.radius));
-        scheduleThree();
-    }, { passive: false });
+    canvas.addEventListener('pointermove', e => { if (!isDown) return; const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; orbit.theta += dx * 0.008; orbit.phi -= dy * 0.008; orbit.phi = Math.max(0.15, Math.min(Math.PI/2 - 0.05, orbit.phi)); scheduleThree(); });
+    canvas.addEventListener('wheel', e => { e.preventDefault(); orbit.radius *= (e.deltaY > 0 ? 1.1 : 0.9); orbit.radius = Math.max(2.5, Math.min(20, orbit.radius)); scheduleThree(); }, { passive: false });
     window.addEventListener('resize', () => scheduleThree());
     forceRebuildThree();
 }
-
-function forceRebuildThree() {
-    if (!threeRenderer) { initThree(); return; }
-    rebuildThree();
-}
-function scheduleThree() {
-    if (!threeRenderer || threeRaf !== null) return;
-    threeRaf = requestAnimationFrame(() => { threeRaf = null; renderThree(); });
-}
-
+function forceRebuildThree() { if (!threeRenderer) { initThree(); return; } rebuildThree(); }
+function scheduleThree() { if (!threeRenderer || threeRaf !== null) return; threeRaf = requestAnimationFrame(() => { threeRaf = null; renderThree(); }); }
 function addBoxMesh(w, h, d, x, y, z, color, rotY = 0) {
     const geo = new THREE.BoxGeometry(w, h, d);
     const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
-    mesh.position.set(x, y, z);
-    mesh.rotation.y = rotY;
-    threeGroup.add(mesh);
+    mesh.position.set(x, y, z); mesh.rotation.y = rotY; threeGroup.add(mesh);
     const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x334155 }));
-    line.position.set(x, y, z);
-    line.rotation.y = rotY;
-    threeGroup.add(line);
+    line.position.set(x, y, z); line.rotation.y = rotY; threeGroup.add(line);
 }
-
 function rebuildThree() {
     if (!threeScene || !threeGroup) return;
-    while (threeGroup.children.length) {
-        const o = threeGroup.children.pop();
-        if (o.geometry) o.geometry.dispose();
-        if (o.material) o.material.dispose();
-    }
-
+    while (threeGroup.children.length) { const o = threeGroup.children.pop(); if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }
     const PLINTH_H = 0.10, TABLE_T = 0.038, GAP = 0.50;
     const modsA = projectModules.filter(m => m.run === 'A');
     const modsB = projectModules.filter(m => m.run === 'B');
     const modsC = projectModules.filter(m => m.run === 'C');
-    const hOf = m => m.height / 1000;
-    const wOf = m => m.width / 1000;
-    const dOf = m => m.depth / 1000;
-
+    const hOf = m => m.height / 1000, wOf = m => m.width / 1000, dOf = m => m.depth / 1000;
     const maxBaseH = projectModules.filter(isBaseType).reduce((mx, m) => Math.max(mx, hOf(m)), 0.72);
     const tableTopY = PLINTH_H + maxBaseH;
     const topY = tableTopY + TABLE_T + GAP;
-
     const depthA = Math.max(...modsA.filter(isBaseType).map(dOf), 0.53);
     const depthB = Math.max(...modsB.filter(isBaseType).map(dOf), 0.53);
     const depthC = Math.max(...modsC.filter(isBaseType).map(dOf), 0.53);
-
-    // Угловые
     const cB_45_base = modsB.find(m => m.type === 'corner_base_45');
     const cB_45_top = modsB.find(m => m.type === 'corner_top_45');
     const cB_90_base = modsB.find(m => m.type === 'corner_base_90');
@@ -2768,133 +1694,68 @@ function rebuildThree() {
     const cC_90_top = modsC.find(m => m.type === 'corner_top_90');
     const hasCornerB = !!(cB_45_base || cB_90_base || cB_45_top || cB_90_top);
     const hasCornerC = !!(cC_45_base || cC_90_base || cC_45_top || cC_90_top);
-
-    // Сдвиг A = ширина углового (W) вдоль ряда A. Для 90° и 45° одинаково.
     const shiftA_left = cB_45_base ? wOf(cB_45_base) : (cB_90_base ? wOf(cB_90_base) : 0);
     const shiftA_right = cC_45_base ? wOf(cC_45_base) : (cC_90_base ? wOf(cC_90_base) : 0);
     const naturalLenA = modsA.filter(m => !isCornerType(m.type)).reduce((s, m) => s + wOf(m), 0);
-    // Общая длина сцены по X = модули A + левый угловой + правый угловой
     const sceneLenA = naturalLenA + shiftA_left + shiftA_right;
     const cornerBX = -sceneLenA / 2;
     const cornerCX =  sceneLenA / 2;
-
-    // === Угловой 45° (пятиугольник) ===
     const drawCorner45 = (m, wx, wz, yBase, mirrored) => {
         const W = wOf(m), D = dOf(m), H = hOf(m);
         const geo = createCorner45Geometry(W, D, H, mirrored);
-        const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({
-            color: 0xfbbf24, flatShading: true, side: THREE.DoubleSide
-        }));
-        mesh.position.set(wx, yBase, wz);
-        threeGroup.add(mesh);
-        const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30),
-            new THREE.LineBasicMaterial({ color: 0x334155 }));
-        line.position.set(wx, yBase, wz);
-        threeGroup.add(line);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: 0xfbbf24, flatShading: true, side: THREE.DoubleSide }));
+        mesh.position.set(wx, yBase, wz); threeGroup.add(mesh);
+        const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: 0x334155 }));
+        line.position.set(wx, yBase, wz); threeGroup.add(line);
     };
     const drawCorner45Top = (m, wx, wz, yBase, mirrored) => {
         const W = wOf(m), D = dOf(m);
         const geo = createCorner45Geometry(W, D, TABLE_T, mirrored);
-        const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({
-            color: 0x94a3b8, flatShading: true, side: THREE.DoubleSide
-        }));
-        mesh.position.set(wx, yBase, wz);
-        threeGroup.add(mesh);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: 0x94a3b8, flatShading: true, side: THREE.DoubleSide }));
+        mesh.position.set(wx, yBase, wz); threeGroup.add(mesh);
     };
-
-    // === Угловой 90° — Г-образный (два блока) ===
-    // Локальные координаты (угол в 0,0):
-    //   Плечо вдоль X: x ∈ [0, W], z ∈ [0, D]
-    //   Плечо вдоль Z: x ∈ [0, D], z ∈ [D, W]
-    // Для mirrored (ряд C) — инверсия X.
     const drawCorner90 = (m, wx, wz, yBase, mirrored) => {
         const W = wOf(m), D = dOf(m), H = hOf(m);
         const dirX = mirrored ? -1 : 1;
-        // Плечо вдоль X
         addBoxMesh(W, H, D, wx + dirX * W/2, yBase + H/2, wz + D/2, 0xfbbf24);
-        // Плечо вдоль Z
-        if (W > D + 0.001) {
-            addBoxMesh(D, H, W - D, wx + dirX * D/2, yBase + H/2, wz + D + (W - D)/2, 0xfbbf24);
-        }
+        if (W > D + 0.001) addBoxMesh(D, H, W - D, wx + dirX * D/2, yBase + H/2, wz + D + (W - D)/2, 0xfbbf24);
     };
     const drawCorner90Top = (m, wx, wz, yBase, mirrored) => {
         const W = wOf(m), D = dOf(m);
         const dirX = mirrored ? -1 : 1;
         addBoxMesh(W, TABLE_T, D, wx + dirX * W/2, yBase + TABLE_T/2, wz + D/2, 0x94a3b8);
-        if (W > D + 0.001) {
-            addBoxMesh(D, TABLE_T, W - D, wx + dirX * D/2, yBase + TABLE_T/2, wz + D + (W - D)/2, 0x94a3b8);
-        }
+        if (W > D + 0.001) addBoxMesh(D, TABLE_T, W - D, wx + dirX * D/2, yBase + TABLE_T/2, wz + D + (W - D)/2, 0x94a3b8);
     };
-
-    // === РЯД A (модули между углами) ===
     const basesA = modsA.filter(m => isBaseType(m) && !isCornerType(m.type));
     const topsA = modsA.filter(m => isTopType(m) && !isCornerType(m.type));
     let cursor = -sceneLenA / 2 + shiftA_left;
-    basesA.forEach(m => {
-        addBoxMesh(wOf(m), hOf(m), dOf(m),
-            cursor + wOf(m)/2, PLINTH_H + hOf(m)/2, -depthA + dOf(m)/2, 0xcbd5e1);
-        cursor += wOf(m);
-    });
-    // Столешница A — по каждой тумбе (пропускаем пеналы)
+    basesA.forEach(m => { addBoxMesh(wOf(m), hOf(m), dOf(m), cursor + wOf(m)/2, PLINTH_H + hOf(m)/2, -depthA + dOf(m)/2, 0xcbd5e1); cursor += wOf(m); });
     cursor = -sceneLenA / 2 + shiftA_left;
-    basesA.forEach(m => {
-        if (isCountertopModule(m)) {
-            addBoxMesh(wOf(m), TABLE_T, depthA,
-                cursor + wOf(m)/2, tableTopY + TABLE_T/2, -depthA/2, 0x94a3b8);
-        }
-        cursor += wOf(m);
-    });
+    basesA.forEach(m => { if (isCountertopModule(m)) addBoxMesh(wOf(m), TABLE_T, depthA, cursor + wOf(m)/2, tableTopY + TABLE_T/2, -depthA/2, 0x94a3b8); cursor += wOf(m); });
     cursor = -sceneLenA / 2 + shiftA_left;
-    topsA.forEach(m => {
-        addBoxMesh(wOf(m), hOf(m), dOf(m),
-            cursor + wOf(m)/2, topY + hOf(m)/2, -depthA + dOf(m)/2, 0xe2e8f0);
-        cursor += wOf(m);
-    });
-
-    // === РЯД B (угловой в углу слева) ===
+    topsA.forEach(m => { addBoxMesh(wOf(m), hOf(m), dOf(m), cursor + wOf(m)/2, topY + hOf(m)/2, -depthA + dOf(m)/2, 0xe2e8f0); cursor += wOf(m); });
     if (cB_45_base) { drawCorner45(cB_45_base, cornerBX, -depthA, PLINTH_H, false); drawCorner45Top(cB_45_base, cornerBX, -depthA, tableTopY + TABLE_T, false); }
     if (cB_45_top) drawCorner45(cB_45_top, cornerBX, -depthA, topY, false);
     if (cB_90_base) { drawCorner90(cB_90_base, cornerBX, -depthA, PLINTH_H, false); drawCorner90Top(cB_90_base, cornerBX, -depthA, tableTopY + TABLE_T, false); }
     if (cB_90_top) drawCorner90(cB_90_top, cornerBX, -depthA, topY, false);
-
     const basesB = modsB.filter(m => isBaseType(m) && !isCornerType(m.type));
     const topsB = modsB.filter(m => isTopType(m) && !isCornerType(m.type));
     let cursorB = 0;
     if (cB_45_base) cursorB += wOf(cB_45_base);
     if (cB_90_base) cursorB += wOf(cB_90_base);
     const startCursorB = cursorB;
-    const bXOff = hasCornerB ? +1 : -1;  // если есть угол — справа от стены, иначе слева
-    basesB.forEach(m => {
-        const w = wOf(m), d = dOf(m), h = hOf(m);
-        const xCenter = cornerBX + bXOff * d/2;
-        addBoxMesh(w, h, d, xCenter, PLINTH_H + h/2, -depthA + cursorB + w/2, 0xbfdbfe, Math.PI/2);
-        cursorB += w;
-    });
+    const bXOff = hasCornerB ? +1 : -1;
+    basesB.forEach(m => { const w = wOf(m), d = dOf(m), h = hOf(m); const xCenter = cornerBX + bXOff * d/2; addBoxMesh(w, h, d, xCenter, PLINTH_H + h/2, -depthA + cursorB + w/2, 0xbfdbfe, Math.PI/2); cursorB += w; });
     cursorB = startCursorB;
-    basesB.forEach(m => {
-        const w = wOf(m);
-        if (isCountertopModule(m)) {
-            const xCenter = cornerBX + bXOff * depthB/2;
-            addBoxMesh(depthB, TABLE_T, w, xCenter, tableTopY + TABLE_T/2, -depthA + cursorB + w/2, 0x94a3b8);
-        }
-        cursorB += w;
-    });
+    basesB.forEach(m => { const w = wOf(m); if (isCountertopModule(m)) { const xCenter = cornerBX + bXOff * depthB/2; addBoxMesh(depthB, TABLE_T, w, xCenter, tableTopY + TABLE_T/2, -depthA + cursorB + w/2, 0x94a3b8); } cursorB += w; });
     let cursorTB = 0;
     if (cB_45_top) cursorTB += wOf(cB_45_top);
     if (cB_90_top) cursorTB += wOf(cB_90_top);
-    topsB.forEach(m => {
-        const w = wOf(m), d = dOf(m), h = hOf(m);
-        const xCenter = cornerBX + bXOff * d/2;
-        addBoxMesh(w, h, d, xCenter, topY + h/2, -depthA + cursorTB + w/2, 0xdbeafe, Math.PI/2);
-        cursorTB += w;
-    });
-
-    // === РЯД C (угловой в углу справа) ===
+    topsB.forEach(m => { const w = wOf(m), d = dOf(m), h = hOf(m); const xCenter = cornerBX + bXOff * d/2; addBoxMesh(w, h, d, xCenter, topY + h/2, -depthA + cursorTB + w/2, 0xdbeafe, Math.PI/2); cursorTB += w; });
     if (cC_45_base) { drawCorner45(cC_45_base, cornerCX, -depthA, PLINTH_H, true); drawCorner45Top(cC_45_base, cornerCX, -depthA, tableTopY + TABLE_T, true); }
     if (cC_45_top) drawCorner45(cC_45_top, cornerCX, -depthA, topY, true);
     if (cC_90_base) { drawCorner90(cC_90_base, cornerCX, -depthA, PLINTH_H, true); drawCorner90Top(cC_90_base, cornerCX, -depthA, tableTopY + TABLE_T, true); }
     if (cC_90_top) drawCorner90(cC_90_top, cornerCX, -depthA, topY, true);
-
     const basesC = modsC.filter(m => isBaseType(m) && !isCornerType(m.type));
     const topsC = modsC.filter(m => isTopType(m) && !isCornerType(m.type));
     let cursorC = 0;
@@ -2902,61 +1763,32 @@ function rebuildThree() {
     if (cC_90_base) cursorC += wOf(cC_90_base);
     const startCursorC = cursorC;
     const cXOff = hasCornerC ? -1 : +1;
-    basesC.forEach(m => {
-        const w = wOf(m), d = dOf(m), h = hOf(m);
-        const xCenter = cornerCX + cXOff * d/2;
-        addBoxMesh(w, h, d, xCenter, PLINTH_H + h/2, -depthA + cursorC + w/2, 0xbfdbfe, Math.PI/2);
-        cursorC += w;
-    });
+    basesC.forEach(m => { const w = wOf(m), d = dOf(m), h = hOf(m); const xCenter = cornerCX + cXOff * d/2; addBoxMesh(w, h, d, xCenter, PLINTH_H + h/2, -depthA + cursorC + w/2, 0xbfdbfe, Math.PI/2); cursorC += w; });
     cursorC = startCursorC;
-    basesC.forEach(m => {
-        const w = wOf(m);
-        if (isCountertopModule(m)) {
-            const xCenter = cornerCX + cXOff * depthC/2;
-            addBoxMesh(depthC, TABLE_T, w, xCenter, tableTopY + TABLE_T/2, -depthA + cursorC + w/2, 0x94a3b8);
-        }
-        cursorC += w;
-    });
+    basesC.forEach(m => { const w = wOf(m); if (isCountertopModule(m)) { const xCenter = cornerCX + cXOff * depthC/2; addBoxMesh(depthC, TABLE_T, w, xCenter, tableTopY + TABLE_T/2, -depthA + cursorC + w/2, 0x94a3b8); } cursorC += w; });
     let cursorTC = 0;
     if (cC_45_top) cursorTC += wOf(cC_45_top);
     if (cC_90_top) cursorTC += wOf(cC_90_top);
-    topsC.forEach(m => {
-        const w = wOf(m), d = dOf(m), h = hOf(m);
-        const xCenter = cornerCX + cXOff * d/2;
-        addBoxMesh(w, h, d, xCenter, topY + h/2, -depthA + cursorTC + w/2, 0xdbeafe, Math.PI/2);
-        cursorTC += w;
-    });
-
-    const span = Math.max(sceneLenA + depthB + depthC, depthA + Math.max(
-        modsB.reduce((s, m) => s + wOf(m), 0),
-        modsC.reduce((s, m) => s + wOf(m), 0)
-    ), 1.5);
+    topsC.forEach(m => { const w = wOf(m), d = dOf(m), h = hOf(m); const xCenter = cornerCX + cXOff * d/2; addBoxMesh(w, h, d, xCenter, topY + h/2, -depthA + cursorTC + w/2, 0xdbeafe, Math.PI/2); cursorTC += w; });
+    const span = Math.max(sceneLenA + depthB + depthC, depthA + Math.max(modsB.reduce((s, m) => s + wOf(m), 0), modsC.reduce((s, m) => s + wOf(m), 0)), 1.5);
     orbit.radius = Math.max(3, span * 2.2);
     orbit.target = { x: 0, y: 1.0, z: -depthA/2 };
     renderThree();
 }
-
 function renderThree() {
     if (!threeRenderer || !threeCamera || !threeScene) return;
-    const canvas = threeRenderer.domElement;
-    const parent = canvas.parentElement;
+    const canvas = threeRenderer.domElement, parent = canvas.parentElement;
     const w = parent.clientWidth, h = parent.clientHeight;
     threeRenderer.setSize(w, h, false);
-    threeCamera.aspect = w / h;
-    threeCamera.updateProjectionMatrix();
-    const t = orbit.target;
-    const r = orbit.radius, phi = orbit.phi, theta = orbit.theta;
-    threeCamera.position.set(
-        t.x + r * Math.sin(phi) * Math.cos(theta),
-        t.y + r * Math.cos(phi),
-        t.z + r * Math.sin(phi) * Math.sin(theta)
-    );
+    threeCamera.aspect = w / h; threeCamera.updateProjectionMatrix();
+    const t = orbit.target, r = orbit.radius, phi = orbit.phi, theta = orbit.theta;
+    threeCamera.position.set(t.x + r * Math.sin(phi) * Math.cos(theta), t.y + r * Math.cos(phi), t.z + r * Math.sin(phi) * Math.sin(theta));
     threeCamera.lookAt(t.x, t.y, t.z);
     threeRenderer.render(threeScene, threeCamera);
 }
 
 // =================================================================
-// ВКЛАДКИ
+// ВКЛАДКИ И СПРАВКА
 // =================================================================
 function switchTab(id) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === id));
@@ -2965,9 +1797,6 @@ function switchTab(id) {
     if (id === 'tabConstructor') { scheduleSketch(); scheduleThree(); }
 }
 
-// =================================================================
-// СПРАВКА
-// =================================================================
 const MODULE_TYPES = [
     { type: 'corner_base_90', name: 'Угловой нижний 900×900 (90°)' },
     { type: 'corner_base_45', name: 'Угловой нижний 900×900 (45°)' },
@@ -3001,45 +1830,22 @@ const MODULE_TYPES = [
 ];
 
 function renderHelp() {
-    const box = document.getElementById('helpContainer');
-    if (!box) return;
+    const box = document.getElementById('helpContainer'); if (!box) return;
     const defW = parseFloat(document.getElementById('helpW').value) || 600;
     const defH = parseFloat(document.getElementById('helpH').value) || 720;
     const defD = parseFloat(document.getElementById('helpD').value) || 530;
     box.innerHTML = '';
-
     MODULE_TYPES.forEach(def => {
         const calc = getModuleCalculations(def.type, defW, defH, defD);
-        const card = document.createElement('div');
-        card.className = 'help-card';
-        const h3 = document.createElement('h3');
-        h3.textContent = def.name;
-        card.appendChild(h3);
-        const sub = document.createElement('div');
-        sub.className = 'help-sub';
-        sub.textContent = `${defW}×${defH}×${defD} мм`;
-        card.appendChild(sub);
-
-        // Детали корпуса
-        addHelpList(card, 'Детали корпуса (ДСП)',
-            (calc.parts || []).map(p =>
-                `${p[3]} — ${p[0]} шт. ${Math.round(p[1]*1000)}×${Math.round(p[2]*1000)} мм`));
-
-        // Фасады
+        const card = document.createElement('div'); card.className = 'help-card';
+        const h3 = document.createElement('h3'); h3.textContent = def.name; card.appendChild(h3);
+        const sub = document.createElement('div'); sub.className = 'help-sub'; sub.textContent = `${defW}×${defH}×${defD} мм`; card.appendChild(sub);
+        addHelpList(card, 'Детали корпуса (ДСП)', (calc.parts || []).map(p => `${p[3]} — ${p[0]} шт. ${Math.round(p[1]*1000)}×${Math.round(p[2]*1000)} мм`));
         if (calc.facades && calc.facades.length) {
             const byLabel = {};
-            calc.facades.forEach(f => {
-                const key = f[2];
-                if (!byLabel[key]) byLabel[key] = { count: 0, w: Math.round(f[0]*1000), h: Math.round(f[1]*1000) };
-                byLabel[key].count++;
-            });
-            addHelpList(card, 'Фасады', Object.keys(byLabel).map(k =>
-                `${byLabel[k].count} шт. ${byLabel[k].w}×${byLabel[k].h} мм`));
-        } else {
-            addHelpList(card, 'Фасады', ['— нет (глухой) —']);
-        }
-
-        // Фурнитура
+            calc.facades.forEach(f => { const key = f[2]; if (!byLabel[key]) byLabel[key] = { count: 0, w: Math.round(f[0]*1000), h: Math.round(f[1]*1000) }; byLabel[key].count++; });
+            addHelpList(card, 'Фасады', Object.keys(byLabel).map(k => `${byLabel[k].count} шт. ${byLabel[k].w}×${byLabel[k].h} мм`));
+        } else addHelpList(card, 'Фасады', ['— нет (глухой) —']);
         const hw = [];
         if (calc.hinges) hw.push(`Петли — ${calc.hinges} шт.`);
         if (calc.slides) hw.push(`Направляющие — ${calc.slides} компл.`);
@@ -3050,12 +1856,13 @@ function renderHelp() {
         if (calc.lifts) hw.push(`Подъёмники — ${calc.lifts} шт.`);
         if (calc.hangers) hw.push(`Навесы — ${calc.hangers} пар`);
         if (calc.handles) hw.push(`Ручки — ${calc.handles} шт.`);
+        if (calc.shelfPins) hw.push(`Полкодержатели — ${calc.shelfPins} шт.`);
+        if (calc.shkants) hw.push(`Шканты — ${calc.shkants} шт.`);
+        if (calc.glueDotsKg) hw.push(`Гвозди мебельные — ${calc.glueDotsKg} кг`);
         if (!hw.length) hw.push('— нет —');
         addHelpList(card, 'Фурнитура', hw);
-
-        // Крепёж и присадка
         const fix = [];
-        if (calc.confirmats) fix.push(`Конфирматы — ${calc.confirmats} шт. (2 × деталей)`);
+        if (calc.confirmats) fix.push(`Конфирматы — ${calc.confirmats} шт.`);
         const mechs = (calc.hinges||0) + (calc.slides||0) + (calc.lifts||0) + (calc.cargo||0) + (calc.legs||0) + (calc.hangers||0);
         if (mechs) fix.push(`Шурупы — ${mechs * 4} шт. (4 × механизмов)`);
         if (calc.hinges) fix.push(`Присадка d-35 — ${calc.hinges} отв.`);
@@ -3065,267 +1872,98 @@ function renderHelp() {
         if (calc.cutSink) fix.push(`Вырез под мойку — ${calc.cutSink} шт.`);
         if (!fix.length) fix.push('— нет —');
         addHelpList(card, 'Крепёж и присадка', fix);
-
-        // Итого
-        const area = document.createElement('div');
-        area.className = 'help-sub';
-        area.style.marginTop = '8px';
+        const area = document.createElement('div'); area.className = 'help-sub'; area.style.marginTop = '8px';
         area.textContent = `Итого: ДСП ${calc.dsp.toFixed(2)} м², фасады ${calc.facade.toFixed(2)} м², ДВП ${calc.dvp.toFixed(2)} м².`;
         card.appendChild(area);
-
         box.appendChild(card);
     });
 }
-
 function addHelpList(card, label, items) {
-    const l = document.createElement('div');
-    l.className = 'help-section-label';
-    l.textContent = label;
-    card.appendChild(l);
-    if (!items.length) {
-        const p = document.createElement('div');
-        p.className = 'help-empty';
-        p.textContent = '— нет —';
-        card.appendChild(p);
-        return;
-    }
-    const ul = document.createElement('ul');
-    ul.className = 'help-list';
-    items.forEach(t => {
-        const li = document.createElement('li');
-        li.textContent = t;
-        ul.appendChild(li);
-    });
+    const l = document.createElement('div'); l.className = 'help-section-label'; l.textContent = label; card.appendChild(l);
+    if (!items.length) { const p = document.createElement('div'); p.className = 'help-empty'; p.textContent = '— нет —'; card.appendChild(p); return; }
+    const ul = document.createElement('ul'); ul.className = 'help-list';
+    items.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
     card.appendChild(ul);
 }
 
 // =================================================================
-// ЭКСПОРТ / ИМПОРТ / СБРОС
+// ЭКСПОРТ / ИМПОРТ
 // =================================================================
 function exportProject() {
-    const data = {
-        version: 15,
-        layout: currentLayout(),
-        modules: projectModules.map(m => ({
-            type: m.type, name: m.name,
-            width: m.width, height: m.height, depth: m.depth,
-            run: m.run || 'A'
-        })),
-        hiddenCorners: hiddenCornerModules.map(m => ({ ...m })),
-        prices: collectPrices(),
-        hardware: JSON.parse(JSON.stringify(HW_STATE))
-    };
+    const data = { version: 16, layout: currentLayout(), modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })), hiddenCorners: hiddenCornerModules.map(m => ({ ...m })), prices: collectPrices(), hardware: JSON.parse(JSON.stringify(HW_STATE)) };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `kitchen-${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `kitchen-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-
-const PRICE_FIELDS = [
-    'confirmatPrice','screwPrice','dowelPrice','hingeD35Price','tripanPrice',
-    'cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice',
-    'sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent'
-];
-const MATERIAL_FIELDS = [
-    'bottomBodySelect','bottomBodyEdgeSelect','bottomFacadeSelect',
-    'topBodySelect','topBodyEdgeSelect','topFacadeSelect',
-    'topMaterialSelect','dvpSelect','defaultFacadeType'
-];
-
+const PRICE_FIELDS = ['confirmatPrice','screwPrice','dowelPrice','glueDotsPrice','shkantPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent'];
+const MATERIAL_FIELDS = ['bottomBodySelect','bottomBodyEdgeSelect','bottomFacadeSelect','topBodySelect','topBodyEdgeSelect','topFacadeSelect','topMaterialSelect','dvpSelect','defaultFacadeType'];
 function collectPrices() {
     const out = {};
-    PRICE_FIELDS.forEach(id => {
-        const e = document.getElementById(id);
-        if (e) out[id] = e.value;
-    });
-    MATERIAL_FIELDS.forEach(id => {
-        const e = document.getElementById(id);
-        if (!e) return;
-        if (e.tagName === 'SELECT') {
-            const o = e.options[e.selectedIndex];
-            out[id] = o ? { value: e.value, name: o.dataset ? (o.dataset.name || o.textContent) : o.textContent } : null;
-        } else {
-            out[id] = e.value;
-        }
-    });
+    PRICE_FIELDS.forEach(id => { const e = document.getElementById(id); if (e) out[id] = e.value; });
+    MATERIAL_FIELDS.forEach(id => { const e = document.getElementById(id); if (!e) return; if (e.tagName === 'SELECT') { const o = e.options[e.selectedIndex]; out[id] = o ? { value: e.value, name: o.dataset ? (o.dataset.name || o.textContent) : o.textContent } : null; } else out[id] = e.value; });
     return out;
 }
-
 function importProject(input) {
-    const file = input.files && input.files[0];
-    if (!file) return;
+    const file = input.files && input.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
         try {
             const data = JSON.parse(reader.result);
-            if (data.layout) {
-                document.getElementById('layoutSelect').value = data.layout;
-                updateLayoutHint();
-            }
-            projectModules = (data.modules || []).map(m => ({
-                id: crypto.randomUUID ? crypto.randomUUID() : 'm-'+Date.now()+Math.random().toString(36).slice(2),
-                run: m.run || 'A',
-                type: m.type, name: m.name || m.type,
-                width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530
-            }));
+            if (data.layout) { document.getElementById('layoutSelect').value = data.layout; updateLayoutHint(); }
+            projectModules = (data.modules || []).map(m => ({ id: crypto.randomUUID ? crypto.randomUUID() : 'm-'+Date.now()+Math.random().toString(36).slice(2), run: m.run || 'A', type: m.type, name: m.name || m.type, width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530 }));
             hiddenCornerModules = (data.hiddenCorners || []).map(m => ({ ...m, id: crypto.randomUUID ? crypto.randomUUID() : 'h-'+Date.now() }));
-            if (data.prices) {
-                PRICE_FIELDS.forEach(id => {
-                    if (data.prices[id] !== undefined && document.getElementById(id)) {
-                        document.getElementById(id).value = data.prices[id];
-                    }
-                });
-                MATERIAL_FIELDS.forEach(id => {
-                    const el = document.getElementById(id);
-                    const p = data.prices[id];
-                    if (!el || p === undefined) return;
-                    if (el.tagName === 'SELECT' && p && typeof p === 'object') {
-                        const idx = [...el.options].findIndex(o => (o.dataset && o.dataset.name) === p.name);
-                        if (idx >= 0) el.selectedIndex = idx;
-                    } else if (el.tagName !== 'SELECT') {
-                        el.value = p;
-                    }
-                });
-            }
-            if (data.hardware) {
-                Object.keys(data.hardware).forEach(k => {
-                    if (HW_STATE[k]) HW_STATE[k] = data.hardware[k];
-                });
-            }
+            if (data.prices) { PRICE_FIELDS.forEach(id => { if (data.prices[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = data.prices[id]; }); }
+            if (data.hardware) Object.keys(data.hardware).forEach(k => { if (HW_STATE[k]) HW_STATE[k] = data.hardware[k]; });
             hardwareRendered = false;
-            renderModulesTable();
-            renderHardware(true);
-            calculateProject();
-            drawKitchen2D();
-            forceRebuildThree();
-        } catch (e) {
-            alert('Ошибка загрузки: ' + e.message);
-        } finally {
-            input.value = '';
-        }
+            renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
+        } catch (e) { alert('Ошибка: ' + e.message); }
+        finally { input.value = ''; }
     };
     reader.readAsText(file);
 }
-
 function resetProject() {
-    if (!confirm('Сбросить проект: удалить все модули, сбросить разбиения и цены?')) return;
-    projectModules = [];
-    hiddenCornerModules = [];
-    HW_CATEGORIES.forEach(c => {
-        HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] };
-    });
+    if (!confirm('Сбросить?')) return;
+    projectModules = []; hiddenCornerModules = [];
+    HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] }; });
     hardwareRendered = false;
-    renderModulesTable();
-    renderHardware(true);
-    calculateProject();
-    drawKitchen2D();
-    forceRebuildThree();
+    renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
 }
 
 // =================================================================
-// КП (печатная форма)
+// КП
 // =================================================================
 function openPrintForm() {
     if (!lastCalc) calculateProject();
     const c = lastCalc;
-    const w = window.open('', '_blank');
-    if (!w) { alert('Разрешите всплывающие окна для печати.'); return; }
+    const w = window.open('', '_blank'); if (!w) { alert('Разрешите всплывающие окна.'); return; }
     const fmt = (n, d = 2) => isFinite(n) ? n.toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
     const money = n => Math.round(n).toLocaleString('ru-RU') + ' ₽';
     const layoutNames = { straight: 'Прямая', corner: 'Угловая', 'u-shape': 'П-образная' };
-
-    const specTable = (title, rows) => {
+    const tbl = (title, rows) => {
         if (!rows || !rows.length) return '';
-        const body = rows.map(r =>
-            `<tr>
-                <td>${escapeHtml(r.name)}${r.detail ? `<div style="color:#555;font-size:10px;">${escapeHtml(r.detail)}</div>` : ''}</td>
-                <td class="num">${fmt(r.qty)}</td>
-                <td>${r.unit}</td>
-                <td class="num">${fmt(r.price)}</td>
-                <td class="num">${money(r.sum)}</td>
-            </tr>`
-        ).join('');
-        return `<h3>${escapeHtml(title)}</h3>
-            <table>
-                <thead><tr>
-                    <th>Наименование</th><th class="num">Кол-во</th><th>Ед.</th>
-                    <th class="num">Цена</th><th class="num">Сумма</th>
-                </tr></thead>
-                <tbody>${body}</tbody>
-            </table>`;
+        const body = rows.map(r => `<tr><td>${escapeHtml(r.name)}${r.detail ? `<div style="color:#555;font-size:10px;">${escapeHtml(r.detail)}</div>` : ''}</td><td class="num">${fmt(r.qty)}</td><td>${r.unit}</td><td class="num">${fmt(r.price)}</td><td class="num">${money(r.sum)}</td></tr>`).join('');
+        return `<h3>${escapeHtml(title)}</h3><table><thead><tr><th>Наименование</th><th class="num">Кол-во</th><th>Ед.</th><th class="num">Цена</th><th class="num">Сумма</th></tr></thead><tbody>${body}</tbody></table>`;
     };
-
-    const modRows = c.modules.map(m =>
-        `<tr>
-            <td>№${m.num}</td>
-            <td>${escapeHtml(m.run)}</td>
-            <td>${escapeHtml(m.name)}</td>
-            <td>${m.w}×${m.h}×${m.d} мм</td>
-            <td class="num">${m.dsp.toFixed(2)}</td>
-            <td class="num">${m.facade.toFixed(2)}</td>
-            <td class="num">${m.dvp.toFixed(2)}</td>
-        </tr>`
-    ).join('');
-
-    const runsText = ['A','B','C'].filter(r => c.runs[r] > 0)
-        .map(r => `Ряд ${r}: ${c.runs[r].toFixed(2)} м`).join(' · ');
-
-    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
-        <title>КП — ${layoutNames[c.layout] || ''} кухня</title>
-        <style>
-            body { font-family: Arial, sans-serif; font-size: 12px; padding: 20px; }
-            h1 { font-size: 18px; margin: 0 0 4px; }
-            h3 { font-size: 14px; margin: 14px 0 4px; }
-            .muted { color: #666; font-size: 11px; margin-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; }
-            th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
-            th { background: #eee; }
-            .num { text-align: right; white-space: nowrap; }
-            .grand { font-weight: bold; font-size: 14px; }
-            .totals td { border: none; padding: 2px 4px; }
-            @media print { body { padding: 0; } .no-print { display: none; } }
-        </style>
+    const modRows = c.modules.map(m => `<tr><td>№${m.num}</td><td>${escapeHtml(m.run)}</td><td>${escapeHtml(m.name)}</td><td>${m.w}×${m.h}×${m.d}</td><td class="num">${m.dsp.toFixed(2)}</td><td class="num">${m.facade.toFixed(2)}</td><td class="num">${m.dvp.toFixed(2)}</td></tr>`).join('');
+    const runsText = ['A','B','C'].filter(r => c.runs[r] > 0).map(r => `Ряд ${r}: ${c.runs[r].toFixed(2)} м`).join(' · ');
+    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>КП — ${layoutNames[c.layout] || ''} кухня</title>
+        <style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;}h1{font-size:18px;}h3{font-size:14px;margin:14px 0 4px;}table{width:100%;border-collapse:collapse;margin:6px 0;}th,td{border:1px solid #999;padding:4px 6px;text-align:left;}th{background:#eee;}.num{text-align:right;}.grand{font-weight:bold;font-size:14px;}.totals td{border:none;padding:2px 4px;}@media print{.no-print{display:none;}}</style>
         </head><body>
-        <h1>Коммерческое предложение — ${layoutNames[c.layout] || ''} кухня</h1>
-        <div class="muted">Дата: ${c.date.toLocaleString('ru-RU')} · ${runsText} · Столешница: ${c.runs.topTotal.toFixed(2)} м</div>
-
-        <h3>Состав проекта</h3>
-        <table>
-            <thead><tr>
-                <th>№</th><th>Ряд</th><th>Модуль</th><th>Габариты</th>
-                <th class="num">ДСП, м²</th><th class="num">Фасад, м²</th><th class="num">ДВП, м²</th>
-            </tr></thead>
-            <tbody>${modRows || '<tr><td colspan="7">— модули не добавлены —</td></tr>'}</tbody>
-        </table>
-
-        ${specTable('Материалы', c.specMat)}
-        ${specTable('Фурнитура и комплектующие', c.specHw)}
-        ${specTable('Работы и услуги', c.specWorks)}
-
-        <table class="totals">
-            <tr><td>Себестоимость:</td><td class="num">${money(c.net)}</td></tr>
-            <tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.final - c.net)}</td></tr>
-            <tr class="grand"><td>Итого к оплате:</td><td class="num">${money(c.final)}</td></tr>
-        </table>
-
-        <div class="no-print" style="margin-top:16px;">
-            <button onclick="window.print()">🖨️ Печать</button>
-            <button onclick="window.close()">Закрыть</button>
-        </div>
-        <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };<\/script>
+        <h1>КП — ${layoutNames[c.layout] || ''} кухня</h1>
+        <div>Дата: ${c.date.toLocaleString('ru-RU')} · ${runsText} · Столешница: ${c.runs.topTotal.toFixed(2)} м</div>
+        <h3>Состав</h3>
+        <table><thead><tr><th>№</th><th>Ряд</th><th>Модуль</th><th>Габариты</th><th class="num">ДСП</th><th class="num">Фасад</th><th class="num">ДВП</th></tr></thead><tbody>${modRows || '<tr><td colspan="7">— модули не добавлены —</td></tr>'}</tbody></table>
+        ${tbl('Материалы', c.specMat)}
+        ${tbl('Фурнитура и крепёж', c.specHw)}
+        ${tbl('Работы и услуги', c.specWorks)}
+        <table class="totals"><tr><td>Себестоимость:</td><td class="num">${money(c.net)}</td></tr><tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.final - c.net)}</td></tr><tr class="grand"><td>Итого:</td><td class="num">${money(c.final)}</td></tr></table>
+        <div class="no-print" style="margin-top:16px;"><button onclick="window.print()">🖨️ Печать</button> <button onclick="window.close()">Закрыть</button></div>
+        <script>window.onload=function(){setTimeout(function(){window.print();},300);};<\/script>
         </body></html>`;
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
+    w.document.open(); w.document.write(html); w.document.close();
 }
 
-// =================================================================
-// ИНИЦИАЛИЗАЦИЯ
-// =================================================================
 window.addEventListener('DOMContentLoaded', () => {
     updateLayoutHint();
     renderHardware(true);
