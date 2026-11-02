@@ -9,11 +9,6 @@
     .container { max-width: 1350px; margin: 20px auto; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
     h2 { margin-top: 0; color: #5c1724; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
 
-    .projects-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; }
-    .projects-bar label { margin: 0; font-size: 0.85rem; color: #854d0e; font-weight: 600; }
-    .projects-bar select { min-width: 200px; max-width: 320px; }
-    .projects-bar button { height: 34px; padding: 6px 12px; font-size: 0.82rem; }
-
     .status-badge { display: inline-block; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; margin-bottom: 15px; font-weight: 600; }
     .status-loading { background: #fef3c7; color: #b45309; }
     .status-success { background: #dcfce7; color: #15803d; }
@@ -33,12 +28,12 @@
     .mat-card { background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
     .mat-card-title { font-weight: bold; font-size: 0.88rem; color: #5c1724; margin-bottom: 8px; }
 
-    .client-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
-    .client-card { background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
-    .client-card label { margin-top: 6px; }
-    .client-card label:first-child { margin-top: 0; }
-    .client-card textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; font-family: inherit; }
-    .client-card textarea:focus { border-color: #5c1724; }
+    .order-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; background: #fefce8; padding: 15px; border-radius: 8px; border: 1px solid #fde68a; margin-bottom: 15px; }
+    .order-card { background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
+    .order-card label { margin-top: 6px; }
+    .order-card label:first-child { margin-top: 0; }
+    .order-card textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; font-family: inherit; resize: vertical; min-height: 60px; }
+    .order-card textarea:focus { border-color: #5c1724; }
 
     .form-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-end; flex-wrap: wrap; }
     .form-group { flex: 1; min-width: 130px; }
@@ -123,15 +118,11 @@
     .access-denied { max-width: 450px; margin: 80px auto; background: #ffffff; padding: 30px; border-radius: 12px; text-align: center; border-top: 5px solid #ef4444; }
     .ip-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
 
-    /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
     @media (max-width: 768px) {
         body { padding: 10px; }
         .container { padding: 15px; margin: 10px auto; border-radius: 8px; }
         h2 { font-size: 1.1rem; }
-        .projects-bar { padding: 8px; gap: 6px; }
-        .projects-bar select { min-width: 0; width: 100%; font-size: 0.85rem; }
-        .projects-bar button { font-size: 0.78rem; padding: 6px 10px; }
-        .materials-grid, .client-grid { grid-template-columns: 1fr; padding: 10px; gap: 10px; }
+        .materials-grid, .order-grid { grid-template-columns: 1fr; padding: 10px; gap: 10px; }
         .main-layout { flex-direction: column; gap: 15px; }
         .config-side, .visual-side { min-width: 100%; }
         .form-row { flex-direction: column; align-items: stretch; }
@@ -165,8 +156,6 @@
     }
     @media (max-width: 480px) {
         .container { padding: 10px; }
-        .projects-bar { flex-direction: column; align-items: stretch; }
-        .projects-bar button { width: 100%; }
         .hardware-price-input { width: 70px !important; }
         .modules-table th:nth-child(2),
         .modules-table td:nth-child(2) { display: none; }
@@ -179,14 +168,6 @@
     <div class="container">
         <h2>🏗️ Конструктор Кухни — Фаворит</h2>
 
-        <div class="projects-bar">
-            <label>Проект:</label>
-            <select id="projectSelect" onchange="onSelectProject(this.value)"></select>
-            <button class="btn" type="button" onclick="onNewProject()">+ Новый</button>
-            <button class="btn btn-secondary" type="button" onclick="onRenameProject()" title="Переименовать">✏️</button>
-            <button class="btn btn-danger" type="button" onclick="onDeleteCurrentProject()" title="Удалить" style="height:34px;padding:6px 12px;font-size:0.82rem;">🗑️</button>
-        </div>
-
         <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка...</div>
         <div id="pricePanel" style="margin-bottom:12px;"></div>
         <div id="servicesInfo" style="display:none; font-size:0.82rem; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:12px;"></div>
@@ -197,6 +178,36 @@
         </div>
 
         <div id="tabConstructor" class="tab-pane active">
+            <!-- ======= 1. ДАННЫЕ ЗАКАЗА (наверху) ======= -->
+            <div class="section-title">1. Данные заказа</div>
+            <div class="order-grid">
+                <div class="order-card">
+                    <label>ФИО клиента:</label>
+                    <input type="text" id="clientFio">
+                    <label style="margin-top:6px;">Телефон:</label>
+                    <input type="text" id="clientPhone">
+                    <label style="margin-top:6px;">Адрес:</label>
+                    <input type="text" id="clientAddress">
+                </div>
+                <div class="order-card">
+                    <label>Дата заказа:</label>
+                    <input type="date" id="orderDate">
+                    <label style="margin-top:6px;">Номер заказа:</label>
+                    <input type="text" id="orderNumber">
+                    <label style="margin-top:6px;">Тип заказа:</label>
+                    <select id="orderType" onchange="onOrderTypeChange()">
+                        <option value="delivery">С доставкой и установкой</option>
+                        <option value="self">Собери сам</option>
+                    </select>
+                </div>
+                <div class="order-card" style="grid-column: span 1;">
+                    <label>Наценка (%) — редактируется:</label>
+                    <input type="number" id="marginPercent" value="50" min="0" step="1" oninput="calculateProject()">
+                    <label style="margin-top:6px;">Примечания к заказу:</label>
+                    <textarea id="orderNotes" rows="3" placeholder="Например: без карго, стены кривые, нужен замер…"></textarea>
+                </div>
+            </div>
+
             <div class="layout-settings">
                 <strong>Компоновка:</strong>
                 <select id="layoutSelect" onchange="changeLayout(this.value)">
@@ -207,7 +218,7 @@
                 <span id="layoutHint"></span>
             </div>
 
-            <div class="section-title">1. Материалы</div>
+            <div class="section-title">2. Материалы</div>
             <div class="materials-grid">
                 <div class="mat-card">
                     <div class="mat-card-title">👇 Нижние модули</div>
@@ -240,7 +251,7 @@
 
             <div class="main-layout">
                 <div class="config-side">
-                    <div class="section-title">2. Конструктор модулей</div>
+                    <div class="section-title">3. Конструктор модулей</div>
                     <div class="form-row">
                         <div class="form-group" style="flex: 2;">
                             <label>Конфигурация:</label>
@@ -301,7 +312,7 @@
                         <tbody id="modulesTableBody"></tbody>
                     </table>
 
-                    <div class="section-title">3. Расход</div>
+                    <div class="section-title">4. Расход</div>
                     <div class="summary-box">
                         <div class="summary-item"><span>Площадь ДСП нижних корпусов:</span><strong id="bottomDspAreaDisplay">0</strong></div>
                         <div class="summary-item"><span>Площадь ДСП верхних корпусов:</span><strong id="topDspAreaDisplay">0</strong></div>
@@ -316,50 +327,16 @@
                         <div class="block-summary" id="materialsBlockSummary"><span>Итого по материалам:</span><span>0 ₽</span></div>
                     </div>
 
-                    <div class="section-title">4. Фурнитура</div>
+                    <div class="section-title">5. Фурнитура</div>
                     <div id="hardwareContainer" class="hardware-list"></div>
                     <div class="block-summary" id="hardwareBlockSummary" style="display:none;"><span>Итого по фурнитуре и крепежу:</span><span>0 ₽</span></div>
-
-                    <div class="section-title">5. Данные клиента и КП</div>
-                    <div class="client-grid">
-                        <div class="client-card">
-                            <label>ФИО клиента:</label>
-                            <input type="text" id="clientFio" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Телефон:</label>
-                            <input type="text" id="clientPhone" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Адрес объекта:</label>
-                            <input type="text" id="clientAddress" oninput="onClientDataChange()">
-                        </div>
-                        <div class="client-card">
-                            <label>Компания (реквизит):</label>
-                            <input type="text" id="clientCompany" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Номер КП:</label>
-                            <input type="text" id="clientKpNumber" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Дата КП:</label>
-                            <input type="date" id="clientKpDate" oninput="onClientDataChange()">
-                        </div>
-                        <div class="client-card">
-                            <label>Срок действия (дней):</label>
-                            <input type="number" id="clientValidityDays" value="14" min="1" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Условия оплаты:</label>
-                            <input type="text" id="clientPayment" value="Предоплата 50%" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Срок изготовления:</label>
-                            <input type="text" id="clientProductionTime" value="30 рабочих дней" oninput="onClientDataChange()">
-                        </div>
-                        <div class="client-card">
-                            <label>Гарантия:</label>
-                            <input type="text" id="clientWarranty" value="12 месяцев" oninput="onClientDataChange()">
-                            <label style="margin-top:6px;">Примечания (видны в КП):</label>
-                            <textarea id="clientNotes" rows="3" oninput="onClientDataChange()"></textarea>
-                        </div>
-                    </div>
 
                     <div class="total-box">
                         <div>Предварительный расчёт:</div>
                         <div id="totalPriceDisplay" class="total-price">0 ₽</div>
                         <div id="priceWarning" style="display:none; margin-top:10px; padding:8px 12px; background:#fee2e2; color:#b91c1c; border-radius:6px; font-size:0.85rem; font-weight:600; text-align:left;"></div>
                         <div class="no-print" style="display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap;">
-                            <button class="btn btn-secondary" onclick="openPrintForm()">🖨️ КП</button>
+                            <button class="btn btn-secondary" onclick="openPrintForm()">🖨️ Заказ</button>
                             <button class="btn btn-secondary" onclick="exportProject()">💾 Сохранить JSON</button>
                             <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📂 Загрузить</button>
                             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importProject(this)">
@@ -487,6 +464,10 @@ function escapeHtml(s) {
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+function fmtTime(t) {
+    return t ? new Date(t).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+}
+
 // =================================================================
 // ДОСТУП И ИНИЦИАЛИЗАЦИЯ
 // =================================================================
@@ -502,8 +483,8 @@ async function checkIpAndInit() {
         if (ALLOWED_IPS.includes(d.ip)) {
             document.getElementById('appContainer').style.display = 'block';
             denied.style.display = 'none';
-            initProjects();     // загрузка проекта (или создание нового)
-            loadAllData();      // параллельно грузим прайсы
+            initOrderDefaults();
+            loadAllData();
         } else {
             denied.style.display = 'block';
         }
@@ -512,287 +493,52 @@ async function checkIpAndInit() {
     }
 }
 
-// =================================================================
-// ПРОЕКТЫ (несколько / список клиентов)
-// =================================================================
-const PROJECTS_KEY = 'kc_projects_v1';
-let currentProjectId = null;
-let autoSaveTimer = null;
-
-function getAllProjects() {
-    try {
-        const raw = localStorage.getItem(PROJECTS_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
-}
-function saveAllProjects(list) {
-    try { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); } catch (e) {}
+// Дефолтные значения для полей заказа
+function initOrderDefaults() {
+    const today = new Date().toISOString().slice(0, 10);
+    const dateEl = document.getElementById('orderDate');
+    if (dateEl && !dateEl.value) dateEl.value = today;
+    const numEl = document.getElementById('orderNumber');
+    if (numEl && !numEl.value) numEl.value = 'З-' + today.replace(/-/g, '');
+    const marginEl = document.getElementById('marginPercent');
+    if (marginEl && !marginEl.value) marginEl.value = 50;
 }
 
-function collectClientData() {
+// Смена типа заказа → устанавливает дефолтную наценку
+function onOrderTypeChange() {
+    const type = document.getElementById('orderType').value;
+    const marginInput = document.getElementById('marginPercent');
+    if (!marginInput) return;
+    if (type === 'delivery') marginInput.value = 50;
+    else if (type === 'self') marginInput.value = 0;
+    calculateProject();
+}
+
+function collectOrderData() {
     return {
         fio: (document.getElementById('clientFio') || {}).value || '',
         phone: (document.getElementById('clientPhone') || {}).value || '',
         address: (document.getElementById('clientAddress') || {}).value || '',
-        company: (document.getElementById('clientCompany') || {}).value || '',
-        kpNumber: (document.getElementById('clientKpNumber') || {}).value || '',
-        kpDate: (document.getElementById('clientKpDate') || {}).value || new Date().toISOString().slice(0,10),
-        validityDays: safeNum(document.getElementById('clientValidityDays')) || 14,
-        payment: (document.getElementById('clientPayment') || {}).value || '',
-        productionTime: (document.getElementById('clientProductionTime') || {}).value || '',
-        warranty: (document.getElementById('clientWarranty') || {}).value || '',
-        notes: (document.getElementById('clientNotes') || {}).value || ''
+        orderDate: (document.getElementById('orderDate') || {}).value || '',
+        orderNumber: (document.getElementById('orderNumber') || {}).value || '',
+        orderType: (document.getElementById('orderType') || {}).value || 'delivery',
+        notes: (document.getElementById('orderNotes') || {}).value || ''
     };
 }
-function restoreClientData(client) {
-    if (!client) return;
+function restoreOrderData(o) {
+    if (!o) return;
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v === undefined || v === null) ? '' : v; };
-    set('clientFio', client.fio);
-    set('clientPhone', client.phone);
-    set('clientAddress', client.address);
-    set('clientCompany', client.company);
-    set('clientKpNumber', client.kpNumber);
-    set('clientKpDate', client.kpDate);
-    set('clientValidityDays', client.validityDays || 14);
-    set('clientPayment', client.payment);
-    set('clientProductionTime', client.productionTime);
-    set('clientWarranty', client.warranty);
-    set('clientNotes', client.notes);
-}
-function onClientDataChange() {
-    scheduleAutoSave();
-    if (lastCalc) { /* пересчёт КП не нужен, данные используются только в печати */ }
-}
-
-function getCurrentProjectData() {
-    return {
-        modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
-        hiddenCorners: hiddenCornerModules.map(m => ({ ...m })),
-        layout: currentLayout(),
-        prices: collectPrices(),
-        hardware: JSON.parse(JSON.stringify(HW_STATE)),
-        client: collectClientData(),
-        discount: safeNum(document.getElementById('discountPercent'))
-    };
-}
-
-function saveCurrentProject() {
-    if (!currentProjectId) return;
-    const list = getAllProjects();
-    const idx = list.findIndex(p => p.id === currentProjectId);
-    if (idx < 0) return;
-    list[idx] = {
-        id: currentProjectId,
-        name: list[idx].name || 'Проект',
-        savedAt: Date.now(),
-        data: getCurrentProjectData()
-    };
-    saveAllProjects(list);
-    renderProjectsPanel();
-}
-
-function scheduleAutoSave() {
-    if (autoSaveTimer) clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => {
-        autoSaveTimer = null;
-        saveCurrentProject();
-    }, 800);
-}
-
-function createNewProject(name) {
-    const id = (crypto.randomUUID ? crypto.randomUUID() : 'p-' + Date.now() + Math.random().toString(36).slice(2));
-    const list = getAllProjects();
-    const defaultClient = {
-        fio: '', phone: '', address: '', company: '',
-        kpNumber: 'КП-' + new Date().toISOString().slice(0,10).replace(/-/g,''),
-        kpDate: new Date().toISOString().slice(0,10),
-        validityDays: 14, payment: 'Предоплата 50%',
-        productionTime: '30 рабочих дней', warranty: '12 месяцев', notes: ''
-    };
-    list.unshift({
-        id, name: name || 'Новый проект',
-        savedAt: Date.now(),
-        data: {
-            modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
-            hiddenCorners: [],
-            layout: currentLayout(),
-            prices: {},
-            hardware: {},
-            client: defaultClient,
-            discount: 0
-        }
-    });
-    saveAllProjects(list);
-    return id;
-}
-
-function loadProject(id) {
-    const list = getAllProjects();
-    const proj = list.find(p => p.id === id);
-    if (!proj) return;
-    currentProjectId = id;
-    const d = proj.data || {};
-
-    // Модули
-    projectModules = (d.modules || []).map((m, i) => ({
-        id: (crypto.randomUUID ? crypto.randomUUID() : 'm-' + Date.now() + i),
-        run: m.run || 'A', type: m.type,
-        name: m.name || m.type,
-        width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530
-    }));
-    hiddenCornerModules = (d.hiddenCorners || []).map((m, i) => ({
-        ...m, id: (crypto.randomUUID ? crypto.randomUUID() : 'h-' + Date.now() + i)
-    }));
-
-    // Компоновка
-    if (d.layout) {
-        document.getElementById('layoutSelect').value = d.layout;
-        updateLayoutHint();
-    }
-
-    // Прайсы (могут быть ещё не загружены — тогда pendingName сохранится и восстановится в fillSelect)
-    if (d.prices) restorePrices(d.prices);
-
-    // Фурнитура
-    if (d.hardware) {
-        Object.keys(d.hardware).forEach(k => {
-            if (HW_STATE[k]) HW_STATE[k] = d.hardware[k];
-        });
-    }
-    hardwareRendered = false;
-
-    // Клиент
-    restoreClientData(d.client);
-
-    // Скидка
-    const dp = document.getElementById('discountPercent');
-    if (dp) dp.value = (typeof d.discount === 'number') ? d.discount : 0;
-
-    // Перерисовка
-    renderModulesTable();
-    renderHardware(true);
-    calculateProject();
-    drawKitchen2D();
-    forceRebuildThree();
-    renderProjectsPanel();
-}
-
-function deleteProject(id) {
-    const list = getAllProjects().filter(p => p.id !== id);
-    saveAllProjects(list);
-    if (currentProjectId === id) {
-        currentProjectId = null;
-        if (list.length > 0) {
-            loadProject(list[0].id);
-        } else {
-            // Если ничего не осталось — создаём новый и сбрасываем
-            resetProjectSilent();
-            const nid = createNewProject('Новый проект');
-            currentProjectId = nid;
-            renderProjectsPanel();
-        }
-    } else {
-        renderProjectsPanel();
-    }
-}
-
-function renameProject(id, newName) {
-    const list = getAllProjects();
-    const idx = list.findIndex(p => p.id === id);
-    if (idx < 0) return;
-    list[idx].name = newName;
-    saveAllProjects(list);
-    renderProjectsPanel();
-}
-
-function resetProjectSilent() {
-    projectModules = [];
-    hiddenCornerModules = [];
-    HW_CATEGORIES.forEach(c => {
-        HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] };
-    });
-    hardwareRendered = false;
-    restoreClientData({});
-    const dp = document.getElementById('discountPercent');
-    if (dp) dp.value = 0;
-}
-
-function initProjects() {
-    const list = getAllProjects();
-    if (list.length === 0) {
-        const id = createNewProject('Мой первый проект');
-        currentProjectId = id;
-        saveCurrentProject();
-    } else {
-        loadProject(list[0].id);
-    }
-    renderProjectsPanel();
-}
-
-function renderProjectsPanel() {
-    const sel = document.getElementById('projectSelect');
-    if (!sel) return;
-    const list = getAllProjects().sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
-    sel.innerHTML = '';
-    list.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.name + (p.savedAt ? ' · ' + fmtTime(p.savedAt) : '');
-        if (p.id === currentProjectId) opt.selected = true;
-        sel.appendChild(opt);
-    });
-    if (currentProjectId && !list.some(p => p.id === currentProjectId)) {
-        currentProjectId = list.length ? list[0].id : null;
-        if (currentProjectId) sel.value = currentProjectId;
-    }
-}
-
-function onSelectProject(id) {
-    if (!id || id === currentProjectId) return;
-    saveCurrentProject(); // сохранить текущий перед переключением
-    loadProject(id);
-}
-
-function onNewProject() {
-    const name = prompt('Название проекта (например «Иванов, угловая 3м»):', 'Новый проект');
-    if (name === null) return;
-    saveCurrentProject();
-    const id = createNewProject(name.trim() || 'Новый проект');
-    currentProjectId = id;
-    // сброс текущего состояния
-    resetProjectSilent();
-    projectModules = [
-        { id: 's1', run: 'B', type: 'corner_base_45', name: CORNER_NAMES.corner_base_45, width: 900, height: 720, depth: 530 },
-        { id: 's2', run: 'A', type: 'bottom_p2d', name: 'Полка 2 двери', width: 800, height: 720, depth: 530 },
-        { id: 's3', run: 'A', type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
-    ];
-    renderModulesTable();
-    renderHardware(true);
-    calculateProject();
-    drawKitchen2D();
-    forceRebuildThree();
-    saveCurrentProject();
-    renderProjectsPanel();
-}
-
-function onRenameProject() {
-    if (!currentProjectId) return;
-    const list = getAllProjects();
-    const cur = list.find(p => p.id === currentProjectId);
-    if (!cur) return;
-    const name = prompt('Новое имя проекта:', cur.name);
-    if (name === null || !name.trim()) return;
-    renameProject(currentProjectId, name.trim());
-}
-
-function onDeleteCurrentProject() {
-    if (!currentProjectId) return;
-    if (!confirm('Удалить текущий проект безвозвратно?')) return;
-    deleteProject(currentProjectId);
+    set('clientFio', o.fio);
+    set('clientPhone', o.phone);
+    set('clientAddress', o.address);
+    set('orderDate', o.orderDate);
+    set('orderNumber', o.orderNumber);
+    set('orderType', o.orderType || 'delivery');
+    set('orderNotes', o.notes);
 }
 
 // =================================================================
-// ЗАГРУЗКА ПРАЙСОВ
+// ЗАГРУЗКА ПРАЙСОВ (без localStorage)
 // =================================================================
 const SOURCE_LABELS = {
     dsp:'ДСП', mdf:'МДФ', countertops:'Столешницы', hinges:'Петли',
@@ -937,9 +683,9 @@ function applyServicePrices(fetchFailed) {
     box.innerText = `Услуги: подставлено ${found.length}. ${found.join('; ')}`;
 }
 
-const CACHE_PREFIX = 'kc_v17:';
 const MAX_PARALLEL = 3;
-const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
+const SOURCE_STATE = {};
+const inflight = {};
 
 const SOURCE_UI = {
     dsp: { fills: [['bottomBodySelect'], ['topBodySelect']], facades: true },
@@ -952,17 +698,6 @@ const SOURCE_UI = {
     services: { fills: [], services: true }
 };
 
-function cacheGet(k) {
-    try { const raw = localStorage.getItem(CACHE_PREFIX + k); const obj = raw ? JSON.parse(raw) : null; return obj && Array.isArray(obj.items) && obj.items.length ? obj : null; }
-    catch (e) { return null; }
-}
-function cacheSet(k, items) {
-    try { localStorage.setItem(CACHE_PREFIX + k, JSON.stringify({ t: Date.now(), items })); } catch (e) {}
-}
-function fmtTime(t) {
-    return t ? new Date(t).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
-}
-
 function applySourceToUI(k) {
     const ui = SOURCE_UI[k]; if (!ui) return;
     ui.fills.forEach(([sid, pid]) => fillSelect(sid, DATA_STORE[k], pid || null));
@@ -974,23 +709,23 @@ function applySourceToUI(k) {
 function loadSource(k) {
     if (inflight[k]) return inflight[k];
     inflight[k] = (async () => {
-        const prev = SOURCE_STATE[k] || {};
-        SOURCE_STATE[k] = { status: 'loading', time: prev.time };
+        SOURCE_STATE[k] = { status: 'loading' };
         renderPricePanel(); updateStatusBadge();
         const text = await fetchCsvData(SOURCES[k]);
         const items = parseCsvToItems(text);
         if (text && items.length > 0) {
-            DATA_STORE[k] = items; DATA_TIME[k] = Date.now(); cacheSet(k, items);
-            SOURCE_STATE[k] = { status: 'ok', time: DATA_TIME[k] };
+            DATA_STORE[k] = items;
+            SOURCE_STATE[k] = { status: 'ok', time: Date.now() };
         } else {
             const note = text ? 'нет цен' : 'нет связи';
-            if (!DATA_STORE[k] || DATA_STORE[k].length === 0) { const c = cacheGet(k); if (c) { DATA_STORE[k] = c.items; DATA_TIME[k] = c.t; } }
-            if (DATA_STORE[k] && DATA_STORE[k].length > 0) SOURCE_STATE[k] = { status: 'cached', time: DATA_TIME[k], note };
-            else { DATA_STORE[k] = []; SOURCE_STATE[k] = { status: 'error', note }; }
+            DATA_STORE[k] = [];
+            SOURCE_STATE[k] = { status: 'error', note };
         }
         applySourceToUI(k); renderPricePanel(); updateStatusBadge();
-    })().catch(err => { SOURCE_STATE[k] = { status: 'error', note: String(err) }; renderPricePanel(); updateStatusBadge(); })
-      .finally(() => { delete inflight[k]; });
+    })().catch(err => {
+        SOURCE_STATE[k] = { status: 'error', note: String(err) };
+        renderPricePanel(); updateStatusBadge();
+    }).finally(() => { delete inflight[k]; });
     return inflight[k];
 }
 
@@ -999,11 +734,9 @@ function updateStatusBadge() {
     const keys = Object.keys(SOURCES); const st = k => SOURCE_STATE[k] || { status: 'loading' };
     const loading = keys.filter(k => st(k).status === 'loading');
     const errors = keys.filter(k => st(k).status === 'error');
-    const cached = keys.filter(k => st(k).status === 'cached');
     failedSources = errors.filter(k => !NON_CRITICAL.includes(k)).map(k => `${SOURCE_LABELS[k]} — ${st(k).note}`);
     if (loading.length > 0) { b.className = "status-badge status-loading"; b.innerText = `⏳ Загрузка… (${keys.length - loading.length}/${keys.length})`; }
     else if (errors.length > 0) { b.className = "status-badge status-error"; b.innerHTML = "⚠️ Не загружено: " + errors.map(k => SOURCE_LABELS[k]).join(', '); }
-    else if (cached.length > 0) { b.className = "status-badge status-loading"; b.innerHTML = "⚠️ Копии: " + cached.map(k => SOURCE_LABELS[k]).join(', '); }
     else { b.className = "status-badge status-success"; b.innerText = "✓ Все прайсы загружены"; }
 }
 
@@ -1017,7 +750,6 @@ function renderPricePanel() {
         const s = SOURCE_STATE[k] || { status: 'loading' };
         let cls = 'chip-ok', icon = '✓', title = 'OK ' + fmtTime(s.time);
         if (s.status === 'loading') { cls = 'chip-load'; icon = '⏳'; title = 'Загрузка…'; }
-        else if (s.status === 'cached') { cls = 'chip-warn'; icon = '⚠'; title = 'Копия от ' + fmtTime(s.time); }
         else if (s.status === 'error') { cls = 'chip-err'; icon = '✕'; title = 'Ошибка: ' + s.note; }
         const chip = document.createElement('span'); chip.className = 'price-chip ' + cls; chip.title = title;
         chip.appendChild(document.createTextNode(`${icon} ${SOURCE_LABELS[k]}`));
@@ -1030,7 +762,7 @@ function renderPricePanel() {
 
 async function loadAllData(onlyFailed = false, autoRetries = 2) {
     const keys = Object.keys(SOURCES).filter(k => !onlyFailed || !SOURCE_STATE[k] || SOURCE_STATE[k].status !== 'ok');
-    keys.forEach(k => { if (!inflight[k]) SOURCE_STATE[k] = { status: 'loading', time: (SOURCE_STATE[k] || {}).time }; });
+    keys.forEach(k => { if (!inflight[k]) SOURCE_STATE[k] = { status: 'loading' }; });
     renderPricePanel(); updateStatusBadge();
     let next = 0;
     const worker = async () => { while (next < keys.length) { const k = keys[next++]; await loadSource(k); } };
@@ -1040,7 +772,6 @@ async function loadAllData(onlyFailed = false, autoRetries = 2) {
     if (stillBad && autoRetries > 0) { await sleep(2500); return loadAllData(true, autoRetries - 1); }
 }
 
-// fillSelect с поддержкой pendingName (для загрузки проекта до готовности прайсов)
 function handleFacadeTypeChange() {
     const t = document.getElementById('defaultFacadeType').value;
     const items = (t === 'dsp') ? DATA_STORE.dsp : DATA_STORE.mdf;
@@ -1135,7 +866,6 @@ function changeLayout(newLayout) {
         }
     }
     renderModulesTable(); calculateProject();
-    scheduleAutoSave();
 }
 
 // =================================================================
@@ -1368,12 +1098,12 @@ function addModule() {
     } else {
         projectModules.push({ id, run, type, name, width: w, height: h, depth: d });
     }
-    renderModulesTable(); calculateProject(); scheduleAutoSave();
+    renderModulesTable(); calculateProject();
 }
 
 function removeModule(id) {
     projectModules = projectModules.filter(m => m.id !== id);
-    renderModulesTable(); calculateProject(); scheduleAutoSave();
+    renderModulesTable(); calculateProject();
 }
 
 function updateCornerType(id, newType) {
@@ -1384,7 +1114,7 @@ function updateCornerType(id, newType) {
     else if (newType === 'corner_base_v1050') { m.width = 1050; m.depth = 530; }
     else if (newType === 'corner_top_90' || newType === 'corner_top_45') { m.width = 600; m.depth = 320; }
     else if (newType === 'corner_top_v700') { m.width = 700; m.depth = 320; }
-    renderModulesTable(); calculateProject(); scheduleAutoSave();
+    renderModulesTable(); calculateProject();
 }
 
 function renderModulesTable() {
@@ -1438,7 +1168,7 @@ function renderHardware(force = false) {
         tog.onclick = () => {
             state.split = !state.split;
             if (!state.split) state.rows = [{ selectIdx: '', customName: '', qtyManual: '', price: '' }];
-            renderHardware(true); calculateProject(); scheduleAutoSave();
+            renderHardware(true); calculateProject();
         };
         head.appendChild(tog); row.appendChild(head);
 
@@ -1446,7 +1176,7 @@ function renderHardware(force = false) {
             if (force) {
                 const pi = document.createElement('input'); pi.type = 'number'; pi.className = 'hardware-price-input'; pi.placeholder = 'цена'; pi.id = 'hwprice-' + cat.id;
                 pi.value = state.rows[0].price || '';
-                pi.oninput = () => { state.rows[0].price = pi.value; calculateProject(); scheduleAutoSave(); };
+                pi.oninput = () => { state.rows[0].price = pi.value; calculateProject(); };
                 row.appendChild(pi);
                 if (cat.source) {
                     const sel = document.createElement('select'); sel.className = 'hardware-select'; sel.id = 'hwsel-' + cat.id;
@@ -1455,7 +1185,7 @@ function renderHardware(force = false) {
                         state.rows[0].selectIdx = sel.value;
                         const items = DATA_STORE[cat.source] || [];
                         if (sel.value !== '' && items[sel.value]) { state.rows[0].price = items[sel.value].price; pi.value = items[sel.value].price; }
-                        calculateProject(); scheduleAutoSave();
+                        calculateProject();
                     };
                     row.appendChild(sel);
                 }
@@ -1472,19 +1202,19 @@ function renderHardware(force = false) {
                         const items2 = DATA_STORE[cat.source] || [];
                         if (sel.value !== '' && items2[sel.value]) r.price = items2[sel.value].price;
                         const pi = document.getElementById(`hwsplit-price-${cat.id}-${ri}`); if (pi) pi.value = r.price;
-                        calculateProject(); scheduleAutoSave();
+                        calculateProject();
                     };
                     srow.appendChild(sel);
                 }
                 const ni = document.createElement('input'); ni.type = 'text'; ni.placeholder = 'название'; ni.style.cssText = 'flex:2; min-width:120px;';
-                ni.value = r.customName; ni.id = `hwsplit-name-${cat.id}-${ri}`; ni.oninput = () => { r.customName = ni.value; scheduleAutoSave(); }; srow.appendChild(ni);
+                ni.value = r.customName; ni.id = `hwsplit-name-${cat.id}-${ri}`; ni.oninput = () => { r.customName = ni.value; }; srow.appendChild(ni);
                 const rs = document.createElement('span'); rs.className = 'split-rec'; rs.id = `hwsplit-rec-${cat.id}-${ri}`; rs.textContent = 'реком. —'; srow.appendChild(rs);
                 const qi = document.createElement('input'); qi.type = 'number'; qi.className = 'split-qty'; qi.placeholder = 'кол-во'; qi.min = 0; qi.value = r.qtyManual; qi.id = `hwsplit-qty-${cat.id}-${ri}`;
-                qi.oninput = () => { r.qtyManual = qi.value; calculateProject(); scheduleAutoSave(); }; srow.appendChild(qi);
+                qi.oninput = () => { r.qtyManual = qi.value; calculateProject(); }; srow.appendChild(qi);
                 const pi = document.createElement('input'); pi.type = 'number'; pi.className = 'split-price'; pi.placeholder = 'цена'; pi.value = r.price; pi.id = `hwsplit-price-${cat.id}-${ri}`;
-                pi.oninput = () => { r.price = pi.value; calculateProject(); scheduleAutoSave(); }; srow.appendChild(pi);
+                pi.oninput = () => { r.price = pi.value; calculateProject(); }; srow.appendChild(pi);
                 const del = document.createElement('button'); del.type = 'button'; del.className = 'btn btn-danger btn-mini'; del.textContent = '✕';
-                del.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); calculateProject(); scheduleAutoSave(); };
+                del.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); calculateProject(); };
                 srow.appendChild(del); block.appendChild(srow);
             });
             const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.className = 'btn btn-secondary btn-mini'; addBtn.textContent = '+ строка';
@@ -1503,7 +1233,7 @@ function renderHardware(force = false) {
     glueRow.innerHTML = '<span class="hardware-label">Поклейка кромки (из прайса)</span>';
     const glueSel = document.createElement('select'); glueSel.className = 'hardware-select'; glueSel.id = 'edgeGlueSelect'; glueSel.onchange = onEdgeGlueSelectChange;
     const gluePrice = document.createElement('input'); gluePrice.type = 'number'; gluePrice.className = 'hardware-price-input'; gluePrice.id = 'edgeGluePrice'; gluePrice.value = 0;
-    gluePrice.oninput = () => { calculateProject(); scheduleAutoSave(); };
+    gluePrice.oninput = () => calculateProject();
     glueRow.appendChild(glueSel); glueRow.appendChild(gluePrice); extra.appendChild(glueRow);
     updateEdgeGlueSelect();
 
@@ -1523,15 +1253,13 @@ function renderHardware(force = false) {
         { l: 'Отход материала, %', id: 'wastePercent', d: 20 },
         { l: 'Добавка кромки на сторону (мм)', id: 'edgeAllowanceMm', d: 60 },
         { l: 'Распил: пог. м на 1 м² плит', id: 'sawPerM2', d: 7 },
-        { l: 'Доп. метизы / расходники (руб)', id: 'hardwareCost', d: 1000 },
-        { l: 'Наценка (%)', id: 'marginPercent', d: 30 },
-        { l: 'Скидка клиента (%)', id: 'discountPercent', d: 0 }
+        { l: 'Доп. метизы / расходники (руб)', id: 'hardwareCost', d: 1000 }
     ];
     fields.forEach(f => {
         const r = document.createElement('div'); r.className = 'hardware-row';
         r.innerHTML = `<span class="hardware-label">${f.l}</span>`;
         const inp = document.createElement('input'); inp.type = 'number'; inp.className = 'hardware-price-input'; inp.id = f.id; inp.value = f.d;
-        inp.oninput = () => { calculateProject(); scheduleAutoSave(); };
+        inp.oninput = () => calculateProject();
         r.appendChild(inp); extra.appendChild(r);
     });
     const srvBox = document.createElement('div'); srvBox.className = 'services-summary'; srvBox.id = 'servicesSummary'; extra.appendChild(srvBox);
@@ -1693,7 +1421,6 @@ function calculateProject() {
     const glueP = safeNum(document.getElementById('edgeGluePrice'));
     const extraC = safeNum(document.getElementById('hardwareCost'));
     const margin = safeNum(document.getElementById('marginPercent'));
-    const discount = safeNum(document.getElementById('discountPercent'));
 
     const dspCost = ((bottomDspArea * bB) + (topDspArea * tB)) * wasteK;
     const facadeCost = ((bottomFacadeArea * bF) + (topFacadeArea * tF)) * wasteK;
@@ -1737,9 +1464,7 @@ function calculateProject() {
         handlesCost + hangersCost + mountRailCost + shelfPinsCost +
         confCost + scrCost + dowCost + d35Cost + triCost + cutOCost + cutSCost + glueDotsCost + shkantCost + extraC;
     const safeNet = isFinite(net) ? net : 0;
-    const beforeDiscount = safeNet * (1 + margin / 100);
-    const final = beforeDiscount * (1 - discount / 100);
-    const safeFinal = isFinite(final) ? final : 0;
+    const safeFinal = safeNet * (1 + margin / 100);
     document.getElementById('totalPriceDisplay').innerText = Math.round(safeFinal).toLocaleString('ru-RU') + " ₽";
 
     lastServices = [
@@ -1798,8 +1523,8 @@ function calculateProject() {
     specHw.push({ name: 'Конфирматы', detail: '', qty: totalConfirmats, unit: 'шт', price: confP, sum: confCost });
     specHw.push({ name: 'Шурупы', detail: '', qty: totalScrews, unit: 'шт', price: scrP, sum: scrCost });
     specHw.push({ name: 'Дюбеля', detail: '5 шт. на планку', qty: dowelsCount, unit: 'шт', price: dowP, sum: dowCost });
-    if (totalShkants > 0) specHw.push({ name: 'Шканты', detail: 'по файлу технолога', qty: totalShkants, unit: 'шт', price: shkantP, sum: shkantCost });
-    if (totalGlueDotsKg > 0) specHw.push({ name: 'Гвозди мебельные', detail: 'по файлу технолога', qty: totalGlueDotsKg, unit: 'кг', price: glueDotsP, sum: glueDotsCost });
+    if (totalShkants > 0) specHw.push({ name: 'Шканты', detail: '', qty: totalShkants, unit: 'шт', price: shkantP, sum: shkantCost });
+    if (totalGlueDotsKg > 0) specHw.push({ name: 'Гвозди мебельные', detail: '', qty: totalGlueDotsKg, unit: 'кг', price: glueDotsP, sum: glueDotsCost });
     specHw.push({ name: 'Расходники', detail: '', qty: 1, unit: 'компл', price: extraC, sum: extraC });
 
     const specWorks = [
@@ -1814,11 +1539,10 @@ function calculateProject() {
 
     lastCalc = {
         date: new Date(), layout: currentLayout(),
-        net: safeNet, margin, discount, beforeDiscount,
-        final: safeFinal,
+        net: safeNet, margin, final: safeFinal,
         specMat, specHw, specWorks,
         runs: { A: runLength.A / 1000, B: runLength.B / 1000, C: runLength.C / 1000, topTotal: Math.max(0, totalTopLength) },
-        client: collectClientData(),
+        order: collectOrderData(),
         modules: projectModules.map((m, i) => {
             const c = getModuleCalculations(m.type, m.width, m.height, m.depth);
             return { num: i + 1, run: m.run, name: m.name, w: m.width, h: m.height, d: m.depth, dsp: c.dsp, facade: c.facade, dvp: c.dvp, isCorner: c.isCorner };
@@ -1827,7 +1551,6 @@ function calculateProject() {
 
     scheduleSketch();
     if (threeRenderer) rebuildThree();
-    scheduleAutoSave();
 }
 
 function updateServicesSummary() {
@@ -1985,7 +1708,7 @@ function initSketchDrag() {
         if (sketchDragId === null) return;
         sketchDragId = null; sketchDragRun = null;
         canvas.style.cursor = 'default';
-        renderModulesTable(); drawKitchen2D(); scheduleAutoSave();
+        renderModulesTable(); drawKitchen2D();
     });
     canvas.addEventListener('pointercancel', () => {
         if (sketchDragId === null) return;
@@ -2006,7 +1729,7 @@ function moveModule(id, dir) {
     if (newIdx >= otherIds.length) insertAt = projectModules.findIndex(m => m.id === otherIds[otherIds.length - 1]) + 1;
     else insertAt = projectModules.findIndex(m => m.id === otherIds[Math.max(0, newIdx)]);
     projectModules.splice(insertAt, 0, modCopy);
-    renderModulesTable(); calculateProject(); scheduleAutoSave();
+    renderModulesTable(); calculateProject();
 }
 
 // =================================================================
@@ -2292,25 +2015,26 @@ function addHelpList(card, label, items) {
 }
 
 // =================================================================
-// ЭКСПОРТ / ИМПОРТ
+// ЭКСПОРТ / ИМПОРТ (без localStorage — только файлы)
 // =================================================================
 function exportProject() {
     const data = {
-        version: 17, layout: currentLayout(),
+        version: 18, layout: currentLayout(),
         modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
         hiddenCorners: hiddenCornerModules.map(m => ({ ...m })),
         prices: collectPrices(),
         hardware: JSON.parse(JSON.stringify(HW_STATE)),
-        client: collectClientData(),
-        discount: safeNum(document.getElementById('discountPercent'))
+        order: collectOrderData()
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `kitchen-${new Date().toISOString().slice(0,10)}.json`;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    const num = (document.getElementById('orderNumber') || {}).value || 'order';
+    a.download = `${num}-${new Date().toISOString().slice(0,10)}.json`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
-const PRICE_FIELDS = ['confirmatPrice','screwPrice','dowelPrice','glueDotsPrice','shkantPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent','discountPercent'];
+const PRICE_FIELDS = ['confirmatPrice','screwPrice','dowelPrice','glueDotsPrice','shkantPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent'];
 const MATERIAL_FIELDS = ['bottomBodySelect','bottomBodyEdgeSelect','bottomFacadeSelect','topBodySelect','topBodyEdgeSelect','topFacadeSelect','topMaterialSelect','dvpSelect','defaultFacadeType'];
 
 function collectPrices() {
@@ -2326,7 +2050,6 @@ function collectPrices() {
     return out;
 }
 
-// Восстановление цен и материалов (с pendingName — для загрузки проекта до готовности прайсов)
 function restorePrices(prices) {
     PRICE_FIELDS.forEach(id => {
         if (prices[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = prices[id];
@@ -2336,7 +2059,6 @@ function restorePrices(prices) {
         if (!el || prices[id] === undefined) return;
         const p = prices[id];
         if (el.tagName === 'SELECT' && p && typeof p === 'object') {
-            // Если прайс ещё не загружен — сохраняем имя в dataset, восстановится в fillSelect
             el.dataset.pendingName = p.name || '';
         } else if (el.tagName !== 'SELECT') {
             el.value = p;
@@ -2359,12 +2081,9 @@ function importProject(input) {
             hiddenCornerModules = (data.hiddenCorners || []).map(m => ({ ...m, id: crypto.randomUUID ? crypto.randomUUID() : 'h-'+Date.now() }));
             if (data.prices) restorePrices(data.prices);
             if (data.hardware) Object.keys(data.hardware).forEach(k => { if (HW_STATE[k]) HW_STATE[k] = data.hardware[k]; });
-            if (data.client) restoreClientData(data.client);
-            const dp = document.getElementById('discountPercent');
-            if (dp) dp.value = (typeof data.discount === 'number') ? data.discount : 0;
+            if (data.order) restoreOrderData(data.order);
             hardwareRendered = false;
             renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
-            scheduleAutoSave();
         } catch (e) { alert('Ошибка: ' + e.message); }
         finally { input.value = ''; }
     };
@@ -2376,22 +2095,23 @@ function resetProject() {
     projectModules = []; hiddenCornerModules = [];
     HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] }; });
     hardwareRendered = false;
-    restoreClientData({});
+    restoreOrderData({});
     renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
-    scheduleAutoSave();
 }
 
 // =================================================================
-// КП
+// ПЕЧАТЬ ЗАКАЗА (не КП)
 // =================================================================
 function openPrintForm() {
     if (!lastCalc) calculateProject();
     const c = lastCalc;
-    const client = c.client || {};
+    const o = c.order || {};
     const w = window.open('', '_blank'); if (!w) { alert('Разрешите всплывающие окна.'); return; }
     const fmt = (n, d = 2) => isFinite(n) ? n.toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
     const money = n => Math.round(n).toLocaleString('ru-RU') + ' ₽';
     const layoutNames = { straight: 'Прямая', corner: 'Угловая', 'u-shape': 'П-образная' };
+    const orderTypeLabel = o.orderType === 'self' ? 'Собери сам' : 'С доставкой и установкой';
+
     const tbl = (title, rows) => {
         if (!rows || !rows.length) return '';
         const body = rows.map(r => `<tr><td>${escapeHtml(r.name)}${r.detail ? `<div style="color:#555;font-size:10px;">${escapeHtml(r.detail)}</div>` : ''}</td><td class="num">${fmt(r.qty)}</td><td>${r.unit}</td><td class="num">${fmt(r.price)}</td><td class="num">${money(r.sum)}</td></tr>`).join('');
@@ -2399,8 +2119,10 @@ function openPrintForm() {
     };
     const modRows = c.modules.map(m => `<tr><td>№${m.num}</td><td>${escapeHtml(m.run)}</td><td>${escapeHtml(m.name)}</td><td>${m.w}×${m.h}×${m.d}</td><td class="num">${m.dsp.toFixed(2)}</td><td class="num">${m.facade.toFixed(2)}</td><td class="num">${m.dvp.toFixed(2)}</td></tr>`).join('');
     const runsText = ['A','B','C'].filter(r => c.runs[r] > 0).map(r => `Ряд ${r}: ${c.runs[r].toFixed(2)} м`).join(' · ');
-    const discountSum = c.beforeDiscount - c.final;
-    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>КП №${escapeHtml(client.kpNumber || '')}</title>
+
+    const headerTitle = `Заказ «${orderTypeLabel}»${o.orderNumber ? ' №' + escapeHtml(o.orderNumber) : ''}${o.orderDate ? ' от ' + escapeHtml(o.orderDate) : ''}`;
+
+    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>${escapeHtml(headerTitle)}</title>
         <style>
             body { font-family: Arial, sans-serif; font-size: 12px; padding: 20px; color: #1e293b; }
             h1 { font-size: 18px; margin: 0 0 4px; color: #5c1724; }
@@ -2414,19 +2136,15 @@ function openPrintForm() {
             .num { text-align: right; white-space: nowrap; }
             .grand { font-weight: bold; font-size: 14px; }
             .totals td { border: none; padding: 2px 4px; }
-            .conditions { margin-top: 14px; padding: 10px 12px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; font-size: 11px; }
-            .conditions div { margin: 3px 0; }
-            .conditions strong { color: #0c4a6e; }
             .notes { margin-top: 10px; padding: 10px 12px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; font-size: 11px; }
             @media print { body { padding: 0; } .no-print { display: none; } }
         </style>
         </head><body>
-        <h1>Коммерческое предложение ${client.kpNumber ? '№' + escapeHtml(client.kpNumber) : ''} ${client.kpDate ? 'от ' + escapeHtml(client.kpDate) : ''}</h1>
+        <h1>${escapeHtml(headerTitle)}</h1>
         <div class="client-block">
-            ${client.company ? `<div><strong>Компания:</strong> ${escapeHtml(client.company)}</div>` : ''}
-            ${client.fio ? `<div><strong>Клиент:</strong> ${escapeHtml(client.fio)}</div>` : ''}
-            ${client.phone ? `<div><strong>Телефон:</strong> ${escapeHtml(client.phone)}</div>` : ''}
-            ${client.address ? `<div><strong>Адрес объекта:</strong> ${escapeHtml(client.address)}</div>` : ''}
+            ${o.fio ? `<div><strong>Клиент:</strong> ${escapeHtml(o.fio)}</div>` : ''}
+            ${o.phone ? `<div><strong>Телефон:</strong> ${escapeHtml(o.phone)}</div>` : ''}
+            ${o.address ? `<div><strong>Адрес:</strong> ${escapeHtml(o.address)}</div>` : ''}
         </div>
         <div style="font-size:11px;color:#555;margin-bottom:8px;">
             Компоновка: ${layoutNames[c.layout] || ''} · ${runsText} · Столешница: ${c.runs.topTotal.toFixed(2)} м
@@ -2438,18 +2156,10 @@ function openPrintForm() {
         ${tbl('Работы и услуги', c.specWorks)}
         <table class="totals">
             <tr><td>Себестоимость:</td><td class="num">${money(c.net)}</td></tr>
-            <tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.beforeDiscount - c.net)}</td></tr>
-            <tr><td>Стоимость до скидки:</td><td class="num">${money(c.beforeDiscount)}</td></tr>
-            ${c.discount > 0 ? `<tr><td>Скидка клиента (${c.discount}%):</td><td class="num">− ${money(discountSum)}</td></tr>` : ''}
+            <tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.final - c.net)}</td></tr>
             <tr class="grand"><td>Итого к оплате:</td><td class="num">${money(c.final)}</td></tr>
         </table>
-        <div class="conditions">
-            ${client.validityDays ? `<div><strong>Срок действия КП:</strong> ${client.validityDays} дней</div>` : ''}
-            ${client.payment ? `<div><strong>Условия оплаты:</strong> ${escapeHtml(client.payment)}</div>` : ''}
-            ${client.productionTime ? `<div><strong>Срок изготовления:</strong> ${escapeHtml(client.productionTime)}</div>` : ''}
-            ${client.warranty ? `<div><strong>Гарантия:</strong> ${escapeHtml(client.warranty)}</div>` : ''}
-        </div>
-        ${client.notes ? `<div class="notes"><strong>Примечания:</strong><br>${escapeHtml(client.notes).replace(/\n/g,'<br>')}</div>` : ''}
+        ${o.notes ? `<div class="notes"><strong>Примечания:</strong><br>${escapeHtml(o.notes).replace(/\n/g,'<br>')}</div>` : ''}
         <div class="no-print" style="margin-top:16px;">
             <button onclick="window.print()" style="padding:8px 16px;">🖨️ Печать</button>
             <button onclick="window.close()" style="padding:8px 16px;">Закрыть</button>
