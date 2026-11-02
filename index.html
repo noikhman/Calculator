@@ -178,7 +178,7 @@
         </div>
 
         <div id="tabConstructor" class="tab-pane active">
-            <!-- ======= 1. ДАННЫЕ ЗАКАЗА (наверху) ======= -->
+            <!-- ======= 1. ДАННЫЕ ЗАКАЗА ======= -->
             <div class="section-title">1. Данные заказа</div>
             <div class="order-grid">
                 <div class="order-card">
@@ -493,7 +493,6 @@ async function checkIpAndInit() {
     }
 }
 
-// Дефолтные значения для полей заказа
 function initOrderDefaults() {
     const today = new Date().toISOString().slice(0, 10);
     const dateEl = document.getElementById('orderDate');
@@ -504,7 +503,6 @@ function initOrderDefaults() {
     if (marginEl && !marginEl.value) marginEl.value = 50;
 }
 
-// Смена типа заказа → устанавливает дефолтную наценку
 function onOrderTypeChange() {
     const type = document.getElementById('orderType').value;
     const marginInput = document.getElementById('marginPercent');
@@ -538,7 +536,7 @@ function restoreOrderData(o) {
 }
 
 // =================================================================
-// ЗАГРУЗКА ПРАЙСОВ (без localStorage)
+// ЗАГРУЗКА ПРАЙСОВ
 // =================================================================
 const SOURCE_LABELS = {
     dsp:'ДСП', mdf:'МДФ', countertops:'Столешницы', hinges:'Петли',
@@ -1822,12 +1820,24 @@ function rebuildThree() {
     const cC_90_top = modsC.find(m => m.type === 'corner_top_90');
     const hasCornerB = !!(cB_45_base || cB_90_base || cB_45_top || cB_90_top);
     const hasCornerC = !!(cC_45_base || cC_90_base || cC_45_top || cC_90_top);
-    const shiftA_left = cB_45_base ? wOf(cB_45_base) : (cB_90_base ? wOf(cB_90_base) : 0);
-    const shiftA_right = cC_45_base ? wOf(cC_45_base) : (cC_90_base ? wOf(cC_90_base) : 0);
-    const naturalLenA = modsA.filter(m => !isCornerType(m.type)).reduce((s, m) => s + wOf(m), 0);
-    const sceneLenA = naturalLenA + shiftA_left + shiftA_right;
+    
+    // ИСПРАВЛЕНИЕ: раздельные сдвиги для нижних (base) и верхних (top) модулей
+    const shiftA_left_base = cB_45_base ? wOf(cB_45_base) : (cB_90_base ? wOf(cB_90_base) : 0);
+    const shiftA_right_base = cC_45_base ? wOf(cC_45_base) : (cC_90_base ? wOf(cC_90_base) : 0);
+    const shiftA_left_top = cB_45_top ? wOf(cB_45_top) : (cB_90_top ? wOf(cB_90_top) : 0);
+    const shiftA_right_top = cC_45_top ? wOf(cC_45_top) : (cC_90_top ? wOf(cC_90_top) : 0);
+
+    const naturalLenA_base = modsA.filter(m => isBaseType(m) && !isCornerType(m.type)).reduce((s, m) => s + wOf(m), 0);
+    const naturalLenA_top = modsA.filter(m => isTopType(m) && !isCornerType(m.type)).reduce((s, m) => s + wOf(m), 0);
+
+    const sceneLenA = Math.max(
+        naturalLenA_base + shiftA_left_base + shiftA_right_base,
+        naturalLenA_top + shiftA_left_top + shiftA_right_top
+    );
+
     const cornerBX = -sceneLenA / 2;
     const cornerCX =  sceneLenA / 2;
+
     const drawCorner45 = (m, wx, wz, yBase, mirrored) => {
         const W = wOf(m), D = dOf(m), H = hOf(m);
         const geo = createCorner45Geometry(W, D, H, mirrored);
@@ -1854,14 +1864,21 @@ function rebuildThree() {
         addBoxMesh(W, TABLE_T, D, wx + dirX * W/2, yBase + TABLE_T/2, wz + D/2, 0x94a3b8);
         if (W > D + 0.001) addBoxMesh(D, TABLE_T, W - D, wx + dirX * D/2, yBase + TABLE_T/2, wz + D + (W - D)/2, 0x94a3b8);
     };
+
+    // РЯД A (низ)
     const basesA = modsA.filter(m => isBaseType(m) && !isCornerType(m.type));
     const topsA = modsA.filter(m => isTopType(m) && !isCornerType(m.type));
-    let cursor = -sceneLenA / 2 + shiftA_left;
+    
+    let cursor = -sceneLenA / 2 + shiftA_left_base;
     basesA.forEach(m => { addBoxMesh(wOf(m), hOf(m), dOf(m), cursor + wOf(m)/2, PLINTH_H + hOf(m)/2, -depthA + dOf(m)/2, 0xcbd5e1); cursor += wOf(m); });
-    cursor = -sceneLenA / 2 + shiftA_left;
+    cursor = -sceneLenA / 2 + shiftA_left_base;
     basesA.forEach(m => { if (isCountertopModule(m)) addBoxMesh(wOf(m), TABLE_T, depthA, cursor + wOf(m)/2, tableTopY + TABLE_T/2, -depthA/2, 0x94a3b8); cursor += wOf(m); });
-    cursor = -sceneLenA / 2 + shiftA_left;
+
+    // РЯД A (верх) - используем shiftA_left_top!
+    cursor = -sceneLenA / 2 + shiftA_left_top;
     topsA.forEach(m => { addBoxMesh(wOf(m), hOf(m), dOf(m), cursor + wOf(m)/2, topY + hOf(m)/2, -depthA + dOf(m)/2, 0xe2e8f0); cursor += wOf(m); });
+
+    // РЯД B
     if (cB_45_base) { drawCorner45(cB_45_base, cornerBX, -depthA, PLINTH_H, false); drawCorner45Top(cB_45_base, cornerBX, -depthA, tableTopY + TABLE_T, false); }
     if (cB_45_top) drawCorner45(cB_45_top, cornerBX, -depthA, topY, false);
     if (cB_90_base) { drawCorner90(cB_90_base, cornerBX, -depthA, PLINTH_H, false); drawCorner90Top(cB_90_base, cornerBX, -depthA, tableTopY + TABLE_T, false); }
@@ -1880,6 +1897,8 @@ function rebuildThree() {
     if (cB_45_top) cursorTB += wOf(cB_45_top);
     if (cB_90_top) cursorTB += wOf(cB_90_top);
     topsB.forEach(m => { const w = wOf(m), d = dOf(m), h = hOf(m); const xCenter = cornerBX + bXOff * d/2; addBoxMesh(w, h, d, xCenter, topY + h/2, -depthA + cursorTB + w/2, 0xdbeafe, Math.PI/2); cursorTB += w; });
+
+    // РЯД C
     if (cC_45_base) { drawCorner45(cC_45_base, cornerCX, -depthA, PLINTH_H, true); drawCorner45Top(cC_45_base, cornerCX, -depthA, tableTopY + TABLE_T, true); }
     if (cC_45_top) drawCorner45(cC_45_top, cornerCX, -depthA, topY, true);
     if (cC_90_base) { drawCorner90(cC_90_base, cornerCX, -depthA, PLINTH_H, true); drawCorner90Top(cC_90_base, cornerCX, -depthA, tableTopY + TABLE_T, true); }
@@ -1898,6 +1917,7 @@ function rebuildThree() {
     if (cC_45_top) cursorTC += wOf(cC_45_top);
     if (cC_90_top) cursorTC += wOf(cC_90_top);
     topsC.forEach(m => { const w = wOf(m), d = dOf(m), h = hOf(m); const xCenter = cornerCX + cXOff * d/2; addBoxMesh(w, h, d, xCenter, topY + h/2, -depthA + cursorTC + w/2, 0xdbeafe, Math.PI/2); cursorTC += w; });
+
     const span = Math.max(sceneLenA + depthB + depthC, depthA + Math.max(modsB.reduce((s, m) => s + wOf(m), 0), modsC.reduce((s, m) => s + wOf(m), 0)), 1.5);
     orbit.radius = Math.max(3, span * 2.2);
     orbit.target = { x: 0, y: 1.0, z: -depthA/2 };
@@ -2015,7 +2035,7 @@ function addHelpList(card, label, items) {
 }
 
 // =================================================================
-// ЭКСПОРТ / ИМПОРТ (без localStorage — только файлы)
+// ЭКСПОРТ / ИМПОРТ
 // =================================================================
 function exportProject() {
     const data = {
@@ -2090,17 +2110,8 @@ function importProject(input) {
     reader.readAsText(file);
 }
 
-function resetProject() {
-    if (!confirm('Сбросить проект?')) return;
-    projectModules = []; hiddenCornerModules = [];
-    HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] }; });
-    hardwareRendered = false;
-    restoreOrderData({});
-    renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
-}
-
 // =================================================================
-// ПЕЧАТЬ ЗАКАЗА (не КП)
+// ПЕЧАТЬ ЗАКАЗА
 // =================================================================
 function openPrintForm() {
     if (!lastCalc) calculateProject();
@@ -2159,7 +2170,7 @@ function openPrintForm() {
             <tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.final - c.net)}</td></tr>
             <tr class="grand"><td>Итого к оплате:</td><td class="num">${money(c.final)}</td></tr>
         </table>
-        ${o.notes ? `<div class="notes"><strong>Примечания:</strong><br>${escapeHtml(o.notes).replace(/\n/g,'<br>')}</div>` : ''}
+        ${o.notes ? `<div class="notes"><strong>Примечания к заказу:</strong><br>${escapeHtml(o.notes).replace(/\n/g,'<br>')}</div>` : ''}
         <div class="no-print" style="margin-top:16px;">
             <button onclick="window.print()" style="padding:8px 16px;">🖨️ Печать</button>
             <button onclick="window.close()" style="padding:8px 16px;">Закрыть</button>
