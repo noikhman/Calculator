@@ -8,10 +8,17 @@
     body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #1e293b; margin: 0; }
     .container { max-width: 1350px; margin: 20px auto; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
     h2 { margin-top: 0; color: #5c1724; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+
+    .projects-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; }
+    .projects-bar label { margin: 0; font-size: 0.85rem; color: #854d0e; font-weight: 600; }
+    .projects-bar select { min-width: 200px; max-width: 320px; }
+    .projects-bar button { height: 34px; padding: 6px 12px; font-size: 0.82rem; }
+
     .status-badge { display: inline-block; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; margin-bottom: 15px; font-weight: 600; }
     .status-loading { background: #fef3c7; color: #b45309; }
     .status-success { background: #dcfce7; color: #15803d; }
     .status-error { background: #fee2e2; color: #b91c1c; }
+
     .price-panel-head { font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
     .price-panel-head button { margin-left: 8px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; padding: 2px 8px; font-size: 0.78rem; cursor: pointer; }
     .price-chip { display: inline-block; font-size: 0.78rem; padding: 3px 4px 3px 9px; margin: 0 6px 6px 0; border-radius: 14px; border: 1px solid transparent; white-space: nowrap; }
@@ -20,25 +27,37 @@
     .chip-warn { background: #fef3c7; color: #b45309; }
     .chip-err { background: #fee2e2; color: #b91c1c; }
     .chip-load { background: #e2e8f0; color: #475569; }
+
     .section-title { font-size: 1.05rem; font-weight: bold; color: #334155; margin-top: 25px; margin-bottom: 12px; padding-bottom: 4px; border-bottom: 2px solid #cbd5e1; }
     .materials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
     .mat-card { background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
     .mat-card-title { font-weight: bold; font-size: 0.88rem; color: #5c1724; margin-bottom: 8px; }
+
+    .client-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+    .client-card { background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
+    .client-card label { margin-top: 6px; }
+    .client-card label:first-child { margin-top: 0; }
+    .client-card textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; font-family: inherit; }
+    .client-card textarea:focus { border-color: #5c1724; }
+
     .form-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-end; flex-wrap: wrap; }
     .form-group { flex: 1; min-width: 130px; }
     label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
-    input[type="number"], input[type="text"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; }
+    input[type="number"], input[type="text"], input[type="date"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; }
     input:focus, select:focus { border-color: #5c1724; }
+
     .btn { background-color: #5c1724; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; height: 38px; }
     .btn:hover { background-color: #43101a; }
     .btn-secondary { background-color: #64748b; }
     .btn-danger { background-color: #ef4444; padding: 4px 8px; height: auto; font-size: 0.8rem; }
     .btn-mini { padding: 3px 8px; height: auto; font-size: 0.78rem; }
+    .btn-move { background-color: #64748b; padding: 4px 8px; height: auto; font-size: 0.8rem; }
+
     .main-layout { display: flex; gap: 25px; flex-wrap: wrap; }
     .config-side { flex: 1.5; min-width: 320px; }
     .visual-side { flex: 1; min-width: 300px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; text-align: center; }
     #kitchenCanvas { display: block; width: 100%; max-width: 520px; margin: 0 auto; touch-action: none; user-select: none; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; cursor: default; }
-    .btn-move { background-color: #64748b; padding: 4px 8px; height: auto; font-size: 0.8rem; }
+
     .modules-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     .modules-table th, .modules-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; font-size: 0.85rem; }
     .modules-table th { background-color: #f8fafc; color: #475569; }
@@ -47,9 +66,12 @@
     .run-B { background: #fef3c7; color: #b45309; }
     .run-C { background: #dcfce7; color: #15803d; }
     .corner-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; background: #fde68a; color: #854d0e; }
+    .corner-type-select { font-size: 0.78rem; padding: 3px 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px; }
+
     .summary-box { background: #f8fafc; border-radius: 8px; padding: 15px; margin-top: 15px; border: 1px solid #e2e8f0; }
     .summary-item { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.92rem; }
     .block-summary { margin-top: 10px; padding: 8px 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; display: flex; justify-content: space-between; font-size: 0.88rem; color: #065f46; font-weight: 600; }
+
     .hardware-list { display: flex; flex-direction: column; gap: 8px; background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 8px; }
     .hardware-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; gap: 10px; flex-wrap: wrap; }
     .hardware-label { font-size: 0.88rem; color: #334155; font-weight: 500; flex: 1.2; min-width: 180px; }
@@ -64,15 +86,16 @@
     .split-row .split-rec { font-size: 0.75rem; color: #64748b; min-width: 90px; }
     .split-total { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e2e8f0; font-size: 0.88rem; }
     .split-toggle { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; padding: 3px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
+
     .total-box { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px; border: 2px solid #5c1724; text-align: center; }
     .total-price { font-size: 1.8rem; font-weight: bold; color: #5c1724; margin-top: 5px; }
-    .access-denied { max-width: 450px; margin: 80px auto; background: #ffffff; padding: 30px; border-radius: 12px; text-align: center; border-top: 5px solid #ef4444; }
-    .ip-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+
     .tabs { display: flex; gap: 6px; margin: 10px 0 18px; border-bottom: 2px solid #e2e8f0; flex-wrap: wrap; }
     .tab-btn { background: transparent; border: none; padding: 10px 18px; font-size: 0.95rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
     .tab-btn.active { color: #5c1724; border-bottom-color: #5c1724; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
+
     .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
     .help-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 16px; }
     .help-card h3 { margin: 0 0 8px; color: #5c1724; font-size: 1rem; }
@@ -82,18 +105,72 @@
     .help-list li { margin-bottom: 2px; }
     .help-empty { font-size: 0.82rem; color: #94a3b8; font-style: italic; }
     .help-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+
     .layout-settings { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.85rem; color: #854d0e; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
     .layout-settings select { width: auto; min-width: 180px; }
+
     #threeWrap { position: relative; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; height: 380px; margin-top: 10px; }
     #threeCanvas { display: block; width: 100%; height: 100%; }
     #threeMsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #64748b; text-align: center; padding: 20px; pointer-events: none; }
     .three-hint { font-size: 0.78rem; color: #64748b; margin-top: 6px; }
     .three-actions { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-    .corner-type-select { font-size: 0.78rem; padding: 3px 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px; }
+
     .services-summary { margin-top: 12px; padding: 10px 12px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; }
     .services-summary h4 { margin: 0 0 6px; font-size: 0.9rem; color: #0c4a6e; }
     .services-summary .srv-line { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 2px 0; color: #334155; }
     .services-summary .srv-total { margin-top: 6px; padding-top: 6px; border-top: 1px solid #bae6fd; font-weight: 700; display: flex; justify-content: space-between; color: #0c4a6e; }
+
+    .access-denied { max-width: 450px; margin: 80px auto; background: #ffffff; padding: 30px; border-radius: 12px; text-align: center; border-top: 5px solid #ef4444; }
+    .ip-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+
+    /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
+    @media (max-width: 768px) {
+        body { padding: 10px; }
+        .container { padding: 15px; margin: 10px auto; border-radius: 8px; }
+        h2 { font-size: 1.1rem; }
+        .projects-bar { padding: 8px; gap: 6px; }
+        .projects-bar select { min-width: 0; width: 100%; font-size: 0.85rem; }
+        .projects-bar button { font-size: 0.78rem; padding: 6px 10px; }
+        .materials-grid, .client-grid { grid-template-columns: 1fr; padding: 10px; gap: 10px; }
+        .main-layout { flex-direction: column; gap: 15px; }
+        .config-side, .visual-side { min-width: 100%; }
+        .form-row { flex-direction: column; align-items: stretch; }
+        .form-group { width: 100%; min-width: 0; }
+        .form-row .btn { width: 100%; height: 42px; }
+        .modules-table { font-size: 0.78rem; }
+        .modules-table th, .modules-table td { padding: 6px 4px; }
+        .modules-table th:nth-child(5),
+        .modules-table th:nth-child(6),
+        .modules-table th:nth-child(7),
+        .modules-table td:nth-child(5),
+        .modules-table td:nth-child(6),
+        .modules-table td:nth-child(7) { display: none; }
+        .corner-type-select { min-width: 140px; font-size: 0.72rem; }
+        .tab-btn { padding: 8px 10px; font-size: 0.82rem; }
+        .btn { font-size: 0.82rem; padding: 7px 12px; }
+        .btn-move { padding: 3px 6px; font-size: 0.75rem; }
+        .btn-danger { padding: 3px 6px; font-size: 0.75rem; }
+        #threeWrap { height: 300px; }
+        .hardware-row { padding: 6px 8px; }
+        .hardware-label { min-width: 100%; }
+        .hardware-price-input { width: 90px !important; }
+        .split-row .split-select { min-width: 100px; }
+        .split-row .split-qty { width: 60px; }
+        .split-row .split-price { width: 70px; }
+        .split-row .split-rec { min-width: 60px; font-size: 0.7rem; }
+        .total-price { font-size: 1.4rem; }
+        .help-grid { grid-template-columns: 1fr; }
+        .summary-item { font-size: 0.85rem; }
+        .section-title { font-size: 0.95rem; margin-top: 18px; }
+    }
+    @media (max-width: 480px) {
+        .container { padding: 10px; }
+        .projects-bar { flex-direction: column; align-items: stretch; }
+        .projects-bar button { width: 100%; }
+        .hardware-price-input { width: 70px !important; }
+        .modules-table th:nth-child(2),
+        .modules-table td:nth-child(2) { display: none; }
+    }
 </style>
 </head>
 <body>
@@ -101,6 +178,15 @@
 <div id="appContainer" style="display: none;">
     <div class="container">
         <h2>🏗️ Конструктор Кухни — Фаворит</h2>
+
+        <div class="projects-bar">
+            <label>Проект:</label>
+            <select id="projectSelect" onchange="onSelectProject(this.value)"></select>
+            <button class="btn" type="button" onclick="onNewProject()">+ Новый</button>
+            <button class="btn btn-secondary" type="button" onclick="onRenameProject()" title="Переименовать">✏️</button>
+            <button class="btn btn-danger" type="button" onclick="onDeleteCurrentProject()" title="Удалить" style="height:34px;padding:6px 12px;font-size:0.82rem;">🗑️</button>
+        </div>
+
         <div id="statusBadge" class="status-badge status-loading">⏳ Загрузка...</div>
         <div id="pricePanel" style="margin-bottom:12px;"></div>
         <div id="servicesInfo" style="display:none; font-size:0.82rem; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:12px;"></div>
@@ -234,16 +320,49 @@
                     <div id="hardwareContainer" class="hardware-list"></div>
                     <div class="block-summary" id="hardwareBlockSummary" style="display:none;"><span>Итого по фурнитуре и крепежу:</span><span>0 ₽</span></div>
 
+                    <div class="section-title">5. Данные клиента и КП</div>
+                    <div class="client-grid">
+                        <div class="client-card">
+                            <label>ФИО клиента:</label>
+                            <input type="text" id="clientFio" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Телефон:</label>
+                            <input type="text" id="clientPhone" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Адрес объекта:</label>
+                            <input type="text" id="clientAddress" oninput="onClientDataChange()">
+                        </div>
+                        <div class="client-card">
+                            <label>Компания (реквизит):</label>
+                            <input type="text" id="clientCompany" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Номер КП:</label>
+                            <input type="text" id="clientKpNumber" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Дата КП:</label>
+                            <input type="date" id="clientKpDate" oninput="onClientDataChange()">
+                        </div>
+                        <div class="client-card">
+                            <label>Срок действия (дней):</label>
+                            <input type="number" id="clientValidityDays" value="14" min="1" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Условия оплаты:</label>
+                            <input type="text" id="clientPayment" value="Предоплата 50%" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Срок изготовления:</label>
+                            <input type="text" id="clientProductionTime" value="30 рабочих дней" oninput="onClientDataChange()">
+                        </div>
+                        <div class="client-card">
+                            <label>Гарантия:</label>
+                            <input type="text" id="clientWarranty" value="12 месяцев" oninput="onClientDataChange()">
+                            <label style="margin-top:6px;">Примечания (видны в КП):</label>
+                            <textarea id="clientNotes" rows="3" oninput="onClientDataChange()"></textarea>
+                        </div>
+                    </div>
+
                     <div class="total-box">
                         <div>Предварительный расчёт:</div>
                         <div id="totalPriceDisplay" class="total-price">0 ₽</div>
                         <div id="priceWarning" style="display:none; margin-top:10px; padding:8px 12px; background:#fee2e2; color:#b91c1c; border-radius:6px; font-size:0.85rem; font-weight:600; text-align:left;"></div>
                         <div class="no-print" style="display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap;">
                             <button class="btn btn-secondary" onclick="openPrintForm()">🖨️ КП</button>
-                            <button class="btn btn-secondary" onclick="exportProject()">💾 Сохранить (JSON)</button>
+                            <button class="btn btn-secondary" onclick="exportProject()">💾 Сохранить JSON</button>
                             <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📂 Загрузить</button>
                             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importProject(this)">
-                            <button class="btn btn-danger" onclick="resetProject()">🗑️ Сброс</button>
                         </div>
                     </div>
                 </div>
@@ -335,7 +454,6 @@ let projectModules = [
     { id: 's9', run: 'A', type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
 ];
 
-// НОВОЕ: добавлены полкодержатели (source = null — из прайса не выбираются)
 const HW_CATEGORIES = [
     { id: 'hinges', label: 'Петли мебельные', unit: 'шт.', source: 'hinges' },
     { id: 'slides', label: 'Направляющие', unit: 'компл.', source: 'slides' },
@@ -369,6 +487,9 @@ function escapeHtml(s) {
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// =================================================================
+// ДОСТУП И ИНИЦИАЛИЗАЦИЯ
+// =================================================================
 async function checkIpAndInit() {
     const denied = document.getElementById('deniedContainer');
     const actions = document.getElementById('deniedActions');
@@ -381,7 +502,8 @@ async function checkIpAndInit() {
         if (ALLOWED_IPS.includes(d.ip)) {
             document.getElementById('appContainer').style.display = 'block';
             denied.style.display = 'none';
-            loadAllData();
+            initProjects();     // загрузка проекта (или создание нового)
+            loadAllData();      // параллельно грузим прайсы
         } else {
             denied.style.display = 'block';
         }
@@ -390,13 +512,302 @@ async function checkIpAndInit() {
     }
 }
 
-const SOURCE_LABELS = { dsp:'ДСП', mdf:'МДФ', countertops:'Столешницы', hinges:'Петли', slides:'Направляющие', cargoSush:'Карго/сушки', sinks:'Мойки', legs:'Ножки', lifts:'Подъёмники', handles:'Ручки', hangersRails:'Навесы/планки', services:'Услуги', dvp:'ДВП', edges:'Кромка' };
+// =================================================================
+// ПРОЕКТЫ (несколько / список клиентов)
+// =================================================================
+const PROJECTS_KEY = 'kc_projects_v1';
+let currentProjectId = null;
+let autoSaveTimer = null;
+
+function getAllProjects() {
+    try {
+        const raw = localStorage.getItem(PROJECTS_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+}
+function saveAllProjects(list) {
+    try { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function collectClientData() {
+    return {
+        fio: (document.getElementById('clientFio') || {}).value || '',
+        phone: (document.getElementById('clientPhone') || {}).value || '',
+        address: (document.getElementById('clientAddress') || {}).value || '',
+        company: (document.getElementById('clientCompany') || {}).value || '',
+        kpNumber: (document.getElementById('clientKpNumber') || {}).value || '',
+        kpDate: (document.getElementById('clientKpDate') || {}).value || new Date().toISOString().slice(0,10),
+        validityDays: safeNum(document.getElementById('clientValidityDays')) || 14,
+        payment: (document.getElementById('clientPayment') || {}).value || '',
+        productionTime: (document.getElementById('clientProductionTime') || {}).value || '',
+        warranty: (document.getElementById('clientWarranty') || {}).value || '',
+        notes: (document.getElementById('clientNotes') || {}).value || ''
+    };
+}
+function restoreClientData(client) {
+    if (!client) return;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v === undefined || v === null) ? '' : v; };
+    set('clientFio', client.fio);
+    set('clientPhone', client.phone);
+    set('clientAddress', client.address);
+    set('clientCompany', client.company);
+    set('clientKpNumber', client.kpNumber);
+    set('clientKpDate', client.kpDate);
+    set('clientValidityDays', client.validityDays || 14);
+    set('clientPayment', client.payment);
+    set('clientProductionTime', client.productionTime);
+    set('clientWarranty', client.warranty);
+    set('clientNotes', client.notes);
+}
+function onClientDataChange() {
+    scheduleAutoSave();
+    if (lastCalc) { /* пересчёт КП не нужен, данные используются только в печати */ }
+}
+
+function getCurrentProjectData() {
+    return {
+        modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
+        hiddenCorners: hiddenCornerModules.map(m => ({ ...m })),
+        layout: currentLayout(),
+        prices: collectPrices(),
+        hardware: JSON.parse(JSON.stringify(HW_STATE)),
+        client: collectClientData(),
+        discount: safeNum(document.getElementById('discountPercent'))
+    };
+}
+
+function saveCurrentProject() {
+    if (!currentProjectId) return;
+    const list = getAllProjects();
+    const idx = list.findIndex(p => p.id === currentProjectId);
+    if (idx < 0) return;
+    list[idx] = {
+        id: currentProjectId,
+        name: list[idx].name || 'Проект',
+        savedAt: Date.now(),
+        data: getCurrentProjectData()
+    };
+    saveAllProjects(list);
+    renderProjectsPanel();
+}
+
+function scheduleAutoSave() {
+    if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        autoSaveTimer = null;
+        saveCurrentProject();
+    }, 800);
+}
+
+function createNewProject(name) {
+    const id = (crypto.randomUUID ? crypto.randomUUID() : 'p-' + Date.now() + Math.random().toString(36).slice(2));
+    const list = getAllProjects();
+    const defaultClient = {
+        fio: '', phone: '', address: '', company: '',
+        kpNumber: 'КП-' + new Date().toISOString().slice(0,10).replace(/-/g,''),
+        kpDate: new Date().toISOString().slice(0,10),
+        validityDays: 14, payment: 'Предоплата 50%',
+        productionTime: '30 рабочих дней', warranty: '12 месяцев', notes: ''
+    };
+    list.unshift({
+        id, name: name || 'Новый проект',
+        savedAt: Date.now(),
+        data: {
+            modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
+            hiddenCorners: [],
+            layout: currentLayout(),
+            prices: {},
+            hardware: {},
+            client: defaultClient,
+            discount: 0
+        }
+    });
+    saveAllProjects(list);
+    return id;
+}
+
+function loadProject(id) {
+    const list = getAllProjects();
+    const proj = list.find(p => p.id === id);
+    if (!proj) return;
+    currentProjectId = id;
+    const d = proj.data || {};
+
+    // Модули
+    projectModules = (d.modules || []).map((m, i) => ({
+        id: (crypto.randomUUID ? crypto.randomUUID() : 'm-' + Date.now() + i),
+        run: m.run || 'A', type: m.type,
+        name: m.name || m.type,
+        width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530
+    }));
+    hiddenCornerModules = (d.hiddenCorners || []).map((m, i) => ({
+        ...m, id: (crypto.randomUUID ? crypto.randomUUID() : 'h-' + Date.now() + i)
+    }));
+
+    // Компоновка
+    if (d.layout) {
+        document.getElementById('layoutSelect').value = d.layout;
+        updateLayoutHint();
+    }
+
+    // Прайсы (могут быть ещё не загружены — тогда pendingName сохранится и восстановится в fillSelect)
+    if (d.prices) restorePrices(d.prices);
+
+    // Фурнитура
+    if (d.hardware) {
+        Object.keys(d.hardware).forEach(k => {
+            if (HW_STATE[k]) HW_STATE[k] = d.hardware[k];
+        });
+    }
+    hardwareRendered = false;
+
+    // Клиент
+    restoreClientData(d.client);
+
+    // Скидка
+    const dp = document.getElementById('discountPercent');
+    if (dp) dp.value = (typeof d.discount === 'number') ? d.discount : 0;
+
+    // Перерисовка
+    renderModulesTable();
+    renderHardware(true);
+    calculateProject();
+    drawKitchen2D();
+    forceRebuildThree();
+    renderProjectsPanel();
+}
+
+function deleteProject(id) {
+    const list = getAllProjects().filter(p => p.id !== id);
+    saveAllProjects(list);
+    if (currentProjectId === id) {
+        currentProjectId = null;
+        if (list.length > 0) {
+            loadProject(list[0].id);
+        } else {
+            // Если ничего не осталось — создаём новый и сбрасываем
+            resetProjectSilent();
+            const nid = createNewProject('Новый проект');
+            currentProjectId = nid;
+            renderProjectsPanel();
+        }
+    } else {
+        renderProjectsPanel();
+    }
+}
+
+function renameProject(id, newName) {
+    const list = getAllProjects();
+    const idx = list.findIndex(p => p.id === id);
+    if (idx < 0) return;
+    list[idx].name = newName;
+    saveAllProjects(list);
+    renderProjectsPanel();
+}
+
+function resetProjectSilent() {
+    projectModules = [];
+    hiddenCornerModules = [];
+    HW_CATEGORIES.forEach(c => {
+        HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] };
+    });
+    hardwareRendered = false;
+    restoreClientData({});
+    const dp = document.getElementById('discountPercent');
+    if (dp) dp.value = 0;
+}
+
+function initProjects() {
+    const list = getAllProjects();
+    if (list.length === 0) {
+        const id = createNewProject('Мой первый проект');
+        currentProjectId = id;
+        saveCurrentProject();
+    } else {
+        loadProject(list[0].id);
+    }
+    renderProjectsPanel();
+}
+
+function renderProjectsPanel() {
+    const sel = document.getElementById('projectSelect');
+    if (!sel) return;
+    const list = getAllProjects().sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+    sel.innerHTML = '';
+    list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name + (p.savedAt ? ' · ' + fmtTime(p.savedAt) : '');
+        if (p.id === currentProjectId) opt.selected = true;
+        sel.appendChild(opt);
+    });
+    if (currentProjectId && !list.some(p => p.id === currentProjectId)) {
+        currentProjectId = list.length ? list[0].id : null;
+        if (currentProjectId) sel.value = currentProjectId;
+    }
+}
+
+function onSelectProject(id) {
+    if (!id || id === currentProjectId) return;
+    saveCurrentProject(); // сохранить текущий перед переключением
+    loadProject(id);
+}
+
+function onNewProject() {
+    const name = prompt('Название проекта (например «Иванов, угловая 3м»):', 'Новый проект');
+    if (name === null) return;
+    saveCurrentProject();
+    const id = createNewProject(name.trim() || 'Новый проект');
+    currentProjectId = id;
+    // сброс текущего состояния
+    resetProjectSilent();
+    projectModules = [
+        { id: 's1', run: 'B', type: 'corner_base_45', name: CORNER_NAMES.corner_base_45, width: 900, height: 720, depth: 530 },
+        { id: 's2', run: 'A', type: 'bottom_p2d', name: 'Полка 2 двери', width: 800, height: 720, depth: 530 },
+        { id: 's3', run: 'A', type: 'top_lift_3', name: '3 подъёмника', width: 600, height: 720, depth: 320 }
+    ];
+    renderModulesTable();
+    renderHardware(true);
+    calculateProject();
+    drawKitchen2D();
+    forceRebuildThree();
+    saveCurrentProject();
+    renderProjectsPanel();
+}
+
+function onRenameProject() {
+    if (!currentProjectId) return;
+    const list = getAllProjects();
+    const cur = list.find(p => p.id === currentProjectId);
+    if (!cur) return;
+    const name = prompt('Новое имя проекта:', cur.name);
+    if (name === null || !name.trim()) return;
+    renameProject(currentProjectId, name.trim());
+}
+
+function onDeleteCurrentProject() {
+    if (!currentProjectId) return;
+    if (!confirm('Удалить текущий проект безвозвратно?')) return;
+    deleteProject(currentProjectId);
+}
+
+// =================================================================
+// ЗАГРУЗКА ПРАЙСОВ
+// =================================================================
+const SOURCE_LABELS = {
+    dsp:'ДСП', mdf:'МДФ', countertops:'Столешницы', hinges:'Петли',
+    slides:'Направляющие', cargoSush:'Карго/сушки', sinks:'Мойки',
+    legs:'Ножки', lifts:'Подъёмники', handles:'Ручки',
+    hangersRails:'Навесы/планки', services:'Услуги', dvp:'ДВП', edges:'Кромка'
+};
 const NON_CRITICAL = ['services'];
 let failedSources = [];
 
 async function fetchWithTimeout(url, ms = 30000) {
-    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), ms);
-    try { return await fetch(url, { signal: ctrl.signal, cache: 'no-store' }); } finally { clearTimeout(t); }
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), ms);
+    try { return await fetch(url, { signal: ctrl.signal, cache: 'no-store' }); }
+    finally { clearTimeout(t); }
 }
 function looksLikeCsv(t) { return !!t && t.length > 10 && !/^\s*<(!doctype|html)/i.test(t); }
 
@@ -422,17 +833,29 @@ function parseCsv(text) {
     let delim = ',', best = -1;
     [',', ';', '\t', '|'].forEach(dl => {
         let cnt = 0;
-        sample.forEach(line => { let inQ = false; for (const ch of line) { if (ch === '"') inQ = !inQ; else if (!inQ && ch === dl) cnt++; } });
+        sample.forEach(line => {
+            let inQ = false;
+            for (const ch of line) {
+                if (ch === '"') inQ = !inQ;
+                else if (!inQ && ch === dl) cnt++;
+            }
+        });
         if (cnt > best) { best = cnt; delim = dl; }
     });
     const rows = []; let row = [], cell = '', inQ = false;
     for (let i = 0; i < text.length; i++) {
         const ch = text[i];
-        if (inQ) { if (ch === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else inQ = false; } else cell += ch; }
-        else if (ch === '"') inQ = true;
+        if (inQ) {
+            if (ch === '"') {
+                if (text[i+1] === '"') { cell += '"'; i++; }
+                else inQ = false;
+            } else cell += ch;
+        } else if (ch === '"') inQ = true;
         else if (ch === delim) { row.push(cell); cell = ''; }
-        else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i+1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
-        else cell += ch;
+        else if (ch === '\n' || ch === '\r') {
+            if (ch === '\r' && text[i+1] === '\n') i++;
+            row.push(cell); rows.push(row); row = []; cell = '';
+        } else cell += ch;
     }
     if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
     return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c !== ''));
@@ -482,7 +905,8 @@ function updateEdgeGlueSelect() {
     if (cur !== '' && items[Number(cur)]) sel.value = cur;
 }
 function onEdgeGlueSelectChange() {
-    const sel = document.getElementById('edgeGlueSelect'); const inp = document.getElementById('edgeGluePrice');
+    const sel = document.getElementById('edgeGlueSelect');
+    const inp = document.getElementById('edgeGluePrice');
     const items = getEdgeGlueItems();
     if (sel.value !== '' && items[Number(sel.value)]) inp.value = items[Number(sel.value)].price;
     calculateProject();
@@ -513,7 +937,7 @@ function applyServicePrices(fetchFailed) {
     box.innerText = `Услуги: подставлено ${found.length}. ${found.join('; ')}`;
 }
 
-const CACHE_PREFIX = 'kc_v16:';
+const CACHE_PREFIX = 'kc_v17:';
 const MAX_PARALLEL = 3;
 const SOURCE_STATE = {}, DATA_TIME = {}, inflight = {};
 
@@ -528,9 +952,16 @@ const SOURCE_UI = {
     services: { fills: [], services: true }
 };
 
-function cacheGet(k) { try { const r = localStorage.getItem(CACHE_PREFIX + k); const o = r ? JSON.parse(r) : null; return o && Array.isArray(o.items) && o.items.length ? o : null; } catch (e) { return null; } }
-function cacheSet(k, items) { try { localStorage.setItem(CACHE_PREFIX + k, JSON.stringify({ t: Date.now(), items })); } catch (e) {} }
-function fmtTime(t) { return t ? new Date(t).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''; }
+function cacheGet(k) {
+    try { const raw = localStorage.getItem(CACHE_PREFIX + k); const obj = raw ? JSON.parse(raw) : null; return obj && Array.isArray(obj.items) && obj.items.length ? obj : null; }
+    catch (e) { return null; }
+}
+function cacheSet(k, items) {
+    try { localStorage.setItem(CACHE_PREFIX + k, JSON.stringify({ t: Date.now(), items })); } catch (e) {}
+}
+function fmtTime(t) {
+    return t ? new Date(t).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+}
 
 function applySourceToUI(k) {
     const ui = SOURCE_UI[k]; if (!ui) return;
@@ -609,33 +1040,48 @@ async function loadAllData(onlyFailed = false, autoRetries = 2) {
     if (stillBad && autoRetries > 0) { await sleep(2500); return loadAllData(true, autoRetries - 1); }
 }
 
+// fillSelect с поддержкой pendingName (для загрузки проекта до готовности прайсов)
 function handleFacadeTypeChange() {
     const t = document.getElementById('defaultFacadeType').value;
     const items = (t === 'dsp') ? DATA_STORE.dsp : DATA_STORE.mdf;
-    fillSelect('bottomFacadeSelect', items); fillSelect('topFacadeSelect', items);
+    fillSelect('bottomFacadeSelect', items);
+    fillSelect('topFacadeSelect', items);
     calculateProject();
 }
+
 function fillSelect(id, items, priceId = null) {
     const sel = document.getElementById(id); if (!sel) return;
+    const pendingName = sel.dataset.pendingName;
     const prevOpt = sel.options[sel.selectedIndex];
-    const prevName = prevOpt && prevOpt.dataset ? prevOpt.dataset.name : undefined;
+    const prevName = pendingName !== undefined ? pendingName : (prevOpt && prevOpt.dataset ? prevOpt.dataset.name : undefined);
     sel.innerHTML = '';
     if (items.length === 0) {
-        const opt = document.createElement('option'); opt.value = 0; opt.textContent = "— по умолчанию —"; sel.appendChild(opt); return;
+        const opt = document.createElement('option'); opt.value = 0; opt.textContent = "— по умолчанию —"; sel.appendChild(opt);
+        if (pendingName !== undefined) delete sel.dataset.pendingName;
+        return;
     }
     items.forEach(it => {
         const o = document.createElement('option'); o.value = it.price; o.dataset.name = it.name;
         o.textContent = `${it.name} (${it.price})`; sel.appendChild(o);
     });
-    if (prevName !== undefined) { const idx = [...sel.options].findIndex(o => o.dataset.name === prevName); if (idx >= 0) sel.selectedIndex = idx; }
+    if (prevName !== undefined && prevName !== '') {
+        const idx = [...sel.options].findIndex(o => o.dataset.name === prevName);
+        if (idx >= 0) sel.selectedIndex = idx;
+    }
+    if (pendingName !== undefined) delete sel.dataset.pendingName;
     if (priceId && sel.options.length > 0) document.getElementById(priceId).value = sel.value;
 }
-function syncPriceFromSelect(sid, pid) { const s = document.getElementById(sid); const p = document.getElementById(pid); if (s && p) { p.value = s.value; calculateProject(); } }
+
+function syncPriceFromSelect(sid, pid) {
+    const s = document.getElementById(sid); const p = document.getElementById(pid);
+    if (s && p) { p.value = s.value; calculateProject(); }
+}
 
 function autoSetDefaults() {
     const t = document.getElementById('moduleTypeInput').value;
-    const w = document.getElementById('moduleWidthInput'), h = document.getElementById('moduleHeightInput'), d = document.getElementById('moduleDepthInput');
-    // ИЗМЕНЕНО: угловой 90° — D=900 (по файлу технолога), остальные — D=530
+    const w = document.getElementById('moduleWidthInput');
+    const h = document.getElementById('moduleHeightInput');
+    const d = document.getElementById('moduleDepthInput');
     if (t === 'corner_base_90') { w.value = 900; h.value = 720; d.value = 900; document.getElementById('moduleRunInput').value = 'B'; }
     else if (t === 'corner_base_45') { w.value = 900; h.value = 720; d.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
     else if (t === 'corner_base_v1050') { w.value = 1050; h.value = 720; d.value = 530; document.getElementById('moduleRunInput').value = 'B'; }
@@ -689,10 +1135,11 @@ function changeLayout(newLayout) {
         }
     }
     renderModulesTable(); calculateProject();
+    scheduleAutoSave();
 }
 
 // =================================================================
-// РАСЧЁТ МОДУЛЯ (обновлены 4 модуля по файлам технолога)
+// РАСЧЁТ МОДУЛЯ
 // =================================================================
 function getModuleCalculations(type, widthMm, heightMm, depthMm) {
     const w = widthMm / 1000, h = heightMm / 1000, d = depthMm / 1000;
@@ -705,21 +1152,9 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
     let hinges = 0, slides = 0, cargo = 0, sush = 0, sink = 0;
     let legs = 0, lifts = 0, hangers = 0, handles = 0;
     let dvpArea = 0, grooveLength = 0, cutOven = 0, cutSink = 0;
-    // НОВЫЕ поля:
-    let shelfPins = 0;         // полкодержатели
-    let shkants = 0;           // шканты
-    let glueDotsKg = 0;        // гвозди мебельные, кг
-    let exactConfirmats = null;  // явное количество конфирматов (переопределяет «2 × деталей»)
+    let shelfPins = 0, shkants = 0, glueDotsKg = 0, exactConfirmats = null;
 
-    // ===== УГЛОВЫЕ =====
     if (type === 'corner_base_90') {
-        // ИЗМЕНЕНО по файлу технолога (базовый 900×820×900, H_корп = 720):
-        // Боковины (H-18)×510 — 2 шт
-        // Дно (W-50)×(D-50) — 1 шт (единый прямоугольник)
-        // Стенка задняя (W-68)×(H-18) — 1 шт (ДСП)
-        // Царга (W-86)×80 — 2 шт
-        // Царга угловая 322×80 — 1 шт
-        // Дверь 320×(H-4) — 2 шт
         parts.push([2, 0.510, h - 0.018, 'Боковина']);
         parts.push([1, w - 0.050, d - 0.050, 'Дно (Г-обр.)']);
         parts.push([1, w - 0.068, h - 0.018, 'Стенка задняя (ДСП)']);
@@ -727,15 +1162,9 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         parts.push([1, 0.322, 0.080, 'Царга угловая']);
         facades.push([0.320, h - 0.004, 'Фасад B']);
         facades.push([0.320, h - 0.004, 'Фасад A']);
-        legs = 5;
-        hinges = 4;
-        handles = 1;
-        exactConfirmats = 14;
-        shkants = 2;
-        // dvpArea остаётся 0 — задняя стенка из ДСП
+        legs = 5; hinges = 4; handles = 1; exactConfirmats = 14; shkants = 2;
     }
     else if (type === 'corner_top_90') {
-        const isBase = false;
         const aM = depthMm / 1000, bM = widthMm / 1000;
         parts.push([2, bM, d, 'Боковина (B)']);
         parts.push([1, aM, d, 'Боковина (A)']);
@@ -746,8 +1175,7 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         hangers += 2;
         facades.push([Math.max(0.05, (bM - aM) - gap), h - gap, 'Фасад B']);
         facades.push([Math.max(0.05, aM - gap), h - gap, 'Фасад A']);
-        hinges += getHingesForDoor(heightMm) * 2;
-        handles += 2;
+        hinges += getHingesForDoor(heightMm) * 2; handles += 2;
     }
     else if (type === 'corner_base_45' || type === 'corner_top_45') {
         const isBase = type === 'corner_base_45';
@@ -847,11 +1275,8 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
             slides += 1; handles += 1; cutOven = 1;
         }
     }
-    // ===== ВЕРХНИЕ =====
     else if (type.startsWith('top_')) {
-        // ИЗМЕНЕНО: 3 модуля из файла технолога
         if (type === 'top_lift_2') {
-            // 2 подъёмника: 800×720×300
             parts.push([2, d, h, 'Боковина']);
             parts.push([1, d, w - 0.036, 'Дно']);
             parts.push([1, d - 0.015, w - 0.036, 'Крышка']);
@@ -859,30 +1284,20 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
             facades.push([w - 0.003, (h - 0.006) / 2, 'Фасад верхний']);
             facades.push([w - 0.003, (h - 0.006) / 2, 'Фасад нижний']);
             dvpArea = (w - 0.028) * (h - 0.016);
-            lifts = 4;
-            hinges = 4;
-            handles = 2;
-            hangers = 1;
-            exactConfirmats = 12;
-            glueDotsKg = 0.008;
+            lifts = 4; hinges = 4; handles = 2; hangers = 1;
+            exactConfirmats = 12; glueDotsKg = 0.008;
         }
         else if (type === 'top_p1_1d') {
-            // 1 полка 1 дверь: 400×720×300
             parts.push([2, d, h, 'Боковина']);
             parts.push([1, d, w - 0.036, 'Дно']);
             parts.push([1, d - 0.015, w - 0.036, 'Крышка']);
             parts.push([1, d - 0.015, w - 0.038, 'Полка съёмная']);
             facades.push([w - 0.003, h - 0.003, 'Фасад']);
             dvpArea = (w - 0.028) * (h - 0.016);
-            hinges = 2;
-            handles = 1;
-            hangers = 1;
-            shelfPins = 4;
-            exactConfirmats = 8;
-            glueDotsKg = 0.008;
+            hinges = 2; handles = 1; hangers = 1; shelfPins = 4;
+            exactConfirmats = 8; glueDotsKg = 0.008;
         }
         else if (type === 'top_p1_2d') {
-            // 1 полка 2 двери: 800×720×300
             parts.push([2, d, h, 'Боковина']);
             parts.push([1, d, w - 0.036, 'Дно']);
             parts.push([1, d - 0.015, w - 0.036, 'Крышка']);
@@ -890,17 +1305,11 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
             facades.push([(w - 0.006) / 2, h - 0.003, 'Фасад L']);
             facades.push([(w - 0.006) / 2, h - 0.003, 'Фасад R']);
             dvpArea = (w - 0.028) * (h - 0.016);
-            hinges = 4;
-            handles = 2;
-            hangers = 1;
-            shelfPins = 4;
-            exactConfirmats = 8;
-            glueDotsKg = 0.008;
+            hinges = 4; handles = 2; hangers = 1; shelfPins = 4;
+            exactConfirmats = 8; glueDotsKg = 0.008;
         }
-        // Остальные верхние — стандартная логика
         else {
-            dvpArea = w * h;
-            grooveLength = 2 * (w + h);
+            dvpArea = w * h; grooveLength = 2 * (w + h);
             parts.push([2, h, d, 'Боковина']);
             parts.push([2, w - dspT, d, 'Дно / верх']);
             hangers += 1;
@@ -923,11 +1332,8 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         }
     }
 
-    // Конфирматы: явное значение приоритетнее «2 × деталей»
     let confirmats = exactConfirmats !== null ? exactConfirmats : 0;
-    if (exactConfirmats === null) {
-        parts.forEach(p => { confirmats += 2 * p[0]; });
-    }
+    if (exactConfirmats === null) parts.forEach(p => { confirmats += 2 * p[0]; });
 
     let dspArea = 0, edgeBody = 0, edgeFacade = 0, partCount = 0;
     parts.forEach(p => { dspArea += p[0] * (p[1] * p[2]); edgeBody += p[0] * edgeOf(p[1], p[2]); partCount += p[0]; });
@@ -941,8 +1347,7 @@ function getModuleCalculations(type, widthMm, heightMm, depthMm) {
         edge: edgeBody + edgeFacade, edgeBody, edgeFacade,
         facade: facadeArea, partCount,
         hinges, slides, cargo, sush, sink, legs, lifts, hangers, handles, confirmats,
-        cutOven, cutSink,
-        shelfPins, shkants, glueDotsKg,  // НОВЫЕ поля
+        cutOven, cutSink, shelfPins, shkants, glueDotsKg,
         isBottom, isCorner, parts, facades
     };
 }
@@ -963,21 +1368,23 @@ function addModule() {
     } else {
         projectModules.push({ id, run, type, name, width: w, height: h, depth: d });
     }
-    renderModulesTable(); calculateProject();
+    renderModulesTable(); calculateProject(); scheduleAutoSave();
 }
 
-function removeModule(id) { projectModules = projectModules.filter(m => m.id !== id); renderModulesTable(); calculateProject(); }
+function removeModule(id) {
+    projectModules = projectModules.filter(m => m.id !== id);
+    renderModulesTable(); calculateProject(); scheduleAutoSave();
+}
 
 function updateCornerType(id, newType) {
     const m = projectModules.find(x => x.id === id); if (!m) return;
     m.type = newType; m.name = CORNER_NAMES[newType] || m.name;
-    // ИЗМЕНЕНО: 90° → D=900
     if (newType === 'corner_base_90') { m.width = 900; m.depth = 900; }
     else if (newType === 'corner_base_45') { m.width = 900; m.depth = 530; }
     else if (newType === 'corner_base_v1050') { m.width = 1050; m.depth = 530; }
     else if (newType === 'corner_top_90' || newType === 'corner_top_45') { m.width = 600; m.depth = 320; }
     else if (newType === 'corner_top_v700') { m.width = 700; m.depth = 320; }
-    renderModulesTable(); calculateProject();
+    renderModulesTable(); calculateProject(); scheduleAutoSave();
 }
 
 function renderModulesTable() {
@@ -1031,7 +1438,7 @@ function renderHardware(force = false) {
         tog.onclick = () => {
             state.split = !state.split;
             if (!state.split) state.rows = [{ selectIdx: '', customName: '', qtyManual: '', price: '' }];
-            renderHardware(true); calculateProject();
+            renderHardware(true); calculateProject(); scheduleAutoSave();
         };
         head.appendChild(tog); row.appendChild(head);
 
@@ -1039,9 +1446,8 @@ function renderHardware(force = false) {
             if (force) {
                 const pi = document.createElement('input'); pi.type = 'number'; pi.className = 'hardware-price-input'; pi.placeholder = 'цена'; pi.id = 'hwprice-' + cat.id;
                 pi.value = state.rows[0].price || '';
-                pi.oninput = () => { state.rows[0].price = pi.value; calculateProject(); };
+                pi.oninput = () => { state.rows[0].price = pi.value; calculateProject(); scheduleAutoSave(); };
                 row.appendChild(pi);
-                // ИЗМЕНЕНО: селект только если есть источник в прайсе
                 if (cat.source) {
                     const sel = document.createElement('select'); sel.className = 'hardware-select'; sel.id = 'hwsel-' + cat.id;
                     sel.innerHTML = '<option value="">— из прайса —</option>' + (DATA_STORE[cat.source] || []).map((it, idx) => `<option value="${idx}" ${state.rows[0].selectIdx == idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
@@ -1049,7 +1455,7 @@ function renderHardware(force = false) {
                         state.rows[0].selectIdx = sel.value;
                         const items = DATA_STORE[cat.source] || [];
                         if (sel.value !== '' && items[sel.value]) { state.rows[0].price = items[sel.value].price; pi.value = items[sel.value].price; }
-                        calculateProject();
+                        calculateProject(); scheduleAutoSave();
                     };
                     row.appendChild(sel);
                 }
@@ -1058,7 +1464,6 @@ function renderHardware(force = false) {
             const block = document.createElement('div'); block.className = 'split-block'; block.id = 'hwsplit-' + cat.id;
             state.rows.forEach((r, ri) => {
                 const srow = document.createElement('div'); srow.className = 'split-row';
-                // ИЗМЕНЕНО: селект только если есть прайс
                 if (cat.source) {
                     const sel = document.createElement('select'); sel.className = 'split-select'; sel.id = `hwsplit-sel-${cat.id}-${ri}`;
                     sel.innerHTML = '<option value="">— своя —</option>' + (DATA_STORE[cat.source] || []).map((it, idx) => `<option value="${idx}" ${r.selectIdx !== '' && Number(r.selectIdx) === idx ? 'selected' : ''}>${escapeHtml(it.name)} (${it.price})</option>`).join('');
@@ -1067,19 +1472,19 @@ function renderHardware(force = false) {
                         const items2 = DATA_STORE[cat.source] || [];
                         if (sel.value !== '' && items2[sel.value]) r.price = items2[sel.value].price;
                         const pi = document.getElementById(`hwsplit-price-${cat.id}-${ri}`); if (pi) pi.value = r.price;
-                        calculateProject();
+                        calculateProject(); scheduleAutoSave();
                     };
                     srow.appendChild(sel);
                 }
                 const ni = document.createElement('input'); ni.type = 'text'; ni.placeholder = 'название'; ni.style.cssText = 'flex:2; min-width:120px;';
-                ni.value = r.customName; ni.id = `hwsplit-name-${cat.id}-${ri}`; ni.oninput = () => { r.customName = ni.value; }; srow.appendChild(ni);
+                ni.value = r.customName; ni.id = `hwsplit-name-${cat.id}-${ri}`; ni.oninput = () => { r.customName = ni.value; scheduleAutoSave(); }; srow.appendChild(ni);
                 const rs = document.createElement('span'); rs.className = 'split-rec'; rs.id = `hwsplit-rec-${cat.id}-${ri}`; rs.textContent = 'реком. —'; srow.appendChild(rs);
                 const qi = document.createElement('input'); qi.type = 'number'; qi.className = 'split-qty'; qi.placeholder = 'кол-во'; qi.min = 0; qi.value = r.qtyManual; qi.id = `hwsplit-qty-${cat.id}-${ri}`;
-                qi.oninput = () => { r.qtyManual = qi.value; calculateProject(); }; srow.appendChild(qi);
+                qi.oninput = () => { r.qtyManual = qi.value; calculateProject(); scheduleAutoSave(); }; srow.appendChild(qi);
                 const pi = document.createElement('input'); pi.type = 'number'; pi.className = 'split-price'; pi.placeholder = 'цена'; pi.value = r.price; pi.id = `hwsplit-price-${cat.id}-${ri}`;
-                pi.oninput = () => { r.price = pi.value; calculateProject(); }; srow.appendChild(pi);
+                pi.oninput = () => { r.price = pi.value; calculateProject(); scheduleAutoSave(); }; srow.appendChild(pi);
                 const del = document.createElement('button'); del.type = 'button'; del.className = 'btn btn-danger btn-mini'; del.textContent = '✕';
-                del.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); calculateProject(); };
+                del.onclick = () => { state.rows.splice(ri, 1); if (state.rows.length === 0) state.rows.push({ selectIdx: '', customName: '', qtyManual: '', price: '' }); renderHardware(true); calculateProject(); scheduleAutoSave(); };
                 srow.appendChild(del); block.appendChild(srow);
             });
             const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.className = 'btn btn-secondary btn-mini'; addBtn.textContent = '+ строка';
@@ -1098,11 +1503,10 @@ function renderHardware(force = false) {
     glueRow.innerHTML = '<span class="hardware-label">Поклейка кромки (из прайса)</span>';
     const glueSel = document.createElement('select'); glueSel.className = 'hardware-select'; glueSel.id = 'edgeGlueSelect'; glueSel.onchange = onEdgeGlueSelectChange;
     const gluePrice = document.createElement('input'); gluePrice.type = 'number'; gluePrice.className = 'hardware-price-input'; gluePrice.id = 'edgeGluePrice'; gluePrice.value = 0;
-    gluePrice.oninput = () => calculateProject();
+    gluePrice.oninput = () => { calculateProject(); scheduleAutoSave(); };
     glueRow.appendChild(glueSel); glueRow.appendChild(gluePrice); extra.appendChild(glueRow);
     updateEdgeGlueSelect();
 
-    // НОВЫЕ поля: glueDotsPrice, shkantPrice
     const fields = [
         { l: 'Цена конфирматов (руб/шт)', id: 'confirmatPrice', d: 1.5 },
         { l: 'Цена шурупов (руб/шт)', id: 'screwPrice', d: 0.5 },
@@ -1120,13 +1524,14 @@ function renderHardware(force = false) {
         { l: 'Добавка кромки на сторону (мм)', id: 'edgeAllowanceMm', d: 60 },
         { l: 'Распил: пог. м на 1 м² плит', id: 'sawPerM2', d: 7 },
         { l: 'Доп. метизы / расходники (руб)', id: 'hardwareCost', d: 1000 },
-        { l: 'Наценка (%)', id: 'marginPercent', d: 30 }
+        { l: 'Наценка (%)', id: 'marginPercent', d: 30 },
+        { l: 'Скидка клиента (%)', id: 'discountPercent', d: 0 }
     ];
     fields.forEach(f => {
         const r = document.createElement('div'); r.className = 'hardware-row';
         r.innerHTML = `<span class="hardware-label">${f.l}</span>`;
         const inp = document.createElement('input'); inp.type = 'number'; inp.className = 'hardware-price-input'; inp.id = f.id; inp.value = f.d;
-        inp.oninput = () => calculateProject();
+        inp.oninput = () => { calculateProject(); scheduleAutoSave(); };
         r.appendChild(inp); extra.appendChild(r);
     });
     const srvBox = document.createElement('div'); srvBox.className = 'services-summary'; srvBox.id = 'servicesSummary'; extra.appendChild(srvBox);
@@ -1154,7 +1559,7 @@ function updateHardwareLabels() {
 
 function updateSplitSelects() {
     HW_CATEGORIES.forEach(cat => {
-        if (!cat.source) return; // НОВОЕ: пропускаем категории без прайса
+        if (!cat.source) return;
         const state = HW_STATE[cat.id];
         if (!state.split) {
             const sel = document.getElementById('hwsel-' + cat.id);
@@ -1203,7 +1608,6 @@ function calculateProject() {
     let totalHinges = 0, totalSlides = 0, totalCargo = 0, totalSush = 0, totalSink = 0;
     let totalLegs = 0, totalLifts = 0, totalHangers = 0, totalHandles = 0, totalConfirmats = 0;
     let totalMountRailMeters = 0, totalCutOven = 0, totalCutSink = 0;
-    // НОВЫЕ накопители:
     let totalShelfPins = 0, totalShkants = 0, totalGlueDotsKg = 0;
 
     const runLength = { A: 0, B: 0, C: 0 };
@@ -1222,7 +1626,6 @@ function calculateProject() {
         totalLifts += calc.lifts; totalHangers += calc.hangers; totalHandles += calc.handles;
         totalConfirmats += (calc.confirmats || 0);
         totalCutOven += calc.cutOven; totalCutSink += calc.cutSink;
-        // НОВОЕ:
         totalShelfPins += (calc.shelfPins || 0);
         totalShkants += (calc.shkants || 0);
         totalGlueDotsKg += (calc.glueDotsKg || 0);
@@ -1251,12 +1654,11 @@ function calculateProject() {
     const grooveUnitPrice = safeNum(document.getElementById('groovePrice')) || 30;
     const grooveCost = totalGrooveLength > 0 && totalGrooveLength <= 1.0 ? grooveUnitPrice : totalGrooveLength * grooveUnitPrice;
 
-    // Рекомендуемые количества
     lastRecommended = {
         hinges: totalHinges, slides: totalSlides, cargo: totalCargo, sush: totalSush,
         sink: totalSink, legs: totalLegs, lifts: totalLifts, handles: totalHandles,
         hangers: totalHangers, mountRail: mountRailPcs,
-        shelfPins: totalShelfPins  // НОВОЕ
+        shelfPins: totalShelfPins
     };
     updateHardwareLabels();
 
@@ -1272,7 +1674,6 @@ function calculateProject() {
     document.getElementById('totalTopLength').innerText = Math.max(0, totalTopLength).toFixed(2) + " пог.м";
     document.getElementById('runsLengthDisplay').innerText = `${(runLength.A/1000).toFixed(2)}/${(runLength.B/1000).toFixed(2)}/${(runLength.C/1000).toFixed(2)}`;
 
-    // Цены
     const bB = safeNum(document.getElementById('bottomBodySelect'));
     const tB = safeNum(document.getElementById('topBodySelect'));
     const bF = safeNum(document.getElementById('bottomFacadeSelect'));
@@ -1292,6 +1693,7 @@ function calculateProject() {
     const glueP = safeNum(document.getElementById('edgeGluePrice'));
     const extraC = safeNum(document.getElementById('hardwareCost'));
     const margin = safeNum(document.getElementById('marginPercent'));
+    const discount = safeNum(document.getElementById('discountPercent'));
 
     const dspCost = ((bottomDspArea * bB) + (topDspArea * tB)) * wasteK;
     const facadeCost = ((bottomFacadeArea * bF) + (topFacadeArea * tF)) * wasteK;
@@ -1314,7 +1716,7 @@ function calculateProject() {
     const handlesCost = hwTotals.handles.sum;
     const hangersCost = hwTotals.hangers.sum;
     const mountRailCost = hwTotals.mountRail.sum;
-    const shelfPinsCost = hwTotals.shelfPins.sum;  // НОВОЕ
+    const shelfPinsCost = hwTotals.shelfPins.sum;
 
     const aH = hwTotals.hinges.qty, aSl = hwTotals.slides.qty, aC = hwTotals.cargo.qty, aL = hwTotals.legs.qty, aLf = hwTotals.lifts.qty, aHg = hwTotals.hangers.qty;
     const totalScrews = 4 * (aH + aSl + aLf + aC + aL + aHg);
@@ -1327,7 +1729,6 @@ function calculateProject() {
     const triCost = totalTripanHoles * triP;
     const cutOCost = totalCutOven * cutOP;
     const cutSCost = totalCutSink * cutSP;
-    // НОВОЕ:
     const glueDotsCost = totalGlueDotsKg * glueDotsP;
     const shkantCost = totalShkants * shkantP;
 
@@ -1336,7 +1737,8 @@ function calculateProject() {
         handlesCost + hangersCost + mountRailCost + shelfPinsCost +
         confCost + scrCost + dowCost + d35Cost + triCost + cutOCost + cutSCost + glueDotsCost + shkantCost + extraC;
     const safeNet = isFinite(net) ? net : 0;
-    const final = safeNet * (1 + margin / 100);
+    const beforeDiscount = safeNet * (1 + margin / 100);
+    const final = beforeDiscount * (1 - discount / 100);
     const safeFinal = isFinite(final) ? final : 0;
     document.getElementById('totalPriceDisplay').innerText = Math.round(safeFinal).toLocaleString('ru-RU') + " ₽";
 
@@ -1412,9 +1814,11 @@ function calculateProject() {
 
     lastCalc = {
         date: new Date(), layout: currentLayout(),
-        net: safeNet, margin, final: safeFinal,
+        net: safeNet, margin, discount, beforeDiscount,
+        final: safeFinal,
         specMat, specHw, specWorks,
         runs: { A: runLength.A / 1000, B: runLength.B / 1000, C: runLength.C / 1000, topTotal: Math.max(0, totalTopLength) },
+        client: collectClientData(),
         modules: projectModules.map((m, i) => {
             const c = getModuleCalculations(m.type, m.width, m.height, m.depth);
             return { num: i + 1, run: m.run, name: m.name, w: m.width, h: m.height, d: m.depth, dsp: c.dsp, facade: c.facade, dvp: c.dvp, isCorner: c.isCorner };
@@ -1423,6 +1827,7 @@ function calculateProject() {
 
     scheduleSketch();
     if (threeRenderer) rebuildThree();
+    scheduleAutoSave();
 }
 
 function updateServicesSummary() {
@@ -1580,7 +1985,7 @@ function initSketchDrag() {
         if (sketchDragId === null) return;
         sketchDragId = null; sketchDragRun = null;
         canvas.style.cursor = 'default';
-        renderModulesTable(); drawKitchen2D();
+        renderModulesTable(); drawKitchen2D(); scheduleAutoSave();
     });
     canvas.addEventListener('pointercancel', () => {
         if (sketchDragId === null) return;
@@ -1601,7 +2006,7 @@ function moveModule(id, dir) {
     if (newIdx >= otherIds.length) insertAt = projectModules.findIndex(m => m.id === otherIds[otherIds.length - 1]) + 1;
     else insertAt = projectModules.findIndex(m => m.id === otherIds[Math.max(0, newIdx)]);
     projectModules.splice(insertAt, 0, modCopy);
-    renderModulesTable(); calculateProject();
+    renderModulesTable(); calculateProject(); scheduleAutoSave();
 }
 
 // =================================================================
@@ -1890,20 +2295,55 @@ function addHelpList(card, label, items) {
 // ЭКСПОРТ / ИМПОРТ
 // =================================================================
 function exportProject() {
-    const data = { version: 16, layout: currentLayout(), modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })), hiddenCorners: hiddenCornerModules.map(m => ({ ...m })), prices: collectPrices(), hardware: JSON.parse(JSON.stringify(HW_STATE)) };
+    const data = {
+        version: 17, layout: currentLayout(),
+        modules: projectModules.map(m => ({ type: m.type, name: m.name, width: m.width, height: m.height, depth: m.depth, run: m.run || 'A' })),
+        hiddenCorners: hiddenCornerModules.map(m => ({ ...m })),
+        prices: collectPrices(),
+        hardware: JSON.parse(JSON.stringify(HW_STATE)),
+        client: collectClientData(),
+        discount: safeNum(document.getElementById('discountPercent'))
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `kitchen-${new Date().toISOString().slice(0,10)}.json`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-const PRICE_FIELDS = ['confirmatPrice','screwPrice','dowelPrice','glueDotsPrice','shkantPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent'];
+
+const PRICE_FIELDS = ['confirmatPrice','screwPrice','dowelPrice','glueDotsPrice','shkantPrice','hingeD35Price','tripanPrice','cutOvenPrice','cutSinkPrice','dvpPrice','groovePrice','edgeGluePrice','sawingPrice','wastePercent','edgeAllowanceMm','sawPerM2','hardwareCost','marginPercent','discountPercent'];
 const MATERIAL_FIELDS = ['bottomBodySelect','bottomBodyEdgeSelect','bottomFacadeSelect','topBodySelect','topBodyEdgeSelect','topFacadeSelect','topMaterialSelect','dvpSelect','defaultFacadeType'];
+
 function collectPrices() {
     const out = {};
     PRICE_FIELDS.forEach(id => { const e = document.getElementById(id); if (e) out[id] = e.value; });
-    MATERIAL_FIELDS.forEach(id => { const e = document.getElementById(id); if (!e) return; if (e.tagName === 'SELECT') { const o = e.options[e.selectedIndex]; out[id] = o ? { value: e.value, name: o.dataset ? (o.dataset.name || o.textContent) : o.textContent } : null; } else out[id] = e.value; });
+    MATERIAL_FIELDS.forEach(id => {
+        const e = document.getElementById(id); if (!e) return;
+        if (e.tagName === 'SELECT') {
+            const o = e.options[e.selectedIndex];
+            out[id] = o ? { value: e.value, name: o.dataset ? (o.dataset.name || o.textContent) : o.textContent } : null;
+        } else out[id] = e.value;
+    });
     return out;
 }
+
+// Восстановление цен и материалов (с pendingName — для загрузки проекта до готовности прайсов)
+function restorePrices(prices) {
+    PRICE_FIELDS.forEach(id => {
+        if (prices[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = prices[id];
+    });
+    MATERIAL_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || prices[id] === undefined) return;
+        const p = prices[id];
+        if (el.tagName === 'SELECT' && p && typeof p === 'object') {
+            // Если прайс ещё не загружен — сохраняем имя в dataset, восстановится в fillSelect
+            el.dataset.pendingName = p.name || '';
+        } else if (el.tagName !== 'SELECT') {
+            el.value = p;
+        }
+    });
+}
+
 function importProject(input) {
     const file = input.files && input.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -1911,23 +2351,34 @@ function importProject(input) {
         try {
             const data = JSON.parse(reader.result);
             if (data.layout) { document.getElementById('layoutSelect').value = data.layout; updateLayoutHint(); }
-            projectModules = (data.modules || []).map(m => ({ id: crypto.randomUUID ? crypto.randomUUID() : 'm-'+Date.now()+Math.random().toString(36).slice(2), run: m.run || 'A', type: m.type, name: m.name || m.type, width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530 }));
+            projectModules = (data.modules || []).map(m => ({
+                id: crypto.randomUUID ? crypto.randomUUID() : 'm-'+Date.now()+Math.random().toString(36).slice(2),
+                run: m.run || 'A', type: m.type, name: m.name || m.type,
+                width: +m.width || 600, height: +m.height || 720, depth: +m.depth || 530
+            }));
             hiddenCornerModules = (data.hiddenCorners || []).map(m => ({ ...m, id: crypto.randomUUID ? crypto.randomUUID() : 'h-'+Date.now() }));
-            if (data.prices) { PRICE_FIELDS.forEach(id => { if (data.prices[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = data.prices[id]; }); }
+            if (data.prices) restorePrices(data.prices);
             if (data.hardware) Object.keys(data.hardware).forEach(k => { if (HW_STATE[k]) HW_STATE[k] = data.hardware[k]; });
+            if (data.client) restoreClientData(data.client);
+            const dp = document.getElementById('discountPercent');
+            if (dp) dp.value = (typeof data.discount === 'number') ? data.discount : 0;
             hardwareRendered = false;
             renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
+            scheduleAutoSave();
         } catch (e) { alert('Ошибка: ' + e.message); }
         finally { input.value = ''; }
     };
     reader.readAsText(file);
 }
+
 function resetProject() {
-    if (!confirm('Сбросить?')) return;
+    if (!confirm('Сбросить проект?')) return;
     projectModules = []; hiddenCornerModules = [];
     HW_CATEGORIES.forEach(c => { HW_STATE[c.id] = { split: false, rows: [{ selectIdx: '', customName: '', qtyManual: '', price: '' }] }; });
     hardwareRendered = false;
+    restoreClientData({});
     renderModulesTable(); renderHardware(true); calculateProject(); drawKitchen2D(); forceRebuildThree();
+    scheduleAutoSave();
 }
 
 // =================================================================
@@ -1936,6 +2387,7 @@ function resetProject() {
 function openPrintForm() {
     if (!lastCalc) calculateProject();
     const c = lastCalc;
+    const client = c.client || {};
     const w = window.open('', '_blank'); if (!w) { alert('Разрешите всплывающие окна.'); return; }
     const fmt = (n, d = 2) => isFinite(n) ? n.toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
     const money = n => Math.round(n).toLocaleString('ru-RU') + ' ₽';
@@ -1947,23 +2399,69 @@ function openPrintForm() {
     };
     const modRows = c.modules.map(m => `<tr><td>№${m.num}</td><td>${escapeHtml(m.run)}</td><td>${escapeHtml(m.name)}</td><td>${m.w}×${m.h}×${m.d}</td><td class="num">${m.dsp.toFixed(2)}</td><td class="num">${m.facade.toFixed(2)}</td><td class="num">${m.dvp.toFixed(2)}</td></tr>`).join('');
     const runsText = ['A','B','C'].filter(r => c.runs[r] > 0).map(r => `Ряд ${r}: ${c.runs[r].toFixed(2)} м`).join(' · ');
-    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>КП — ${layoutNames[c.layout] || ''} кухня</title>
-        <style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;}h1{font-size:18px;}h3{font-size:14px;margin:14px 0 4px;}table{width:100%;border-collapse:collapse;margin:6px 0;}th,td{border:1px solid #999;padding:4px 6px;text-align:left;}th{background:#eee;}.num{text-align:right;}.grand{font-weight:bold;font-size:14px;}.totals td{border:none;padding:2px 4px;}@media print{.no-print{display:none;}}</style>
+    const discountSum = c.beforeDiscount - c.final;
+    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>КП №${escapeHtml(client.kpNumber || '')}</title>
+        <style>
+            body { font-family: Arial, sans-serif; font-size: 12px; padding: 20px; color: #1e293b; }
+            h1 { font-size: 18px; margin: 0 0 4px; color: #5c1724; }
+            h3 { font-size: 14px; margin: 14px 0 4px; }
+            .client-block { display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; }
+            .client-block div { font-size: 12px; }
+            .client-block strong { color: #5c1724; }
+            table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+            th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
+            th { background: #eee; }
+            .num { text-align: right; white-space: nowrap; }
+            .grand { font-weight: bold; font-size: 14px; }
+            .totals td { border: none; padding: 2px 4px; }
+            .conditions { margin-top: 14px; padding: 10px 12px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; font-size: 11px; }
+            .conditions div { margin: 3px 0; }
+            .conditions strong { color: #0c4a6e; }
+            .notes { margin-top: 10px; padding: 10px 12px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; font-size: 11px; }
+            @media print { body { padding: 0; } .no-print { display: none; } }
+        </style>
         </head><body>
-        <h1>КП — ${layoutNames[c.layout] || ''} кухня</h1>
-        <div>Дата: ${c.date.toLocaleString('ru-RU')} · ${runsText} · Столешница: ${c.runs.topTotal.toFixed(2)} м</div>
-        <h3>Состав</h3>
-        <table><thead><tr><th>№</th><th>Ряд</th><th>Модуль</th><th>Габариты</th><th class="num">ДСП</th><th class="num">Фасад</th><th class="num">ДВП</th></tr></thead><tbody>${modRows || '<tr><td colspan="7">— модули не добавлены —</td></tr>'}</tbody></table>
+        <h1>Коммерческое предложение ${client.kpNumber ? '№' + escapeHtml(client.kpNumber) : ''} ${client.kpDate ? 'от ' + escapeHtml(client.kpDate) : ''}</h1>
+        <div class="client-block">
+            ${client.company ? `<div><strong>Компания:</strong> ${escapeHtml(client.company)}</div>` : ''}
+            ${client.fio ? `<div><strong>Клиент:</strong> ${escapeHtml(client.fio)}</div>` : ''}
+            ${client.phone ? `<div><strong>Телефон:</strong> ${escapeHtml(client.phone)}</div>` : ''}
+            ${client.address ? `<div><strong>Адрес объекта:</strong> ${escapeHtml(client.address)}</div>` : ''}
+        </div>
+        <div style="font-size:11px;color:#555;margin-bottom:8px;">
+            Компоновка: ${layoutNames[c.layout] || ''} · ${runsText} · Столешница: ${c.runs.topTotal.toFixed(2)} м
+        </div>
+        <h3>Состав проекта</h3>
+        <table><thead><tr><th>№</th><th>Ряд</th><th>Модуль</th><th>Габариты</th><th class="num">ДСП, м²</th><th class="num">Фасад, м²</th><th class="num">ДВП, м²</th></tr></thead><tbody>${modRows || '<tr><td colspan="7">— модули не добавлены —</td></tr>'}</tbody></table>
         ${tbl('Материалы', c.specMat)}
         ${tbl('Фурнитура и крепёж', c.specHw)}
         ${tbl('Работы и услуги', c.specWorks)}
-        <table class="totals"><tr><td>Себестоимость:</td><td class="num">${money(c.net)}</td></tr><tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.final - c.net)}</td></tr><tr class="grand"><td>Итого:</td><td class="num">${money(c.final)}</td></tr></table>
-        <div class="no-print" style="margin-top:16px;"><button onclick="window.print()">🖨️ Печать</button> <button onclick="window.close()">Закрыть</button></div>
+        <table class="totals">
+            <tr><td>Себестоимость:</td><td class="num">${money(c.net)}</td></tr>
+            <tr><td>Наценка (${c.margin}%):</td><td class="num">${money(c.beforeDiscount - c.net)}</td></tr>
+            <tr><td>Стоимость до скидки:</td><td class="num">${money(c.beforeDiscount)}</td></tr>
+            ${c.discount > 0 ? `<tr><td>Скидка клиента (${c.discount}%):</td><td class="num">− ${money(discountSum)}</td></tr>` : ''}
+            <tr class="grand"><td>Итого к оплате:</td><td class="num">${money(c.final)}</td></tr>
+        </table>
+        <div class="conditions">
+            ${client.validityDays ? `<div><strong>Срок действия КП:</strong> ${client.validityDays} дней</div>` : ''}
+            ${client.payment ? `<div><strong>Условия оплаты:</strong> ${escapeHtml(client.payment)}</div>` : ''}
+            ${client.productionTime ? `<div><strong>Срок изготовления:</strong> ${escapeHtml(client.productionTime)}</div>` : ''}
+            ${client.warranty ? `<div><strong>Гарантия:</strong> ${escapeHtml(client.warranty)}</div>` : ''}
+        </div>
+        ${client.notes ? `<div class="notes"><strong>Примечания:</strong><br>${escapeHtml(client.notes).replace(/\n/g,'<br>')}</div>` : ''}
+        <div class="no-print" style="margin-top:16px;">
+            <button onclick="window.print()" style="padding:8px 16px;">🖨️ Печать</button>
+            <button onclick="window.close()" style="padding:8px 16px;">Закрыть</button>
+        </div>
         <script>window.onload=function(){setTimeout(function(){window.print();},300);};<\/script>
         </body></html>`;
     w.document.open(); w.document.write(html); w.document.close();
 }
 
+// =================================================================
+// ИНИЦИАЛИЗАЦИЯ
+// =================================================================
 window.addEventListener('DOMContentLoaded', () => {
     updateLayoutHint();
     renderHardware(true);
